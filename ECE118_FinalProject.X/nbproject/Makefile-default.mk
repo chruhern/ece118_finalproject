@@ -57,17 +57,17 @@ OBJECTDIR=build/${CND_CONF}/${IMAGE_TYPE}
 DISTDIR=dist/${CND_CONF}/${IMAGE_TYPE}
 
 # Source Files Quoted if spaced
-SOURCEFILES_QUOTED_IF_SPACED=HelloWorld.c ../ECE118/src/AD.c ../ECE118/src/BOARD.c ../ECE118/src/serial.c ../ECE118/src/IO_Ports.c ../ECE118/src/LED.c ../ECE118/src/pwm.c ../ECE118/src/timers.c
+SOURCEFILES_QUOTED_IF_SPACED=HelloWorld.c ../ECE118/src/AD.c ../ECE118/src/BOARD.c ../ECE118/src/serial.c ../ECE118/src/IO_Ports.c ../ECE118/src/LED.c ../ECE118/src/pwm.c ../ECE118/src/timers.c TapeDetectorHarness.c TrackWireDetectorHarness.c BeaconDetectorHarness.c
 
 # Object Files Quoted if spaced
-OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/HelloWorld.o ${OBJECTDIR}/_ext/1347132459/AD.o ${OBJECTDIR}/_ext/1347132459/BOARD.o ${OBJECTDIR}/_ext/1347132459/serial.o ${OBJECTDIR}/_ext/1347132459/IO_Ports.o ${OBJECTDIR}/_ext/1347132459/LED.o ${OBJECTDIR}/_ext/1347132459/pwm.o ${OBJECTDIR}/_ext/1347132459/timers.o
-POSSIBLE_DEPFILES=${OBJECTDIR}/HelloWorld.o.d ${OBJECTDIR}/_ext/1347132459/AD.o.d ${OBJECTDIR}/_ext/1347132459/BOARD.o.d ${OBJECTDIR}/_ext/1347132459/serial.o.d ${OBJECTDIR}/_ext/1347132459/IO_Ports.o.d ${OBJECTDIR}/_ext/1347132459/LED.o.d ${OBJECTDIR}/_ext/1347132459/pwm.o.d ${OBJECTDIR}/_ext/1347132459/timers.o.d
+OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/HelloWorld.o ${OBJECTDIR}/_ext/1347132459/AD.o ${OBJECTDIR}/_ext/1347132459/BOARD.o ${OBJECTDIR}/_ext/1347132459/serial.o ${OBJECTDIR}/_ext/1347132459/IO_Ports.o ${OBJECTDIR}/_ext/1347132459/LED.o ${OBJECTDIR}/_ext/1347132459/pwm.o ${OBJECTDIR}/_ext/1347132459/timers.o ${OBJECTDIR}/TapeDetectorHarness.o ${OBJECTDIR}/TrackWireDetectorHarness.o ${OBJECTDIR}/BeaconDetectorHarness.o
+POSSIBLE_DEPFILES=${OBJECTDIR}/HelloWorld.o.d ${OBJECTDIR}/_ext/1347132459/AD.o.d ${OBJECTDIR}/_ext/1347132459/BOARD.o.d ${OBJECTDIR}/_ext/1347132459/serial.o.d ${OBJECTDIR}/_ext/1347132459/IO_Ports.o.d ${OBJECTDIR}/_ext/1347132459/LED.o.d ${OBJECTDIR}/_ext/1347132459/pwm.o.d ${OBJECTDIR}/_ext/1347132459/timers.o.d ${OBJECTDIR}/TapeDetectorHarness.o.d ${OBJECTDIR}/TrackWireDetectorHarness.o.d ${OBJECTDIR}/BeaconDetectorHarness.o.d
 
 # Object Files
-OBJECTFILES=${OBJECTDIR}/HelloWorld.o ${OBJECTDIR}/_ext/1347132459/AD.o ${OBJECTDIR}/_ext/1347132459/BOARD.o ${OBJECTDIR}/_ext/1347132459/serial.o ${OBJECTDIR}/_ext/1347132459/IO_Ports.o ${OBJECTDIR}/_ext/1347132459/LED.o ${OBJECTDIR}/_ext/1347132459/pwm.o ${OBJECTDIR}/_ext/1347132459/timers.o
+OBJECTFILES=${OBJECTDIR}/HelloWorld.o ${OBJECTDIR}/_ext/1347132459/AD.o ${OBJECTDIR}/_ext/1347132459/BOARD.o ${OBJECTDIR}/_ext/1347132459/serial.o ${OBJECTDIR}/_ext/1347132459/IO_Ports.o ${OBJECTDIR}/_ext/1347132459/LED.o ${OBJECTDIR}/_ext/1347132459/pwm.o ${OBJECTDIR}/_ext/1347132459/timers.o ${OBJECTDIR}/TapeDetectorHarness.o ${OBJECTDIR}/TrackWireDetectorHarness.o ${OBJECTDIR}/BeaconDetectorHarness.o
 
 # Source Files
-SOURCEFILES=HelloWorld.c ../ECE118/src/AD.c ../ECE118/src/BOARD.c ../ECE118/src/serial.c ../ECE118/src/IO_Ports.c ../ECE118/src/LED.c ../ECE118/src/pwm.c ../ECE118/src/timers.c
+SOURCEFILES=HelloWorld.c ../ECE118/src/AD.c ../ECE118/src/BOARD.c ../ECE118/src/serial.c ../ECE118/src/IO_Ports.c ../ECE118/src/LED.c ../ECE118/src/pwm.c ../ECE118/src/timers.c TapeDetectorHarness.c TrackWireDetectorHarness.c BeaconDetectorHarness.c
 
 
 
@@ -155,6 +155,24 @@ ${OBJECTDIR}/_ext/1347132459/timers.o: ../ECE118/src/timers.c  .generated_files/
 	@${RM} ${OBJECTDIR}/_ext/1347132459/timers.o 
 	${MP_CC}  $(MP_EXTRA_CC_PRE) -g -D__DEBUG   -fframe-base-loclist  -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -fno-common -I"." -I"../ECE118/include" -MP -MMD -MF "${OBJECTDIR}/_ext/1347132459/timers.o.d" -o ${OBJECTDIR}/_ext/1347132459/timers.o ../ECE118/src/timers.c    -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -mdfp="${DFP_DIR}"  
 	
+${OBJECTDIR}/TapeDetectorHarness.o: TapeDetectorHarness.c  .generated_files/flags/default/a143877cb51c571462fef9fa73dd9a3494d27848 .generated_files/flags/default/a8d72842549110e9d8f1974f4230d40db2209aef
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/TapeDetectorHarness.o.d 
+	@${RM} ${OBJECTDIR}/TapeDetectorHarness.o 
+	${MP_CC}  $(MP_EXTRA_CC_PRE) -g -D__DEBUG   -fframe-base-loclist  -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -fno-common -I"." -I"../ECE118/include" -MP -MMD -MF "${OBJECTDIR}/TapeDetectorHarness.o.d" -o ${OBJECTDIR}/TapeDetectorHarness.o TapeDetectorHarness.c    -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -mdfp="${DFP_DIR}"  
+	
+${OBJECTDIR}/TrackWireDetectorHarness.o: TrackWireDetectorHarness.c  .generated_files/flags/default/58d72fc061a6a81a08102a777d2a6462baea51d .generated_files/flags/default/a8d72842549110e9d8f1974f4230d40db2209aef
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/TrackWireDetectorHarness.o.d 
+	@${RM} ${OBJECTDIR}/TrackWireDetectorHarness.o 
+	${MP_CC}  $(MP_EXTRA_CC_PRE) -g -D__DEBUG   -fframe-base-loclist  -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -fno-common -I"." -I"../ECE118/include" -MP -MMD -MF "${OBJECTDIR}/TrackWireDetectorHarness.o.d" -o ${OBJECTDIR}/TrackWireDetectorHarness.o TrackWireDetectorHarness.c    -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -mdfp="${DFP_DIR}"  
+	
+${OBJECTDIR}/BeaconDetectorHarness.o: BeaconDetectorHarness.c  .generated_files/flags/default/a66d2d7b40ef4ea62eaf13f28424bb4a8d0adcae .generated_files/flags/default/a8d72842549110e9d8f1974f4230d40db2209aef
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/BeaconDetectorHarness.o.d 
+	@${RM} ${OBJECTDIR}/BeaconDetectorHarness.o 
+	${MP_CC}  $(MP_EXTRA_CC_PRE) -g -D__DEBUG   -fframe-base-loclist  -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -fno-common -I"." -I"../ECE118/include" -MP -MMD -MF "${OBJECTDIR}/BeaconDetectorHarness.o.d" -o ${OBJECTDIR}/BeaconDetectorHarness.o BeaconDetectorHarness.c    -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -mdfp="${DFP_DIR}"  
+	
 else
 ${OBJECTDIR}/HelloWorld.o: HelloWorld.c  .generated_files/flags/default/74a2ae44916976ef572f052f62f852c5d6d2f484 .generated_files/flags/default/a8d72842549110e9d8f1974f4230d40db2209aef
 	@${MKDIR} "${OBJECTDIR}" 
@@ -203,6 +221,24 @@ ${OBJECTDIR}/_ext/1347132459/timers.o: ../ECE118/src/timers.c  .generated_files/
 	@${RM} ${OBJECTDIR}/_ext/1347132459/timers.o.d 
 	@${RM} ${OBJECTDIR}/_ext/1347132459/timers.o 
 	${MP_CC}  $(MP_EXTRA_CC_PRE)  -g -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -fno-common -I"." -I"../ECE118/include" -MP -MMD -MF "${OBJECTDIR}/_ext/1347132459/timers.o.d" -o ${OBJECTDIR}/_ext/1347132459/timers.o ../ECE118/src/timers.c    -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -mdfp="${DFP_DIR}"  
+	
+${OBJECTDIR}/TapeDetectorHarness.o: TapeDetectorHarness.c  .generated_files/flags/default/7a2dfc5763fe16450522841999f29f32e2bd205f .generated_files/flags/default/a8d72842549110e9d8f1974f4230d40db2209aef
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/TapeDetectorHarness.o.d 
+	@${RM} ${OBJECTDIR}/TapeDetectorHarness.o 
+	${MP_CC}  $(MP_EXTRA_CC_PRE)  -g -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -fno-common -I"." -I"../ECE118/include" -MP -MMD -MF "${OBJECTDIR}/TapeDetectorHarness.o.d" -o ${OBJECTDIR}/TapeDetectorHarness.o TapeDetectorHarness.c    -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -mdfp="${DFP_DIR}"  
+	
+${OBJECTDIR}/TrackWireDetectorHarness.o: TrackWireDetectorHarness.c  .generated_files/flags/default/78e133255d83f0a08a20822195432417a410a550 .generated_files/flags/default/a8d72842549110e9d8f1974f4230d40db2209aef
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/TrackWireDetectorHarness.o.d 
+	@${RM} ${OBJECTDIR}/TrackWireDetectorHarness.o 
+	${MP_CC}  $(MP_EXTRA_CC_PRE)  -g -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -fno-common -I"." -I"../ECE118/include" -MP -MMD -MF "${OBJECTDIR}/TrackWireDetectorHarness.o.d" -o ${OBJECTDIR}/TrackWireDetectorHarness.o TrackWireDetectorHarness.c    -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -mdfp="${DFP_DIR}"  
+	
+${OBJECTDIR}/BeaconDetectorHarness.o: BeaconDetectorHarness.c  .generated_files/flags/default/aed1781c2ca2009a0758f5fcf51c84d6d8c00436 .generated_files/flags/default/a8d72842549110e9d8f1974f4230d40db2209aef
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/BeaconDetectorHarness.o.d 
+	@${RM} ${OBJECTDIR}/BeaconDetectorHarness.o 
+	${MP_CC}  $(MP_EXTRA_CC_PRE)  -g -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -fno-common -I"." -I"../ECE118/include" -MP -MMD -MF "${OBJECTDIR}/BeaconDetectorHarness.o.d" -o ${OBJECTDIR}/BeaconDetectorHarness.o BeaconDetectorHarness.c    -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -mdfp="${DFP_DIR}"  
 	
 endif
 

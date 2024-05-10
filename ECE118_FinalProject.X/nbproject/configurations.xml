@@ -28,6 +28,9 @@
       <itemPath>../ECE118/src/LED.c</itemPath>
       <itemPath>../ECE118/src/pwm.c</itemPath>
       <itemPath>../ECE118/src/timers.c</itemPath>
+      <itemPath>TapeDetectorHarness.c</itemPath>
+      <itemPath>TrackWireDetectorHarness.c</itemPath>
+      <itemPath>BeaconDetectorHarness.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

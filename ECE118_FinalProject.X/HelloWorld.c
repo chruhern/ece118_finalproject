@@ -17,6 +17,9 @@
 #include "pwm.h"
 #include "timers.h"
 
+//#define TEST_MAIN
+
+#ifdef TEST_MAIN
 int main(void)
 {
     
@@ -40,5 +43,5 @@ int main(void)
     ;
     }
 }
-
+#endif
 
