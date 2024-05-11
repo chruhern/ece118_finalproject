@@ -22,21 +22,33 @@
 /*******************************************************************************
 * PRIVATE TYPEDEFS *
 ******************************************************************************/
+// Prototypes
+int EXPMA(int value);
+
 #define TAPE_PIN AD_PORTV3 // AC pin definition
 
-// Tape sensor threshold values
-#define TAPE_HIGH_THRESHOLD 100
-#define TAPE_LOW_THRESHOLD 20
+// Tape sensor threshold values (experimentally determined)
+#define TAPE_HIGH_THRESHOLD 800
+#define TAPE_LOW_THRESHOLD 250
 
 #define TAPE_HIGH 1
 #define TAPE_LOW 0
 
 unsigned int tape_status = TAPE_LOW;
+unsigned int prev_tape_reading = 0;
+
+// EMA Filter
+#define ALPHA 0.09
 /*******************************************************************************
 * PUBLIC FUNCTION IMPLEMENTATIONS *
 ******************************************************************************/
 
 //#define TAPE_SENSOR_HARNESS
+
+#ifdef TAPE_SENSOR_HARNESS
+    unsigned int EMA = 0;
+#endif
+    
 #ifdef TAPE_SENSOR_HARNESS
 int main(void) {
     
@@ -54,13 +66,13 @@ int main(void) {
     while (1) {
         // Read the value from the ADC pin if needed
         if (AD_IsNewDataReady() == TRUE) {
-            unsigned int tape_sensor_reading = AD_ReadADPin(TAPE_PIN);
+            int tape_sensor_reading = EXPMA(AD_ReadADPin(TAPE_PIN));
             unsigned int new_status;
             
             // Compare readings and trigger event if the value is different for hysteresis
             if (tape_sensor_reading >= TAPE_HIGH_THRESHOLD) {
                 new_status = TAPE_HIGH;
-            } else {
+            } else if (tape_sensor_reading <= TAPE_LOW_THRESHOLD) {
                 new_status = TAPE_LOW;
             }
             
@@ -71,13 +83,15 @@ int main(void) {
                 } else {
                     printf("Tape sensor detected low. \r\n");
                 }
+                
+                printf("The tape sensor reading from the ADC is %d. \r\n", tape_sensor_reading);
             }
             
             // Update previous status to the new status
             tape_status = new_status;
             
             // Test Display (remove when you have successfully gotten a pin reading)
-            printf("The tape sensor reading from the ADC is %d. \r\n", tape_sensor_reading);
+            //printf("The tape sensor reading from the ADC is %d. \r\n", tape_sensor_reading);
         }
     }
     
@@ -88,3 +102,10 @@ int main(void) {
 /*******************************************************************************
 * PRIVATE FUNCTION IMPLEMENTATIONS *
 ******************************************************************************/
+#ifdef TAPE_SENSOR_HARNESS
+int EXPMA(int value) {
+    EMA = (value * ALPHA)+((prev_tape_reading)*(1 - ALPHA));
+    prev_tape_reading = EMA;
+    return EMA;
+}
+#endif

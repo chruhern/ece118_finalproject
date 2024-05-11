@@ -22,19 +22,38 @@
 /*******************************************************************************
 * PRIVATE TYPEDEFS *
 ******************************************************************************/
+int EXPMA(int value);
+
 #define TRACK_WIRE_PIN AD_PORTV3 // AC pin definition
 
-#define TRACK_DETECT_THRESHOLD 100
-#define TRACK_NO_DETECT_THRESHOLD 20
+#define TRACK_DETECT_THRESHOLD 300
+#define TRACK_NO_DETECT_THRESHOLD 250
 
 #define TRACK_DETECT 1
 #define TRACK_NO_DETECT 0
 
 unsigned int track_wire_status = TRACK_NO_DETECT;
+
+// EMA
+unsigned int prev_track_reading = 0;
+
+// EMA Filter
+#define ALPHA 0.05
 /*******************************************************************************
 * PUBLIC FUNCTION IMPLEMENTATIONS *
 ******************************************************************************/
-//#define TRACK_WIRE_HARNESS
+
+/*
+ * The Gain for the Track Wire detector being used is three cascading stage of amplification.
+ * 11 by 11 by 11 gain. (A 100k resistor and 10k resistor is used for all stages
+ * 10mH inductor is used.
+ * 47uF capacitor
+ */
+#define TRACK_WIRE_HARNESS
+
+#ifdef TRACK_WIRE_HARNESS
+unsigned int EMA = 0;
+#endif
 
 #ifdef TRACK_WIRE_HARNESS
 int main(void) {
@@ -54,15 +73,15 @@ int main(void) {
         
         // Read pin whenever new reading is available
         if (AD_IsNewDataReady() == TRUE) {
-            unsigned int track_wire_reading = AD_ReadADPin(TRACK_WIRE_PIN);
+            int track_wire_reading = EXPMA(AD_ReadADPin(TRACK_WIRE_PIN));
             unsigned int new_status;
             
             // Compare and set values based on hysteresis bounds
             if (track_wire_reading > TRACK_DETECT_THRESHOLD) {
                 new_status = TRACK_DETECT;
-            } else {
+            } else if (track_wire_reading < TRACK_NO_DETECT_THRESHOLD) {
                 new_status = TRACK_NO_DETECT;
-            }
+            }                                                                                                       
             
             // Print out message if status is different
             if (new_status != track_wire_status) {
@@ -71,13 +90,15 @@ int main(void) {
                 } else {
                     printf("Track wire has not been detected. \r\n");
                 }
+                
+                printf("The track wire sensor reading from the ADC is %d. \r\n", track_wire_reading);
             }
             
             // Update previous status to the new status
             track_wire_status = new_status;
             
             // Test Display (remove when you have successfully gotten a pin reading)
-            printf("The tape sensor reading from the ADC is %d. \r\n", track_wire_reading);
+            //printf("The track wire sensor reading from the ADC is %d. \r\n", track_wire_reading);
         }
     }
     
@@ -89,3 +110,10 @@ int main(void) {
 /*******************************************************************************
 * PRIVATE FUNCTION IMPLEMENTATIONS *
 ******************************************************************************/
+#ifdef TRACK_WIRE_HARNESS
+int EXPMA(int value) {
+    EMA = (value * ALPHA)+((prev_track_reading)*(1 - ALPHA));
+    prev_track_reading = EMA;
+    return EMA;
+}
+#endif
