@@ -26,6 +26,9 @@
 
 const unsigned int duty_cycle = 800;
 
+unsigned int curr_time = 0;
+unsigned int switch_time = 500000;
+
 /*******************************************************************************
 * PUBLIC FUNCTION IMPLEMENTATIONS *
 ******************************************************************************/
@@ -44,11 +47,21 @@ int main(void) {
     PORTV05_TRIS = 0; // Set port for IN1 as output
     PORTV06_TRIS = 0; // Set port for IN2 as output
 
+    // Initial Value
+    PORTV06_LAT = 0;
+    PORTV05_LAT = 1;
+    
     // Main event loop
     while (1) {
-        // Set direction of the motors (invert them to change directions)
-        PORTV06_LAT = 0;
-        PORTV05_LAT = 1;
+        
+        if (curr_time >= switch_time) {
+            PORTV06_LAT = !PORTV06_LAT;
+            PORTV05_LAT = !PORTV05_LAT;
+            curr_time = 0; // Reset time
+        }
+        
+        // Increment time
+        curr_time++;
         
         // Set duty cycle
         PWM_SetDutyCycle(MOTOR_PIN, duty_cycle);
