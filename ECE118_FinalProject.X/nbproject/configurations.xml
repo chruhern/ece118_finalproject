@@ -31,6 +31,7 @@
       <itemPath>TapeDetectorHarness.c</itemPath>
       <itemPath>TrackWireDetectorHarness.c</itemPath>
       <itemPath>BeaconDetectorHarness.c</itemPath>
+      <itemPath>../ECE118/DC_Motor_TestHarness.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

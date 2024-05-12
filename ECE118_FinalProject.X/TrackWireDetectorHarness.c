@@ -49,7 +49,7 @@ unsigned int prev_track_reading = 0;
  * 10mH inductor is used.
  * 47uF capacitor
  */
-#define TRACK_WIRE_HARNESS
+//#define TRACK_WIRE_HARNESS
 
 #ifdef TRACK_WIRE_HARNESS
 unsigned int EMA = 0;
