@@ -57,17 +57,17 @@ OBJECTDIR=build/${CND_CONF}/${IMAGE_TYPE}
 DISTDIR=dist/${CND_CONF}/${IMAGE_TYPE}
 
 # Source Files Quoted if spaced
-SOURCEFILES_QUOTED_IF_SPACED=HelloWorld.c ../ECE118/src/AD.c ../ECE118/src/BOARD.c ../ECE118/src/serial.c ../ECE118/src/IO_Ports.c ../ECE118/src/LED.c ../ECE118/src/pwm.c ../ECE118/src/timers.c TapeDetectorHarness.c TrackWireDetectorHarness.c BeaconDetectorHarness.c ../ECE118/DC_Motor_TestHarness.c ../ECE118/TapeChipDetectorHarness.c
+SOURCEFILES_QUOTED_IF_SPACED=HelloWorld.c ../ECE118/src/AD.c ../ECE118/src/BOARD.c ../ECE118/src/serial.c ../ECE118/src/IO_Ports.c ../ECE118/src/LED.c ../ECE118/src/pwm.c ../ECE118/src/timers.c TapeDetectorHarness.c TrackWireDetectorHarness.c BeaconDetectorHarness.c ../ECE118/DC_Motor_TestHarness.c ../ECE118/TapeChipDetectorHarness.c ../ECE118/SwitchTestHarness.c
 
 # Object Files Quoted if spaced
-OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/HelloWorld.o ${OBJECTDIR}/_ext/1347132459/AD.o ${OBJECTDIR}/_ext/1347132459/BOARD.o ${OBJECTDIR}/_ext/1347132459/serial.o ${OBJECTDIR}/_ext/1347132459/IO_Ports.o ${OBJECTDIR}/_ext/1347132459/LED.o ${OBJECTDIR}/_ext/1347132459/pwm.o ${OBJECTDIR}/_ext/1347132459/timers.o ${OBJECTDIR}/TapeDetectorHarness.o ${OBJECTDIR}/TrackWireDetectorHarness.o ${OBJECTDIR}/BeaconDetectorHarness.o ${OBJECTDIR}/_ext/2123729024/DC_Motor_TestHarness.o ${OBJECTDIR}/_ext/2123729024/TapeChipDetectorHarness.o
-POSSIBLE_DEPFILES=${OBJECTDIR}/HelloWorld.o.d ${OBJECTDIR}/_ext/1347132459/AD.o.d ${OBJECTDIR}/_ext/1347132459/BOARD.o.d ${OBJECTDIR}/_ext/1347132459/serial.o.d ${OBJECTDIR}/_ext/1347132459/IO_Ports.o.d ${OBJECTDIR}/_ext/1347132459/LED.o.d ${OBJECTDIR}/_ext/1347132459/pwm.o.d ${OBJECTDIR}/_ext/1347132459/timers.o.d ${OBJECTDIR}/TapeDetectorHarness.o.d ${OBJECTDIR}/TrackWireDetectorHarness.o.d ${OBJECTDIR}/BeaconDetectorHarness.o.d ${OBJECTDIR}/_ext/2123729024/DC_Motor_TestHarness.o.d ${OBJECTDIR}/_ext/2123729024/TapeChipDetectorHarness.o.d
+OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/HelloWorld.o ${OBJECTDIR}/_ext/1347132459/AD.o ${OBJECTDIR}/_ext/1347132459/BOARD.o ${OBJECTDIR}/_ext/1347132459/serial.o ${OBJECTDIR}/_ext/1347132459/IO_Ports.o ${OBJECTDIR}/_ext/1347132459/LED.o ${OBJECTDIR}/_ext/1347132459/pwm.o ${OBJECTDIR}/_ext/1347132459/timers.o ${OBJECTDIR}/TapeDetectorHarness.o ${OBJECTDIR}/TrackWireDetectorHarness.o ${OBJECTDIR}/BeaconDetectorHarness.o ${OBJECTDIR}/_ext/2123729024/DC_Motor_TestHarness.o ${OBJECTDIR}/_ext/2123729024/TapeChipDetectorHarness.o ${OBJECTDIR}/_ext/2123729024/SwitchTestHarness.o
+POSSIBLE_DEPFILES=${OBJECTDIR}/HelloWorld.o.d ${OBJECTDIR}/_ext/1347132459/AD.o.d ${OBJECTDIR}/_ext/1347132459/BOARD.o.d ${OBJECTDIR}/_ext/1347132459/serial.o.d ${OBJECTDIR}/_ext/1347132459/IO_Ports.o.d ${OBJECTDIR}/_ext/1347132459/LED.o.d ${OBJECTDIR}/_ext/1347132459/pwm.o.d ${OBJECTDIR}/_ext/1347132459/timers.o.d ${OBJECTDIR}/TapeDetectorHarness.o.d ${OBJECTDIR}/TrackWireDetectorHarness.o.d ${OBJECTDIR}/BeaconDetectorHarness.o.d ${OBJECTDIR}/_ext/2123729024/DC_Motor_TestHarness.o.d ${OBJECTDIR}/_ext/2123729024/TapeChipDetectorHarness.o.d ${OBJECTDIR}/_ext/2123729024/SwitchTestHarness.o.d
 
 # Object Files
-OBJECTFILES=${OBJECTDIR}/HelloWorld.o ${OBJECTDIR}/_ext/1347132459/AD.o ${OBJECTDIR}/_ext/1347132459/BOARD.o ${OBJECTDIR}/_ext/1347132459/serial.o ${OBJECTDIR}/_ext/1347132459/IO_Ports.o ${OBJECTDIR}/_ext/1347132459/LED.o ${OBJECTDIR}/_ext/1347132459/pwm.o ${OBJECTDIR}/_ext/1347132459/timers.o ${OBJECTDIR}/TapeDetectorHarness.o ${OBJECTDIR}/TrackWireDetectorHarness.o ${OBJECTDIR}/BeaconDetectorHarness.o ${OBJECTDIR}/_ext/2123729024/DC_Motor_TestHarness.o ${OBJECTDIR}/_ext/2123729024/TapeChipDetectorHarness.o
+OBJECTFILES=${OBJECTDIR}/HelloWorld.o ${OBJECTDIR}/_ext/1347132459/AD.o ${OBJECTDIR}/_ext/1347132459/BOARD.o ${OBJECTDIR}/_ext/1347132459/serial.o ${OBJECTDIR}/_ext/1347132459/IO_Ports.o ${OBJECTDIR}/_ext/1347132459/LED.o ${OBJECTDIR}/_ext/1347132459/pwm.o ${OBJECTDIR}/_ext/1347132459/timers.o ${OBJECTDIR}/TapeDetectorHarness.o ${OBJECTDIR}/TrackWireDetectorHarness.o ${OBJECTDIR}/BeaconDetectorHarness.o ${OBJECTDIR}/_ext/2123729024/DC_Motor_TestHarness.o ${OBJECTDIR}/_ext/2123729024/TapeChipDetectorHarness.o ${OBJECTDIR}/_ext/2123729024/SwitchTestHarness.o
 
 # Source Files
-SOURCEFILES=HelloWorld.c ../ECE118/src/AD.c ../ECE118/src/BOARD.c ../ECE118/src/serial.c ../ECE118/src/IO_Ports.c ../ECE118/src/LED.c ../ECE118/src/pwm.c ../ECE118/src/timers.c TapeDetectorHarness.c TrackWireDetectorHarness.c BeaconDetectorHarness.c ../ECE118/DC_Motor_TestHarness.c ../ECE118/TapeChipDetectorHarness.c
+SOURCEFILES=HelloWorld.c ../ECE118/src/AD.c ../ECE118/src/BOARD.c ../ECE118/src/serial.c ../ECE118/src/IO_Ports.c ../ECE118/src/LED.c ../ECE118/src/pwm.c ../ECE118/src/timers.c TapeDetectorHarness.c TrackWireDetectorHarness.c BeaconDetectorHarness.c ../ECE118/DC_Motor_TestHarness.c ../ECE118/TapeChipDetectorHarness.c ../ECE118/SwitchTestHarness.c
 
 
 
@@ -185,6 +185,12 @@ ${OBJECTDIR}/_ext/2123729024/TapeChipDetectorHarness.o: ../ECE118/TapeChipDetect
 	@${RM} ${OBJECTDIR}/_ext/2123729024/TapeChipDetectorHarness.o 
 	${MP_CC}  $(MP_EXTRA_CC_PRE) -g -D__DEBUG   -fframe-base-loclist  -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -fno-common -I"." -I"../ECE118/include" -MP -MMD -MF "${OBJECTDIR}/_ext/2123729024/TapeChipDetectorHarness.o.d" -o ${OBJECTDIR}/_ext/2123729024/TapeChipDetectorHarness.o ../ECE118/TapeChipDetectorHarness.c    -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -mdfp="${DFP_DIR}"  
 	
+${OBJECTDIR}/_ext/2123729024/SwitchTestHarness.o: ../ECE118/SwitchTestHarness.c  .generated_files/flags/default/d0ac7d2acd195557327976d38ebb4ec5ab69900a .generated_files/flags/default/a8d72842549110e9d8f1974f4230d40db2209aef
+	@${MKDIR} "${OBJECTDIR}/_ext/2123729024" 
+	@${RM} ${OBJECTDIR}/_ext/2123729024/SwitchTestHarness.o.d 
+	@${RM} ${OBJECTDIR}/_ext/2123729024/SwitchTestHarness.o 
+	${MP_CC}  $(MP_EXTRA_CC_PRE) -g -D__DEBUG   -fframe-base-loclist  -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -fno-common -I"." -I"../ECE118/include" -MP -MMD -MF "${OBJECTDIR}/_ext/2123729024/SwitchTestHarness.o.d" -o ${OBJECTDIR}/_ext/2123729024/SwitchTestHarness.o ../ECE118/SwitchTestHarness.c    -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -mdfp="${DFP_DIR}"  
+	
 else
 ${OBJECTDIR}/HelloWorld.o: HelloWorld.c  .generated_files/flags/default/74a2ae44916976ef572f052f62f852c5d6d2f484 .generated_files/flags/default/a8d72842549110e9d8f1974f4230d40db2209aef
 	@${MKDIR} "${OBJECTDIR}" 
@@ -263,6 +269,12 @@ ${OBJECTDIR}/_ext/2123729024/TapeChipDetectorHarness.o: ../ECE118/TapeChipDetect
 	@${RM} ${OBJECTDIR}/_ext/2123729024/TapeChipDetectorHarness.o.d 
 	@${RM} ${OBJECTDIR}/_ext/2123729024/TapeChipDetectorHarness.o 
 	${MP_CC}  $(MP_EXTRA_CC_PRE)  -g -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -fno-common -I"." -I"../ECE118/include" -MP -MMD -MF "${OBJECTDIR}/_ext/2123729024/TapeChipDetectorHarness.o.d" -o ${OBJECTDIR}/_ext/2123729024/TapeChipDetectorHarness.o ../ECE118/TapeChipDetectorHarness.c    -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -mdfp="${DFP_DIR}"  
+	
+${OBJECTDIR}/_ext/2123729024/SwitchTestHarness.o: ../ECE118/SwitchTestHarness.c  .generated_files/flags/default/18cab8f27ed80fe4fd7683718a269c2916c4c354 .generated_files/flags/default/a8d72842549110e9d8f1974f4230d40db2209aef
+	@${MKDIR} "${OBJECTDIR}/_ext/2123729024" 
+	@${RM} ${OBJECTDIR}/_ext/2123729024/SwitchTestHarness.o.d 
+	@${RM} ${OBJECTDIR}/_ext/2123729024/SwitchTestHarness.o 
+	${MP_CC}  $(MP_EXTRA_CC_PRE)  -g -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -fno-common -I"." -I"../ECE118/include" -MP -MMD -MF "${OBJECTDIR}/_ext/2123729024/SwitchTestHarness.o.d" -o ${OBJECTDIR}/_ext/2123729024/SwitchTestHarness.o ../ECE118/SwitchTestHarness.c    -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -mdfp="${DFP_DIR}"  
 	
 endif
 

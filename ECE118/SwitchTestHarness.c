@@ -1,10 +1,9 @@
 /*
- * File:   TapeChipDetectorHarness.c
+ * File:   SwitchTestHarness.c
  * Author: derri
  *
- * Created on May 14, 2024, 2:23 PM
+ * Created on May 14, 2024, 2:57 PM
  */
-
 
 /*******************************************************************************
 * #INCLUDES *
@@ -19,33 +18,22 @@
 #include <AD.h>
 #include <LED.h>
 #include <IO_Ports.h>
-
 /*******************************************************************************
 * PRIVATE TYPEDEFS *
 ******************************************************************************/
-// Prototypes
-#define CHIP_HIGH 1
-#define CHIP_LOW 0
+#define SWITCH_PRESSED 1
+#define SWITCH_RELEASED 0
 
-unsigned int chip_status = CHIP_LOW;
-
-// EMA Filter
-#define ALPHA 0.09
+unsigned int prev_switch_status = SWITCH_RELEASED;
 /*******************************************************************************
 * PUBLIC FUNCTION IMPLEMENTATIONS *
 ******************************************************************************/
+#define SWITCH_HARNESS
 
-//#define TAPE_CHIP_HARNESS
-
-#ifdef TAPE_CHIP_HARNESS
-    unsigned int EMA = 0;
-#endif
-    
-#ifdef TAPE_CHIP_HARNESS
+#ifdef SWITCH_HARNESS
 int main(void) {
     
-    printf("Starting up test harness for tape chip (HW-870) detection. \r\n");
-    printf("Warning, all test harnesses uses the same pin, which is V3. \r\n");
+    printf("Starting up test harness for the switch (to be used as the bumpers). \r\n");
     
     // Initialization functions
     BOARD_Init(); // Board
@@ -55,22 +43,19 @@ int main(void) {
     
     // Main event loop
     while (1) {
-        
-        // Read the input value of the pin
-        int new_status = PORTV03_BIT;
-        
-        //printf("The new status is %d \r\n", new_status);
-        if (new_status != chip_status) {
-            if (new_status == CHIP_HIGH) {
-                printf("Tape chip at high (tape detected). \r\n");
+        // Read from the switch value
+        int newStatus = PORTV03_BIT;
+        //printf("The status is %d \r\n", newStatus);
+        if (newStatus != prev_switch_status) {
+            if (newStatus == SWITCH_PRESSED) {
+                printf("The switch has been pressed. \r\n");
             } else {
-                printf("Tape chip at low (no tape detected). \r\n");
+                printf("The switch has been released. \r\n");
             }
         }
         
         // Update previous status to current
-        chip_status = new_status;
-        
+        prev_switch_status = newStatus;
     }
     
     return 0;
