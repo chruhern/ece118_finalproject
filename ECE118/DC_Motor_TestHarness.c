@@ -32,6 +32,9 @@ unsigned int switch_time = 500000;
 /*******************************************************************************
 * PUBLIC FUNCTION IMPLEMENTATIONS *
 ******************************************************************************/
+//#define MOTOR_HARNESS
+
+#ifdef MOTOR_HARNESS
 int main(void) {
     
     // Perform initialization
@@ -54,6 +57,7 @@ int main(void) {
     // Main event loop
     while (1) {
         
+        // Switch between the direction after count down
         if (curr_time >= switch_time) {
             PORTV06_LAT = !PORTV06_LAT;
             PORTV05_LAT = !PORTV05_LAT;
@@ -70,7 +74,7 @@ int main(void) {
     
     return 0;
 }
-
+#endif
 /*******************************************************************************
 * PRIVATE FUNCTION IMPLEMENTATIONS *
 ******************************************************************************/

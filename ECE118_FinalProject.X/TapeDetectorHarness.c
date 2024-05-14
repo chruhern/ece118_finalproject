@@ -77,21 +77,21 @@ int main(void) {
             }
             
             // Print out message if status is different
-            if (new_status != tape_status) {
-                if (new_status == TAPE_HIGH) {
-                    printf("Tape sensor detected high. \r\n");
-                } else {
-                    printf("Tape sensor detected low. \r\n");
-                }
-                
-                printf("The tape sensor reading from the ADC is %d. \r\n", tape_sensor_reading);
-            }
+//            if (new_status != tape_status) {
+//                if (new_status == TAPE_HIGH) {
+//                    printf("Tape sensor detected high. \r\n");
+//                } else {
+//                    printf("Tape sensor detected low. \r\n");
+//                }
+//                
+//                printf("The tape sensor reading from the ADC is %d. \r\n", tape_sensor_reading);
+//            }
             
             // Update previous status to the new status
             tape_status = new_status;
             
             // Test Display (remove when you have successfully gotten a pin reading)
-            //printf("The tape sensor reading from the ADC is %d. \r\n", tape_sensor_reading);
+            printf("The tape sensor reading from the ADC is %d. \r\n", tape_sensor_reading);
         }
     }
     
