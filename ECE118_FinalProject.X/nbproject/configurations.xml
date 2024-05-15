@@ -11,6 +11,21 @@
       <itemPath>../ECE118/include/LED.h</itemPath>
       <itemPath>../ECE118/include/pwm.h</itemPath>
       <itemPath>../ECE118/include/timers.h</itemPath>
+      <itemPath>../ECE118/include/ES_CheckEvents.h</itemPath>
+      <itemPath>../ECE118/include/ES_Events.h</itemPath>
+      <itemPath>../ECE118/include/ES_Framework.h</itemPath>
+      <itemPath>../ECE118/include/ES_General.h</itemPath>
+      <itemPath>../ECE118/include/ES_KeyboardInput.h</itemPath>
+      <itemPath>../ECE118/include/ES_LookupTables.h</itemPath>
+      <itemPath>../ECE118/include/ES_Port.h</itemPath>
+      <itemPath>../ECE118/include/ES_PostList.h</itemPath>
+      <itemPath>../ECE118/include/ES_PriorTables.h</itemPath>
+      <itemPath>../ECE118/include/ES_Queue.h</itemPath>
+      <itemPath>../ECE118/include/ES_ServiceHeaders.h</itemPath>
+      <itemPath>../ECE118/include/ES_TattleTale.h</itemPath>
+      <itemPath>../ECE118/include/ES_Timers.h</itemPath>
+      <itemPath>ES_Configure.h</itemPath>
+      <itemPath>TemplateEventChecker.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -34,6 +49,14 @@
       <itemPath>../ECE118/DC_Motor_TestHarness.c</itemPath>
       <itemPath>../ECE118/TapeChipDetectorHarness.c</itemPath>
       <itemPath>../ECE118/SwitchTestHarness.c</itemPath>
+      <itemPath>../ECE118/src/ES_CheckEvents.c</itemPath>
+      <itemPath>../ECE118/src/ES_Framework.c</itemPath>
+      <itemPath>../ECE118/src/ES_KeyboardInput.c</itemPath>
+      <itemPath>../ECE118/src/ES_PostList.c</itemPath>
+      <itemPath>../ECE118/src/ES_Queue.c</itemPath>
+      <itemPath>../ECE118/src/ES_TattleTale.c</itemPath>
+      <itemPath>../ECE118/src/ES_Timers.c</itemPath>
+      <itemPath>TemplateEventChecker.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -43,6 +66,7 @@
   </logicalFolder>
   <sourceRootList>
     <Elem>../ECE118</Elem>
+    <Elem>.</Elem>
   </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
@@ -78,9 +102,9 @@
         </subordinates>
       </compileType>
       <makeCustomizationType>
-        <makeCustomizationPreStepEnabled>false</makeCustomizationPreStepEnabled>
+        <makeCustomizationPreStepEnabled>true</makeCustomizationPreStepEnabled>
         <makeUseCleanTarget>false</makeUseCleanTarget>
-        <makeCustomizationPreStep></makeCustomizationPreStep>
+        <makeCustomizationPreStep>python ..\ECE118\scripts\Enum_To_String.py</makeCustomizationPreStep>
         <makeCustomizationPostStepEnabled>false</makeCustomizationPostStepEnabled>
         <makeCustomizationPostStep></makeCustomizationPostStep>
         <makeCustomizationPutChecksumInUserID>false</makeCustomizationPutChecksumInUserID>
@@ -104,7 +128,7 @@
         <property key="place-data-into-section" value="false"/>
         <property key="post-instruction-scheduling" value="default"/>
         <property key="pre-instruction-scheduling" value="default"/>
-        <property key="preprocessor-macros" value=""/>
+        <property key="preprocessor-macros" value="EVENTCHECKER_TEST"/>
         <property key="strict-ansi" value="false"/>
         <property key="support-ansi" value="false"/>
         <property key="tentative-definitions" value="-fno-common"/>
