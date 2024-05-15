@@ -7,7 +7,7 @@ build/default/production/TemplateES_Main.o: TemplateES_Main.c \
  ../ECE118/include/ES_PostList.h ../ECE118/include/ES_PriorTables.h \
  ../ECE118/include/ES_Queue.h ../ECE118/include/ES_ServiceHeaders.h \
  ES_Configure.h TemplateService.h ES_Configure.h \
- ../ECE118/include/ES_TattleTale.h
+ ../ECE118/include/ES_TattleTale.h Robot.h
 
 ../ECE118/include/BOARD.h:
 
@@ -44,3 +44,5 @@ TemplateService.h:
 ES_Configure.h:
 
 ../ECE118/include/ES_TattleTale.h:
+
+Robot.h:

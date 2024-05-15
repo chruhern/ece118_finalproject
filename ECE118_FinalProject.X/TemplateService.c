@@ -25,6 +25,8 @@
 #include "TemplateService.h"
 #include <stdio.h>
 
+#include "TemplateEventChecker.h"
+
 /*******************************************************************************
  * MODULE #DEFINES                                                             *
  ******************************************************************************/
@@ -112,10 +114,6 @@ ES_Event RunTemplateService(ES_Event ThisEvent)
     /********************************************
      in here you write your service code
      *******************************************/
-    static ES_EventTyp_t lastEvent = BATTERY_DISCONNECTED;
-    ES_EventTyp_t curEvent;
-    uint16_t batVoltage = AD_ReadADPin(BAT_VOLTAGE); // read the battery voltage
-
     switch (ThisEvent.EventType) {
     case ES_INIT:
         // No hardware initialization or single time setups, those
@@ -128,31 +126,26 @@ ES_Event RunTemplateService(ES_Event ThisEvent)
         
     case ES_TIMERSTOPPED:
         break;
+    
+    // You have to put user events above the timeout
+    case TAPE_DETECTED:
+        printf("Tape was detected... \r\n");
+        break;
+
+    case TAPE_NOT_DETECTED:
+        printf("Tape was not detected.... \r\n");
+        break;
 
     case ES_TIMEOUT:
         ES_Timer_InitTimer(SIMPLE_SERVICE_TIMER, TIMER_0_TICKS);
-        if (batVoltage > BATTERY_DISCONNECT_THRESHOLD) { // is battery connected?
-            curEvent = BATTERY_CONNECTED;
-        } else {
-            curEvent = BATTERY_DISCONNECTED;
-        }
-        if (curEvent != lastEvent) { // check for change from last time
-            ReturnEvent.EventType = curEvent;
-            ReturnEvent.EventParam = batVoltage;
-            lastEvent = curEvent; // update history
-#ifndef SIMPLESERVICE_TEST           // keep this as is for test harness
-            PostGenericService(ReturnEvent);
-#else
-            PostTemplateService(ReturnEvent);
-#endif   
-        }
-        break;
-#ifdef SIMPLESERVICE_TEST     // keep this as is for test harness      
-    default:
-        printf("\r\nEvent: %s\tParam: 0x%X",
-                EventNames[ThisEvent.EventType], ThisEvent.EventParam);
-        break;
-#endif
+        CheckTape(); // Check for the tape
+
+//#ifdef SIMPLESERVICE_TEST     // keep this as is for test harness      
+//    default:
+//        printf("\r\nEvent: %s\tParam: 0x%X",
+//                EventNames[ThisEvent.EventType], ThisEvent.EventParam);
+//        break;
+//#endif
     }
 
     return ReturnEvent;

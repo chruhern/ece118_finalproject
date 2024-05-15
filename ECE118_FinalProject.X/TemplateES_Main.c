@@ -4,6 +4,8 @@
 #include "ES_Configure.h"
 #include "ES_Framework.h"
 
+#include "Robot.h"
+
 void main(void)
 {
     ES_Return_t ErrorType;
@@ -15,7 +17,9 @@ void main(void)
 
 
     // Your hardware initialization function calls go here
+    // set pin here
     // Call Bot Init Here
+    Robot_Init();
 
     // now initialize the Events and Services Framework and start it running
     ErrorType = ES_Initialize();

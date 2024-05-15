@@ -33,6 +33,10 @@
 #include "AD.h"
 #include "TemplateService.h"
 
+#include "Robot.h"
+#include <stdio.h>
+
+
 /*******************************************************************************
  * MODULE #DEFINES                                                             *
  ******************************************************************************/
@@ -107,6 +111,40 @@ uint8_t TemplateCheckBattery(void) {
 #endif   
     }
     return (returnVal);
+}
+
+/**
+ * @Function CheckTape(void)
+ * @param none
+ * @return TRUE or FALSE
+ * @brief Test function to check whether if tape detector works.
+ * @author Derick Lai*/
+uint8_t CheckTape(void) {
+    
+    static ES_EventTyp_t lastEvent = TAPE_NOT_DETECTED;
+    ES_EventTyp_t curEvent;
+    ES_Event thisEvent;
+    uint8_t returnVal = FALSE;
+    int tape_status = Robot_GetTape();
+    
+    //printf("The tape status is %d. \r\n", tape_status);
+    if (tape_status == 0) { // is battery connected?
+        curEvent = TAPE_DETECTED;
+    } else {
+        curEvent = TAPE_NOT_DETECTED;
+    }
+    if (curEvent != lastEvent) { // check for change from last time
+        thisEvent.EventType = curEvent;
+        thisEvent.EventParam = tape_status;
+        returnVal = TRUE;
+        lastEvent = curEvent; // update history
+#ifndef EVENTCHECKER_TEST           // keep this as is for test harness
+        PostTemplateService(thisEvent);
+#else
+        SaveEvent(thisEvent);
+#endif   
+    }
+    return (returnVal);    
 }
 
 /* 
