@@ -6,8 +6,8 @@ build/default/production/_ext/1347132459/ES_TattleTale.o: \
  ../ECE118/include/ES_LookupTables.h ../ECE118/include/ES_Port.h \
  ../ECE118/include/ES_PostList.h ../ECE118/include/ES_PriorTables.h \
  ../ECE118/include/ES_Queue.h ../ECE118/include/ES_ServiceHeaders.h \
- ../ECE118/include/ES_TattleTale.h ../ECE118/include/ES_TattleTale.h \
- ../ECE118/include/serial.h
+ TemplateService.h ES_Configure.h ../ECE118/include/ES_TattleTale.h \
+ ../ECE118/include/ES_TattleTale.h ../ECE118/include/serial.h
 
 ../ECE118/include/BOARD.h:
 
@@ -36,6 +36,10 @@ ES_Configure.h:
 ../ECE118/include/ES_Queue.h:
 
 ../ECE118/include/ES_ServiceHeaders.h:
+
+TemplateService.h:
+
+ES_Configure.h:
 
 ../ECE118/include/ES_TattleTale.h:
 

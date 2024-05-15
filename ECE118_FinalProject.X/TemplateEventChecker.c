@@ -31,6 +31,7 @@
 #include "ES_Events.h"
 #include "serial.h"
 #include "AD.h"
+#include "TemplateService.h"
 
 /*******************************************************************************
  * MODULE #DEFINES                                                             *
@@ -100,7 +101,7 @@ uint8_t TemplateCheckBattery(void) {
         returnVal = TRUE;
         lastEvent = curEvent; // update history
 #ifndef EVENTCHECKER_TEST           // keep this as is for test harness
-        PostGenericService(thisEvent);
+        PostTemplateService(thisEvent);
 #else
         SaveEvent(thisEvent);
 #endif   
