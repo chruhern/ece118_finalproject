@@ -30,6 +30,7 @@
  ******************************************************************************/
 
 #define BATTERY_DISCONNECT_THRESHOLD 175
+#define TIMER_0_TICKS 100 // 100ms
 
 /*******************************************************************************
  * PRIVATE FUNCTION PROTOTYPES                                                 *
@@ -71,6 +72,8 @@ uint8_t InitTemplateService(uint8_t Priority)
 
     // post the initial transition event
     ThisEvent.EventType = ES_INIT;
+    ES_Timer_InitTimer(SIMPLE_SERVICE_TIMER, TIMER_0_TICKS);
+    
     if (ES_PostToService(MyPriority, ThisEvent) == TRUE) {
         return TRUE;
     } else {
@@ -120,8 +123,14 @@ ES_Event RunTemplateService(ES_Event ThisEvent)
         //
         // This section is used to reset service for some reason
         break;
+        
+    case ES_TIMERACTIVE:
+        
+    case ES_TIMERSTOPPED:
+        break;
 
     case ES_TIMEOUT:
+        ES_Timer_InitTimer(SIMPLE_SERVICE_TIMER, TIMER_0_TICKS);
         if (batVoltage > BATTERY_DISCONNECT_THRESHOLD) { // is battery connected?
             curEvent = BATTERY_CONNECTED;
         } else {

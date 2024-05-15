@@ -18,9 +18,9 @@
 
 
 //defines for keyboard input
-#define USE_KEYBOARD_INPUT
+//#define USE_KEYBOARD_INPUT
 //What State machine are we testing
-#define POSTFUNCTION_FOR_KEYBOARD_INPUT PostTemplateService
+//#define POSTFUNCTION_FOR_KEYBOARD_INPUT PostTemplateService
 
 //define for TattleTale
 #define USE_TATTLETALE
@@ -81,7 +81,7 @@ static const char *EventNames[] = {
 // corresponding timer expires. All 16 must be defined. If you are not using
 // a timers, then you can use TIMER_UNUSED
 #define TIMER_UNUSED ((pPostFunc)0)
-#define TIMER0_RESP_FUNC TIMER_UNUSED
+#define TIMER0_RESP_FUNC PostTemplateService
 #define TIMER1_RESP_FUNC TIMER_UNUSED
 #define TIMER2_RESP_FUNC TIMER_UNUSED
 #define TIMER3_RESP_FUNC TIMER_UNUSED
@@ -104,7 +104,7 @@ static const char *EventNames[] = {
 // to different timers if the need arises. Keep these definitons close to the
 // definitions for the response functions to make it easire to check that
 // the timer number matches where the timer event will be routed
-
+#define SIMPLE_SERVICE_TIMER 0
 #define GENERIC_NAMED_TIMER 0 /*make sure this is enabled above and posting to the correct state machine*/
 
 
