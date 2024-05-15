@@ -28,7 +28,7 @@ unsigned int prev_switch_status = SWITCH_RELEASED;
 /*******************************************************************************
 * PUBLIC FUNCTION IMPLEMENTATIONS *
 ******************************************************************************/
-#define SWITCH_HARNESS
+//#define SWITCH_HARNESS
 
 #ifdef SWITCH_HARNESS
 int main(void) {

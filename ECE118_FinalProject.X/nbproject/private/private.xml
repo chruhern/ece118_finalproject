@@ -5,8 +5,8 @@
         <group>
             <file>file:/C:/Users/derri/ECE118/ece118_finalproject/ECE118/include/pwm.h</file>
             <file>file:/C:/Users/derri/ECE118/ece118_finalproject/ECE118_FinalProject.X/TrackWireDetectorHarness.c</file>
-            <file>file:/C:/Users/derri/ECE118/ece118_finalproject/ECE118/DC_Motor_TestHarness.c</file>
             <file>file:/C:/Users/derri/ECE118/ece118_finalproject/ECE118/include/LED.h</file>
+            <file>file:/C:/Users/derri/ECE118/ece118_finalproject/ECE118/include/IO_Ports.h</file>
             <file>file:/C:/Users/derri/ECE118/ece118_finalproject/ECE118_FinalProject.X/HelloWorld.c</file>
             <file>file:/C:/Users/derri/ECE118/ece118_finalproject/ECE118/include/AD.h</file>
         </group>

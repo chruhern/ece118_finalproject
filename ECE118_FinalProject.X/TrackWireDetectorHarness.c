@@ -18,6 +18,7 @@
 #include <AD.h>
 #include <LED.h>
 #include <IO_Ports.h>
+#include <LED.h>
 
 /*******************************************************************************
 * PRIVATE TYPEDEFS *
@@ -64,6 +65,9 @@ int main(void) {
     // Initialization functions
     BOARD_Init(); // Board
     AD_Init(); // AD Pins
+    LED_Init(); // LEDs
+    
+    LED_AddBanks(LED_BANK1);
     
     // Setup
     AD_AddPins(TRACK_WIRE_PIN);
@@ -87,8 +91,10 @@ int main(void) {
             if (new_status != track_wire_status) {
                 if (new_status == TRACK_DETECT) {
                     printf("Track wire has been detected. \r\n");
+                    LED_SetBank(LED_BANK1, 0xF); // Set LED
                 } else {
                     printf("Track wire has not been detected. \r\n");
+                    LED_SetBank(LED_BANK1, 0x0); // Deactivate LED
                 }
                 
                 printf("The track wire sensor reading from the ADC is %d. \r\n", track_wire_reading);
