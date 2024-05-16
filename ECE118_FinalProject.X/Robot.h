@@ -14,6 +14,8 @@
 #define PIN_INPUT 1
 #define PIN_OUTPUT 0
 
+#define MOTOR_MAX 1000 // Max cycle for the motor (goes both ways, positive and negative)
+
 /*******************************************************************************
 * PUBLIC FUNCTION IMPLEMENTATIONS *
 ******************************************************************************/

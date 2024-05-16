@@ -38,19 +38,31 @@ char Robot_Init() {
     
     //  ***** INITIALIZE MOTOR PINS ***** //
     // Left drive motor
-    PORTY04_TRIS = PIN_INPUT; // EnA PWM
+    PWM_AddPins(PWM_PORTY04); // EnA PWM, Y04 (allowed PWM pins)
     PORTZ05_TRIS = PIN_OUTPUT; // InA
     PORTZ06_TRIS = PIN_OUTPUT; // InB
     
+    // Initial values for forward drive
+    PORTZ05_LAT = 1;
+    PORTZ06_LAT = 0;
+    
     // Right drive motor
-    PORTY03_TRIS = PIN_INPUT;
+    PWM_AddPins(PWM_PORTY10); // EnB PWM, Y10
     PORTZ03_TRIS = PIN_OUTPUT;
     PORTZ04_TRIS = PIN_OUTPUT;
     
+    // Initial values for forward drive
+    PORTZ03_LAT = 1;
+    PORTZ04_LAT = 0;
+    
     // Propeller motor
-    PORTY05_TRIS = PIN_INPUT;
+    PWM_AddPins(PWM_PORTY12); // EnA PWM, Y12
     PORTZ07_TRIS = PIN_OUTPUT;
     PORTZ08_TRIS = PIN_OUTPUT;
+    
+    // Initial values for forward drive
+    PORTZ07_LAT = 1;
+    PORTZ08_LAT = 0;
     
     //  ***** INITIALIZE SENSOR PINS ***** //
     // Track wire detector (ADC is used for hysteresis, use V pins)
@@ -95,6 +107,20 @@ char Robot_Init() {
  * @author Derrick Lai */
 char Robot_SetLeftMotor(int motorSpeed) {
     
+    // If the given speed is greater or less than the maximum and minimum allowed thresholds, then clamp it down.
+    int actualSpeed = ((motorSpeed > MOTOR_MAX) && MOTOR_MAX) || ((motorSpeed < -MOTOR_MAX) && -MOTOR_MAX) || (motorSpeed);
+    
+    // Based on the speed, set the direction
+    int isForward = (actualSpeed > 0);
+    PORTZ05_LAT = (isForward && 1) || 0;
+    PORTZ06_LAT = (isForward && 0) || 1;
+    
+    // Obtain the absolute speed
+    unsigned int abs_speed = (isForward && actualSpeed) || (-actualSpeed);
+    
+    // Set the duty cycle, which its return value will be success or error
+    return PWM_SetDutyCycle(PWM_PORTY04, abs_speed);
+    
 }
 
 /**
@@ -105,6 +131,20 @@ char Robot_SetLeftMotor(int motorSpeed) {
  * @brief  This function is used to set the speed and direction of the right motor.
  * @author Derrick Lai */
 char Robot_SetRightMotor(int motorSpeed) {
+    
+    // If the given speed is greater or less than the maximum and minimum allowed thresholds, then clamp it down.
+    int actualSpeed = ((motorSpeed > MOTOR_MAX) && MOTOR_MAX) || ((motorSpeed < -MOTOR_MAX) && -MOTOR_MAX) || (motorSpeed);
+    
+    // Based on the speed, set the direction
+    int isForward = (actualSpeed > 0);
+    PORTZ03_LAT = (isForward && 1) || 0;
+    PORTZ04_LAT = (isForward && 0) || 1;
+    
+    // Obtain the absolute speed
+    unsigned int abs_speed = (isForward && actualSpeed) || (-actualSpeed);
+    
+    // Set the duty cycle, which its return value will be success or error
+    return PWM_SetDutyCycle(PWM_PORTY10, abs_speed);
     
 }
 
@@ -206,3 +246,44 @@ unsigned int Robot_GetPingDistance()  {
 int Robot_GetTape() {
     return PORTV03_BIT;
 }
+
+
+// ***** TEST HARNESS ***** //
+// Remember to include the TemplateES_Main.c file once you finished your test harness.
+// This harness uses blocking code, shocking...
+#define ROBOT_HARNESS
+
+#ifdef ROBOT_HARNESS
+unsigned int bot_curr_time = 0;
+unsigned int bot_switch_time = 500000;
+int bot_curr_direction = 1; // 1 is forward, -1 is backward
+int bot_speed = 1000;
+int main() {
+    
+    // Initialize the robot
+    Robot_Init();
+    
+    // Main event loop
+    while (1) {
+        
+        // If the time passes the switch time, reverse direction.
+        if (bot_curr_time >= bot_switch_time) {
+            
+            // Reverse direction
+            bot_curr_direction = -bot_curr_direction;
+            
+            // Run motors
+            Robot_SetLeftMotor(bot_speed * bot_curr_direction);
+            Robot_SetRightMotor(bot_speed * bot_curr_direction);
+            
+            // Reset time
+            bot_curr_time = 0;
+        }
+        
+        // Increment time
+        bot_curr_time++;
+    }
+    
+    return (SUCCESS);
+}
+#endif
