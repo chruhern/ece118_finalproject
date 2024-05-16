@@ -48,17 +48,17 @@ char Robot_Init() {
     
     // Right drive motor
     PWM_AddPins(PWM_PORTY10); // EnB PWM, Y10
-    PORTZ03_TRIS = PIN_OUTPUT;
-    PORTZ04_TRIS = PIN_OUTPUT;
+    PORTZ03_TRIS = PIN_OUTPUT; // InA
+    PORTZ04_TRIS = PIN_OUTPUT; // InB
     
     // Initial values for forward drive
-    PORTZ03_LAT = 1;
+    PORTZ03_LAT = 1; 
     PORTZ04_LAT = 0;
     
     // Propeller motor
     PWM_AddPins(PWM_PORTY12); // EnA PWM, Y12
-    PORTZ07_TRIS = PIN_OUTPUT;
-    PORTZ08_TRIS = PIN_OUTPUT;
+    PORTZ07_TRIS = PIN_OUTPUT; // InA
+    PORTZ08_TRIS = PIN_OUTPUT; // InB
     
     // Initial values for forward drive
     PORTZ07_LAT = 1;
@@ -108,18 +108,35 @@ char Robot_Init() {
 char Robot_SetLeftMotor(int motorSpeed) {
     
     // If the given speed is greater or less than the maximum and minimum allowed thresholds, then clamp it down.
-    int actualSpeed = ((motorSpeed > MOTOR_MAX) && MOTOR_MAX) || ((motorSpeed < -MOTOR_MAX) && -MOTOR_MAX) || (motorSpeed);
+    int actualSpeed;
+    if (motorSpeed > MOTOR_MAX) {
+        actualSpeed = motorSpeed;
+    } else if (motorSpeed < -MOTOR_MAX) {
+        actualSpeed = -motorSpeed;
+    } else {
+        actualSpeed = motorSpeed;
+    }
     
     // Based on the speed, set the direction
     int isForward = (actualSpeed > 0);
-    PORTZ05_LAT = (isForward && 1) || 0;
-    PORTZ06_LAT = (isForward && 0) || 1;
+    PORTZ05_LAT = isForward ? 1 : 0;
+    PORTZ06_LAT = isForward ? 0 : 1;
+    
+    //printf("Setting pin 5 and 6 to the following, Z05: %d, Z06: %d. \r\n", PORTZ05_LAT, PORTZ06_LAT);
     
     // Obtain the absolute speed
-    unsigned int abs_speed = (isForward && actualSpeed) || (-actualSpeed);
+    unsigned int abs_speed = isForward ? actualSpeed : (unsigned int)-actualSpeed;
     
+    //printf("The abs speed is %d and %d \r\n", abs_speed, actualSpeed);
     // Set the duty cycle, which its return value will be success or error
-    return PWM_SetDutyCycle(PWM_PORTY04, abs_speed);
+    char motor_status = PWM_SetDutyCycle(PWM_PORTY04, abs_speed);
+    if (motor_status) {
+        //printf("Setting PWM of the left motor... \r\n");
+        return SUCCESS;
+    } else {
+        printf("Failed to set left motor... \r\n");
+        return ERROR;
+    }
     
 }
 
@@ -133,18 +150,35 @@ char Robot_SetLeftMotor(int motorSpeed) {
 char Robot_SetRightMotor(int motorSpeed) {
     
     // If the given speed is greater or less than the maximum and minimum allowed thresholds, then clamp it down.
-    int actualSpeed = ((motorSpeed > MOTOR_MAX) && MOTOR_MAX) || ((motorSpeed < -MOTOR_MAX) && -MOTOR_MAX) || (motorSpeed);
+    int actualSpeed;
+    if (motorSpeed > MOTOR_MAX) {
+        actualSpeed = motorSpeed;
+    } else if (motorSpeed < -MOTOR_MAX) {
+        actualSpeed = -motorSpeed;
+    } else {
+        actualSpeed = motorSpeed;
+    }
     
     // Based on the speed, set the direction
     int isForward = (actualSpeed > 0);
-    PORTZ03_LAT = (isForward && 1) || 0;
-    PORTZ04_LAT = (isForward && 0) || 1;
+    PORTZ03_LAT = isForward ? 1 : 0;
+    PORTZ04_LAT = isForward ? 0 : 1;
+    
+    //printf("Setting pin 3 and 4 to the following, Z03: %d, Z04: %d. \r\n", PORTZ03_LAT, PORTZ04_LAT);
     
     // Obtain the absolute speed
-    unsigned int abs_speed = (isForward && actualSpeed) || (-actualSpeed);
+    unsigned int abs_speed = isForward ? actualSpeed : (unsigned int)-actualSpeed;
+    //printf("The abs speed is %d and %d \r\n", abs_speed, actualSpeed);
     
     // Set the duty cycle, which its return value will be success or error
-    return PWM_SetDutyCycle(PWM_PORTY10, abs_speed);
+    char motor_status = PWM_SetDutyCycle(PWM_PORTY10, abs_speed);
+    if (motor_status) {
+        //printf("Setting PWM of the right motor... \r\n");
+        return SUCCESS;
+    } else {
+        printf("Failed to set right motor... \r\n");
+        return ERROR;
+    }
     
 }
 
@@ -254,13 +288,15 @@ int Robot_GetTape() {
 #define ROBOT_HARNESS
 
 #ifdef ROBOT_HARNESS
-unsigned int bot_curr_time = 0;
-unsigned int bot_switch_time = 500000;
+const unsigned int bot_switch_time = 5000000;
+unsigned int bot_curr_time = bot_switch_time;
 int bot_curr_direction = 1; // 1 is forward, -1 is backward
-int bot_speed = 1000;
+int bot_speed = 250;
 int main() {
     
+    printf("Running the test harness for the robot. \r\n");
     // Initialize the robot
+    BOARD_Init();
     Robot_Init();
     
     // Main event loop
@@ -273,8 +309,10 @@ int main() {
             bot_curr_direction = -bot_curr_direction;
             
             // Run motors
-            Robot_SetLeftMotor(bot_speed * bot_curr_direction);
-            Robot_SetRightMotor(bot_speed * bot_curr_direction);
+            int robot_speed = bot_speed * bot_curr_direction;
+            printf("Bot speed is %d. \r\n", robot_speed);
+            Robot_SetLeftMotor(robot_speed); // bot_speed * bot_curr_direction
+            Robot_SetRightMotor(robot_speed);
             
             // Reset time
             bot_curr_time = 0;
