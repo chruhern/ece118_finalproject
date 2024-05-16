@@ -2,12 +2,21 @@
  * File:   Robot.h
  * Author: derri
  *
- * Created on May 15, 2024, 3:32 PM
+ * Created on May 15, 2024, 3:32 PMPORTY04_TRIS = PIN_INPUT;
  */
 
 /*******************************************************************************
  * PUBLIC #DEFINES                                                             *
  ******************************************************************************/
+#define PROPELLER_COLLECT 0
+#define PROPELLER_RELEASE 1
+
+#define PIN_INPUT 1
+#define PIN_OUTPUT 0
+
+/*******************************************************************************
+* PUBLIC FUNCTION IMPLEMENTATIONS *
+******************************************************************************/
 /**
  * @Function Robot_Init()
  * @param None
@@ -33,6 +42,14 @@ char Robot_SetLeftMotor(int motorSpeed);
  * @brief  This function is used to set the speed and direction of the right motor.
  * @author Derrick Lai */
 char Robot_SetRightMotor(int motorSpeed);
+
+/**
+ * @Function Robot_SetPropllerMode(int propellerMode)
+ * @param propellerMode - The mode (or direction of the propeller) to either collect or release the balls
+ * @return SUCCESS or ERRORS
+ * @brief  Allows for setting the direction of the motor that controls the propeller to either collect or release the balls
+ * @author Derrick Lai */
+char Robot_SetPropllerMode(int propellerMode);
 
 /**
  * @Function Robot_GetTrackWireXX(void)
