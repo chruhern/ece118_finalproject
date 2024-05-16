@@ -8,7 +8,7 @@ build/default/production/TemplateService.o: TemplateService.c \
  ../ECE118/include/ES_Queue.h ../ECE118/include/ES_ServiceHeaders.h \
  ES_Configure.h TemplateService.h ES_Configure.h \
  ../ECE118/include/ES_TattleTale.h TemplateService.h \
- TemplateEventChecker.h
+ TemplateEventChecker.h ../ECE118/include/LED.h
 
 ../ECE118/include/BOARD.h:
 
@@ -51,3 +51,5 @@ ES_Configure.h:
 TemplateService.h:
 
 TemplateEventChecker.h:
+
+../ECE118/include/LED.h:

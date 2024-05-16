@@ -26,6 +26,7 @@
 #include <stdio.h>
 
 #include "TemplateEventChecker.h"
+#include "LED.h"
 
 /*******************************************************************************
  * MODULE #DEFINES                                                             *
@@ -130,10 +131,12 @@ ES_Event RunTemplateService(ES_Event ThisEvent)
     // You have to put user events above the timeout
     case TAPE_DETECTED:
         printf("Tape was detected... \r\n");
+        LED_SetBank(LED_BANK1, 0xF);
         break;
 
     case TAPE_NOT_DETECTED:
         printf("Tape was not detected.... \r\n");
+        LED_SetBank(LED_BANK1, 0x0);
         break;
 
     case ES_TIMEOUT:
