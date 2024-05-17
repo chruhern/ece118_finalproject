@@ -21,6 +21,13 @@
 #include <LED.h>
 #include <Robot.h>
 
+/*******************************************************************************
+* #DEFINES *
+******************************************************************************/
+#define LEFT_MOTOR_EN PWM_PORTY04
+#define RIGHT_MOTOR_EN PWM_PORTY10
+#define PROPELLER_MOTOR_EN PWM_PORTY12
+
 /**
  * @Function Robot_Init()
  * @param None

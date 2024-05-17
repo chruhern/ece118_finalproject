@@ -16,6 +16,12 @@
 
 #define MOTOR_MAX 1000 // Max cycle for the motor (goes both ways, positive and negative)
 
+// Sensor statuses
+#define TAPE_DETECTED 1
+#define TAPE_NOT_DETECTED 0
+
+
+
 /*******************************************************************************
 * PUBLIC FUNCTION IMPLEMENTATIONS *
 ******************************************************************************/
