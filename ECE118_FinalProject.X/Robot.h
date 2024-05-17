@@ -15,13 +15,17 @@
 #define PIN_OUTPUT 0
 
 #define MOTOR_MAX 1000 // Max cycle for the motor (goes both ways, positive and negative)
+#define PROPELLER_MAX 1000 // Max speed of the propeller
 
 // Sensor statuses
-#define TAPE_DETECTED 1
-#define TAPE_NOT_DETECTED 0
+#define TAPE_DETECTED 0
+#define TAPE_NOT_DETECTED 1
 
+#define BUMPER_PRESSED 1
+#define BUMPER_RELEASED 0
 
-
+#define BEACON_ON_SIGHT 1
+#define BEACON_OFF_SIGHT 0
 /*******************************************************************************
 * PUBLIC FUNCTION IMPLEMENTATIONS *
 ******************************************************************************/
@@ -66,8 +70,8 @@ char Robot_SetPropllerMode(int propellerMode);
  * @brief  To be used for event checker, reads from ADC pin to check if track wire detects anything. 
  * F -> Front, L -> Left, R -> Right or Rear
  * @author Derrick Lai */
-unsigned char Robot_GetTrackWireFL();
-unsigned char Robot_GetTrackWireFR();
+unsigned int Robot_LevelGetTrackWireFL();
+unsigned int Robot_LevelGetTrackWireFR();
 
 /**
  * @Function Robot_GetTapeXX(void)
@@ -76,10 +80,10 @@ unsigned char Robot_GetTrackWireFR();
  * @brief  To be used for event checker, reads from ADC pin to check if track wire detects anything. 
  * F -> Front, L -> Left, R -> Right or Rear
  * @author Derrick Lai */
-unsigned char Robot_GetTapeFL();
-unsigned char Robot_GetTapeFR();
-unsigned char Robot_GetTapeRL();
-unsigned char Robot_GetTapeRR();
+unsigned int Robot_GetTapeFL();
+unsigned int Robot_GetTapeFR();
+unsigned int Robot_GetTapeRL();
+unsigned int Robot_GetTapeRR();
 
 /**
  * @Function Robot_GetBumperXX(void)

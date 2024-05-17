@@ -128,20 +128,36 @@ ES_Event RunTemplateService(ES_Event ThisEvent)
     case ES_TIMERSTOPPED:
         break;
     
-    // You have to put user events above the timeout
-    case TAPE_DETECTED:
-        printf("Tape was detected... \r\n");
-        LED_SetBank(LED_BANK1, 0xF);
+    // You have to put user events above the timeout, remove this, this is just as a test
+    case FL_TAPE_DETECTED:
+        printf("Front Left tape detected. \r\n");
         break;
-
-    case TAPE_NOT_DETECTED:
-        printf("Tape was not detected.... \r\n");
-        LED_SetBank(LED_BANK1, 0x0);
+        
+    case FL_TAPE_NOT_DETECTED:
+        printf("Front Left tape no longer detected. \r\n");
         break;
 
     case ES_TIMEOUT:
         ES_Timer_InitTimer(SIMPLE_SERVICE_TIMER, TIMER_0_TICKS);
-        CheckTape(); // Check for the tape
+        // Poll each sensor to raise events if needed
+        // Tape
+        EventCheck_TapeFL();
+        EventCheck_TapeFR();
+        EventCheck_TapeRL();
+        EventCheck_TapeRR();
+        
+        // Bumper
+        EventCheck_BumperFL();
+        EventCheck_BumperFR();
+        EventCheck_BumperRL();
+        EventCheck_BumperRR();
+        
+        // Track Wire
+        EventCheck_TrackWireFL();
+        EventCheck_TrackWireFR();
+        
+        // Beacon
+        EventCheck_Beacon();
 
 //#ifdef SIMPLESERVICE_TEST     // keep this as is for test harness      
 //    default:

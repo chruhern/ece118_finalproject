@@ -3,14 +3,13 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/derri/ECE118/ece118_finalproject/ECE118/include/pwm.h</file>
-            <file>file:/C:/Users/derri/ECE118/ece118_finalproject/ECE118_FinalProject.X/TrackWireDetectorHarness.c</file>
             <file>file:/C:/Users/derri/ECE118/ece118_finalproject/ECE118_FinalProject.X/Robot.h</file>
             <file>file:/C:/Users/derri/ECE118/ece118_finalproject/ECE118_FinalProject.X/ES_Configure.h</file>
-            <file>file:/C:/Users/derri/ECE118/ece118_finalproject/ECE118_FinalProject.X/TemplateEventChecker.c</file>
             <file>file:/C:/Users/derri/ECE118/ece118_finalproject/ECE118/Robot.c</file>
-            <file>file:/C:/Users/derri/ECE118/ece118_finalproject/ECE118/DC_Motor_TestHarness.c</file>
-            <file>file:/C:/Users/derri/ECE118/ece118_finalproject/ECE118_FinalProject.X/TemplateES_Main.c</file>
+            <file>file:/C:/Users/derri/ECE118/ece118_finalproject/ECE118_FinalProject.X/TemplateEventChecker.c</file>
+            <file>file:/C:/Users/derri/ECE118/ece118_finalproject/ECE118/include/LED.h</file>
+            <file>file:/C:/Users/derri/ECE118/ece118_finalproject/ECE118_FinalProject.X/TapeDetectorHarness.c</file>
+            <file>file:/C:/Users/derri/ECE118/ece118_finalproject/ECE118_FinalProject.X/TemplateEventChecker.h</file>
             <file>file:/C:/Users/derri/ECE118/ece118_finalproject/ECE118_FinalProject.X/TemplateService.c</file>
             <file>file:/C:/Users/derri/ECE118/ece118_finalproject/ECE118/include/IO_Ports.h</file>
             <file>file:/C:/Users/derri/ECE118/ece118_finalproject/ECE118/include/AD.h</file>

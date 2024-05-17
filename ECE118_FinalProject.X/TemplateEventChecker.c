@@ -42,6 +42,8 @@
  ******************************************************************************/
 #define BATTERY_DISCONNECT_THRESHOLD 175
 
+#define TRACK_DETECTED_THRESHOLD 300
+#define TRACK_NOT_DETECTED_THRESHOLD 250
 /*******************************************************************************
  * EVENTCHECKER_TEST SPECIFIC CODE                                                             *
  ******************************************************************************/
@@ -114,24 +116,23 @@ uint8_t TemplateCheckBattery(void) {
 }
 
 /**
- * @Function CheckTape(void)
+ * @Function EventCheck_TapeXX(void)
  * @param none
  * @return TRUE or FALSE
- * @brief Test function to check whether if tape detector works.
- * @author Derick Lai*/
-uint8_t CheckTape(void) {
-    
-    static ES_EventTyp_t lastEvent = TAPE_NOT_DETECTED;
+ * @brief Checks for tape detection and posts event based on detection.
+ * @author Derrick Lai */
+uint8_t EventCheck_TapeFL(void) {
+        
+    static ES_EventTyp_t lastEvent = FL_TAPE_NOT_DETECTED;
     ES_EventTyp_t curEvent;
     ES_Event thisEvent;
     uint8_t returnVal = FALSE;
-    int tape_status = Robot_GetTape();
+    unsigned int tape_status = Robot_GetTapeFL();
     
-    //printf("The tape status is %d. \r\n", tape_status);
-    if (tape_status == 0) { // is battery connected?
-        curEvent = TAPE_DETECTED;
+    if (tape_status == TAPE_DETECTED) {
+        curEvent = FL_TAPE_DETECTED;
     } else {
-        curEvent = TAPE_NOT_DETECTED;
+        curEvent = FL_TAPE_NOT_DETECTED;
     }
     if (curEvent != lastEvent) { // check for change from last time
         thisEvent.EventType = curEvent;
@@ -139,12 +140,307 @@ uint8_t CheckTape(void) {
         returnVal = TRUE;
         lastEvent = curEvent; // update history
 #ifndef EVENTCHECKER_TEST           // keep this as is for test harness
-        PostTemplateService(thisEvent);
+        PostTemplateService(thisEvent); // Change to HSM if transitioning to HSM
 #else
         SaveEvent(thisEvent);
 #endif   
     }
-    return (returnVal);    
+    return (returnVal);  
+}
+
+uint8_t EventCheck_TapeFR(void) {
+            
+    static ES_EventTyp_t lastEvent = FR_TAPE_NOT_DETECTED;
+    ES_EventTyp_t curEvent;
+    ES_Event thisEvent;
+    uint8_t returnVal = FALSE;
+    unsigned int tape_status = Robot_GetTapeFR();
+    
+    if (tape_status == TAPE_DETECTED) {
+        curEvent = FR_TAPE_DETECTED;
+    } else {
+        curEvent = FR_TAPE_NOT_DETECTED;
+    }
+    if (curEvent != lastEvent) { // check for change from last time
+        thisEvent.EventType = curEvent;
+        thisEvent.EventParam = tape_status;
+        returnVal = TRUE;
+        lastEvent = curEvent; // update history
+#ifndef EVENTCHECKER_TEST           // keep this as is for test harness
+        PostTemplateService(thisEvent); // Change to HSM if transitioning to HSM
+#else
+        SaveEvent(thisEvent);
+#endif   
+    }
+    return (returnVal);  
+}
+
+uint8_t EventCheck_TapeRL(void) {
+            
+    static ES_EventTyp_t lastEvent = RL_TAPE_NOT_DETECTED;
+    ES_EventTyp_t curEvent;
+    ES_Event thisEvent;
+    uint8_t returnVal = FALSE;
+    unsigned int tape_status = Robot_GetTapeRL();
+    
+    if (tape_status == TAPE_DETECTED) {
+        curEvent = RL_TAPE_DETECTED;
+    } else {
+        curEvent = RL_TAPE_NOT_DETECTED;
+    }
+    if (curEvent != lastEvent) { // check for change from last time
+        thisEvent.EventType = curEvent;
+        thisEvent.EventParam = tape_status;
+        returnVal = TRUE;
+        lastEvent = curEvent; // update history
+#ifndef EVENTCHECKER_TEST           // keep this as is for test harness
+        PostTemplateService(thisEvent); // Change to HSM if transitioning to HSM
+#else
+        SaveEvent(thisEvent);
+#endif   
+    }
+    return (returnVal);     
+}
+
+uint8_t EventCheck_TapeRR(void) {
+            
+    static ES_EventTyp_t lastEvent = RR_TAPE_NOT_DETECTED;
+    ES_EventTyp_t curEvent;
+    ES_Event thisEvent;
+    uint8_t returnVal = FALSE;
+    unsigned int tape_status = Robot_GetTapeRR();
+    
+    if (tape_status == TAPE_DETECTED) {
+        curEvent = RR_TAPE_DETECTED;
+    } else {
+        curEvent = RR_TAPE_NOT_DETECTED;
+    }
+    if (curEvent != lastEvent) { // check for change from last time
+        thisEvent.EventType = curEvent;
+        thisEvent.EventParam = tape_status;
+        returnVal = TRUE;
+        lastEvent = curEvent; // update history
+#ifndef EVENTCHECKER_TEST           // keep this as is for test harness
+        PostTemplateService(thisEvent); // Change to HSM if transitioning to HSM
+#else
+        SaveEvent(thisEvent);
+#endif   
+    }
+    return (returnVal); 
+}
+
+/**
+ * @Function EventCheck_BumperXX(void)
+ * @param none
+ * @return TRUE or FALSE
+ * @brief Checks for bumper detection and posts event based on detection.
+ * @author Derrick Lai */
+uint8_t EventCheck_BumperFL(void) {
+        
+    static ES_EventTyp_t lastEvent = FL_BUMPER_RELEASED;
+    ES_EventTyp_t curEvent;
+    ES_Event thisEvent;
+    uint8_t returnVal = FALSE;
+    unsigned char bumper_status = Robot_GetBumperFL();
+    
+    if (bumper_status == BUMPER_PRESSED) {
+        curEvent = FL_BUMPER_PRESSED;
+    } else {
+        curEvent = FL_BUMPER_RELEASED;
+    }
+    if (curEvent != lastEvent) { // check for change from last time
+        thisEvent.EventType = curEvent;
+        thisEvent.EventParam = bumper_status;
+        returnVal = TRUE;
+        lastEvent = curEvent; // update history
+#ifndef EVENTCHECKER_TEST           // keep this as is for test harness
+        PostTemplateService(thisEvent); // Change to HSM if transitioning to HSM
+#else
+        SaveEvent(thisEvent);
+#endif   
+    }
+    return (returnVal);     
+}
+
+uint8_t EventCheck_BumperFR(void) {
+            
+    static ES_EventTyp_t lastEvent = FR_BUMPER_RELEASED;
+    ES_EventTyp_t curEvent;
+    ES_Event thisEvent;
+    uint8_t returnVal = FALSE;
+    unsigned char bumper_status = Robot_GetBumperFR();
+    
+    if (bumper_status == BUMPER_PRESSED) {
+        curEvent = FR_BUMPER_PRESSED;
+    } else {
+        curEvent = FR_BUMPER_RELEASED;
+    }
+    if (curEvent != lastEvent) { // check for change from last time
+        thisEvent.EventType = curEvent;
+        thisEvent.EventParam = bumper_status;
+        returnVal = TRUE;
+        lastEvent = curEvent; // update history
+#ifndef EVENTCHECKER_TEST           // keep this as is for test harness
+        PostTemplateService(thisEvent); // Change to HSM if transitioning to HSM
+#else
+        SaveEvent(thisEvent);
+#endif   
+    }
+    return (returnVal);  
+}
+
+uint8_t EventCheck_BumperRL(void) {
+                
+    static ES_EventTyp_t lastEvent = RL_BUMPER_RELEASED;
+    ES_EventTyp_t curEvent;
+    ES_Event thisEvent;
+    uint8_t returnVal = FALSE;
+    unsigned char bumper_status = Robot_GetBumperRL();
+    
+    if (bumper_status == BUMPER_PRESSED) {
+        curEvent = RL_BUMPER_PRESSED;
+    } else {
+        curEvent = RL_BUMPER_RELEASED;
+    }
+    if (curEvent != lastEvent) { // check for change from last time
+        thisEvent.EventType = curEvent;
+        thisEvent.EventParam = bumper_status;
+        returnVal = TRUE;
+        lastEvent = curEvent; // update history
+#ifndef EVENTCHECKER_TEST           // keep this as is for test harness
+        PostTemplateService(thisEvent); // Change to HSM if transitioning to HSM
+#else
+        SaveEvent(thisEvent);
+#endif   
+    }
+    return (returnVal);  
+}
+
+uint8_t EventCheck_BumperRR(void) {
+                    
+    static ES_EventTyp_t lastEvent = RR_BUMPER_RELEASED;
+    ES_EventTyp_t curEvent;
+    ES_Event thisEvent;
+    uint8_t returnVal = FALSE;
+    unsigned char bumper_status = Robot_GetBumperRR();
+    
+    if (bumper_status == BUMPER_PRESSED) {
+        curEvent = RR_BUMPER_PRESSED;
+    } else {
+        curEvent = RR_BUMPER_RELEASED;
+    }
+    if (curEvent != lastEvent) { // check for change from last time
+        thisEvent.EventType = curEvent;
+        thisEvent.EventParam = bumper_status;
+        returnVal = TRUE;
+        lastEvent = curEvent; // update history
+#ifndef EVENTCHECKER_TEST           // keep this as is for test harness
+        PostTemplateService(thisEvent); // Change to HSM if transitioning to HSM
+#else
+        SaveEvent(thisEvent);
+#endif   
+    }
+    return (returnVal); 
+}
+
+/**
+ * @Function EventCheck_TrackWireXX(void)
+ * @param none
+ * @return TRUE or FALSE
+ * @brief Checks for track wire and determines whether to trigger event based on predetermined threshold
+ * @author Derrick Lai */
+uint8_t EventCheck_TrackWireFL(void) {
+                    
+    static ES_EventTyp_t lastEvent = LEFT_TRACK_NOT_DETECTED;
+    ES_EventTyp_t curEvent;
+    ES_Event thisEvent;
+    uint8_t returnVal = FALSE;
+    unsigned int track_reading = Robot_LevelGetTrackWireFL();
+    
+    // Compare hysteresis values of high and low to determine if change is significant enough
+    if (track_reading > TRACK_DETECTED_THRESHOLD) {
+        curEvent = LEFT_TRACK_DETECTED;
+    } else if (track_reading < TRACK_NOT_DETECTED_THRESHOLD) {
+        curEvent = LEFT_TRACK_NOT_DETECTED;
+    } else {
+        curEvent = lastEvent; // No change, as current event will equal last event
+    }
+    if (curEvent != lastEvent) { // check for change from last time
+        thisEvent.EventType = curEvent;
+        thisEvent.EventParam = track_reading;
+        returnVal = TRUE;
+        lastEvent = curEvent; // update history
+#ifndef EVENTCHECKER_TEST           // keep this as is for test harness
+        PostTemplateService(thisEvent); // Change to HSM if transitioning to HSM
+#else
+        SaveEvent(thisEvent);
+#endif   
+    }
+    return (returnVal); 
+}
+
+uint8_t EventCheck_TrackWireFR(void) {
+                        
+    static ES_EventTyp_t lastEvent = RIGHT_TRACK_NOT_DETECTED;
+    ES_EventTyp_t curEvent;
+    ES_Event thisEvent;
+    uint8_t returnVal = FALSE;
+    unsigned int track_reading = Robot_LevelGetTrackWireFR();
+    
+    // Compare hysteresis values of high and low to determine if change is significant enough
+    if (track_reading > TRACK_DETECTED_THRESHOLD) {
+        curEvent = RIGHT_TRACK_DETECTED;
+    } else if (track_reading < TRACK_NOT_DETECTED_THRESHOLD) {
+        curEvent = RIGHT_TRACK_NOT_DETECTED;
+    } else {
+        curEvent = lastEvent; // No change, as current event will equal last event, this is not necessary, I just don't like empty variables
+    }
+    if (curEvent != lastEvent) { // check for change from last time
+        thisEvent.EventType = curEvent;
+        thisEvent.EventParam = track_reading;
+        returnVal = TRUE;
+        lastEvent = curEvent; // update history
+#ifndef EVENTCHECKER_TEST           // keep this as is for test harness
+        PostTemplateService(thisEvent); // Change to HSM if transitioning to HSM
+#else
+        SaveEvent(thisEvent);
+#endif   
+    }
+    return (returnVal); 
+}
+
+/**
+ * @Function EventCheck_Beacon(void)
+ * @param none
+ * @return TRUE or FALSE
+ * @brief Check to see if beacon is within the line of sight
+ * @author Derrick Lai */
+uint8_t EventCheck_Beacon(void) {
+                    
+    static ES_EventTyp_t lastEvent = BEACON_NOT_DETECTED;
+    ES_EventTyp_t curEvent;
+    ES_Event thisEvent;
+    uint8_t returnVal = FALSE;
+    unsigned char beacon_status = Robot_GetBeacon();
+    
+    //printf("The tape status is %d. \r\n", tape_status);
+    if (beacon_status == BEACON_ON_SIGHT) { // is battery connected?
+        curEvent = BEACON_DETECTED;
+    } else {
+        curEvent = BEACON_NOT_DETECTED;
+    }
+    if (curEvent != lastEvent) { // check for change from last time
+        thisEvent.EventType = curEvent;
+        thisEvent.EventParam = beacon_status;
+        returnVal = TRUE;
+        lastEvent = curEvent; // update history
+#ifndef EVENTCHECKER_TEST           // keep this as is for test harness
+        PostTemplateService(thisEvent); // Change to HSM if transitioning to HSM
+#else
+        SaveEvent(thisEvent);
+#endif   
+    }
+    return (returnVal); 
 }
 
 /* 

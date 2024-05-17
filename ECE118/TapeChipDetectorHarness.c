@@ -51,13 +51,13 @@ int main(void) {
     BOARD_Init(); // Board
     
     // Set pin as input
-    PORTV03_TRIS = 1;
+    PORTX03_TRIS = 1;
     
     // Main event loop
     while (1) {
         
         // Read the input value of the pin
-        int new_status = PORTV03_BIT;
+        int new_status = PORTX03_BIT;
         
         //printf("The new status is %d \r\n", new_status);
         if (new_status != chip_status) {

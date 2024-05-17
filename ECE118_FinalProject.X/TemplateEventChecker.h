@@ -59,8 +59,45 @@
  * @modified Gabriel H Elkaim/Max Dunne, 2016.09.12 20:08 */
 uint8_t TemplateCheckBattery(void);
 
-// Test Events
-uint8_t CheckTape(void);
+/**
+ * @Function EventCheck_TapeXX(void)
+ * @param none
+ * @return TRUE or FALSE
+ * @brief Checks for tape detection and posts event based on detection.
+ * @author Derrick Lai */
+uint8_t EventCheck_TapeFL(void);
+uint8_t EventCheck_TapeFR(void);
+uint8_t EventCheck_TapeRL(void);
+uint8_t EventCheck_TapeRR(void);
+
+/**
+ * @Function EventCheck_BumperXX(void)
+ * @param none
+ * @return TRUE or FALSE
+ * @brief Checks for bumper detection and posts event based on detection.
+ * @author Derrick Lai */
+uint8_t EventCheck_BumperFL(void);
+uint8_t EventCheck_BumperFR(void);
+uint8_t EventCheck_BumperRL(void);
+uint8_t EventCheck_BumperRR(void);
+
+/**
+ * @Function EventCheck_TrackWireXX(void)
+ * @param none
+ * @return TRUE or FALSE
+ * @brief Checks for track wire and determines whether to trigger event based on predetermined threshold
+ * @author Derrick Lai */
+uint8_t EventCheck_TrackWireFL(void);
+uint8_t EventCheck_TrackWireFR(void);
+
+/**
+ * @Function EventCheck_TapeXX(void)
+ * @param none
+ * @return TRUE or FALSE
+ * @brief Checks for tape detection and posts event based on detection.
+ * @author Derrick Lai */
+uint8_t EventCheck_Beacon(void);
+
 
 #endif	/* TEMPLATEEVENTCHECKER_H */
 

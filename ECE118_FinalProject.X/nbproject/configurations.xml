@@ -252,7 +252,7 @@
         <property key="stack-smashing" value=""/>
         <property key="wpo-lto" value="false"/>
       </C32Global>
-      <item path="TemplateES_Main.c" ex="true" overriding="false">
+      <item path="TemplateES_Main.c" ex="false" overriding="false">
         <C32>
         </C32>
         <C32-AR>

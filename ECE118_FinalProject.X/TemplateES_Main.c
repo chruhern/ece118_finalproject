@@ -17,7 +17,6 @@ void main(void)
 
 
     // Your hardware initialization function calls go here
-    // set pin here
     // Call Bot Init Here
     Robot_Init();
 
