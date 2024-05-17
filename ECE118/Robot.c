@@ -411,7 +411,7 @@ int main() {
         }
         
         if (new_status != prev_status) {
-            if (new_status == 1) {
+            if (new_status == TAPE_DETECTED) {
                 printf("Tape detected \r\n");
                 LED_SetBank(LED_BANK1, 0xF);
             } else {
@@ -419,7 +419,7 @@ int main() {
                 LED_SetBank(LED_BANK1, 0x0);
             }
         }
-        //printf("Adc is %d \r\n", tape_fl_status);
+        printf("Adc is %d \r\n", tape_fl_status);
         
         // Update status
         prev_status = new_status;

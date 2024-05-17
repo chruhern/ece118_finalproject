@@ -136,6 +136,30 @@ ES_Event RunTemplateService(ES_Event ThisEvent)
     case FL_TAPE_NOT_DETECTED:
         printf("Front Left tape no longer detected. \r\n");
         break;
+        
+    case FR_TAPE_DETECTED:
+        printf("Front right tape detected. \r\n");
+        break;
+        
+    case FR_TAPE_NOT_DETECTED:
+        printf("Front right tape no longer detected. \r\n");
+        break;
+
+    case RL_TAPE_DETECTED:\
+        printf("Rear Left tape detected. \r\n");
+        break;
+        
+    case RL_TAPE_NOT_DETECTED:
+        printf("Rear Left tape no longer detected. \r\n");
+        break;
+
+    case RR_TAPE_DETECTED:
+        printf("Rear right tape detected. \r\n");
+        break;
+        
+    case RR_TAPE_NOT_DETECTED:
+        printf("Rear right tape no longer detected. \r\n");
+        break;
 
     case ES_TIMEOUT:
         ES_Timer_InitTimer(SIMPLE_SERVICE_TIMER, TIMER_0_TICKS);

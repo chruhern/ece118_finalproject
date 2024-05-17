@@ -44,6 +44,9 @@
 
 #define TRACK_DETECTED_THRESHOLD 300
 #define TRACK_NOT_DETECTED_THRESHOLD 250
+
+#define TAPE_DETECTED_THRESHOLD 40
+#define TAPE_NOT_DETECTED_THRESHOLD 300
 /*******************************************************************************
  * EVENTCHECKER_TEST SPECIFIC CODE                                                             *
  ******************************************************************************/
@@ -129,11 +132,14 @@ uint8_t EventCheck_TapeFL(void) {
     uint8_t returnVal = FALSE;
     unsigned int tape_status = Robot_GetTapeFL();
     
-    if (tape_status == TAPE_DETECTED) {
+    if (tape_status < TAPE_DETECTED_THRESHOLD) {
         curEvent = FL_TAPE_DETECTED;
-    } else {
+    } else if (tape_status > TAPE_NOT_DETECTED_THRESHOLD) {
         curEvent = FL_TAPE_NOT_DETECTED;
+    } else {
+        curEvent = lastEvent;
     }
+    
     if (curEvent != lastEvent) { // check for change from last time
         thisEvent.EventType = curEvent;
         thisEvent.EventParam = tape_status;
@@ -156,10 +162,12 @@ uint8_t EventCheck_TapeFR(void) {
     uint8_t returnVal = FALSE;
     unsigned int tape_status = Robot_GetTapeFR();
     
-    if (tape_status == TAPE_DETECTED) {
+    if (tape_status < TAPE_DETECTED_THRESHOLD) {
         curEvent = FR_TAPE_DETECTED;
-    } else {
+    } else if (tape_status > TAPE_NOT_DETECTED_THRESHOLD) {
         curEvent = FR_TAPE_NOT_DETECTED;
+    } else {
+        curEvent = lastEvent;
     }
     if (curEvent != lastEvent) { // check for change from last time
         thisEvent.EventType = curEvent;
@@ -183,10 +191,12 @@ uint8_t EventCheck_TapeRL(void) {
     uint8_t returnVal = FALSE;
     unsigned int tape_status = Robot_GetTapeRL();
     
-    if (tape_status == TAPE_DETECTED) {
+    if (tape_status < TAPE_DETECTED_THRESHOLD) {
         curEvent = RL_TAPE_DETECTED;
-    } else {
+    } else if (tape_status > TAPE_NOT_DETECTED_THRESHOLD) {
         curEvent = RL_TAPE_NOT_DETECTED;
+    } else {
+        curEvent = lastEvent;
     }
     if (curEvent != lastEvent) { // check for change from last time
         thisEvent.EventType = curEvent;
@@ -210,11 +220,14 @@ uint8_t EventCheck_TapeRR(void) {
     uint8_t returnVal = FALSE;
     unsigned int tape_status = Robot_GetTapeRR();
     
-    if (tape_status == TAPE_DETECTED) {
+    if (tape_status < TAPE_DETECTED_THRESHOLD) {
         curEvent = RR_TAPE_DETECTED;
-    } else {
+    } else if (tape_status > TAPE_NOT_DETECTED_THRESHOLD) {
         curEvent = RR_TAPE_NOT_DETECTED;
+    } else {
+        curEvent = lastEvent;
     }
+    
     if (curEvent != lastEvent) { // check for change from last time
         thisEvent.EventType = curEvent;
         thisEvent.EventParam = tape_status;
