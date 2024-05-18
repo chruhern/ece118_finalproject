@@ -160,6 +160,38 @@ ES_Event RunTemplateService(ES_Event ThisEvent)
     case RR_TAPE_NOT_DETECTED:
         printf("Rear right tape no longer detected. \r\n");
         break;
+        
+    case FL_BUMPER_PRESSED:
+        printf("Front left bumper pressed. \r\n");
+        break;
+        
+    case FL_BUMPER_RELEASED:
+        printf("Front left bumper released. \r\n");
+        break;
+
+    case FR_BUMPER_PRESSED:
+        printf("Front right bumper pressed. \r\n");
+        break;
+        
+    case FR_BUMPER_RELEASED:
+        printf("Front right bumper released. \r\n");
+        break;
+
+    case RL_BUMPER_PRESSED:
+        printf("Rear left bumper pressed. \r\n");
+        break;
+        
+    case RL_BUMPER_RELEASED:
+        printf("Rear left bumper released. \r\n");
+        break;
+
+    case RR_BUMPER_PRESSED:
+        printf("Rear right bumper pressed. \r\n");
+        break;
+        
+    case RR_BUMPER_RELEASED:
+        printf("Rear right bumper released. \r\n");
+        break;
 
     case ES_TIMEOUT:
         ES_Timer_InitTimer(SIMPLE_SERVICE_TIMER, TIMER_0_TICKS);

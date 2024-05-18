@@ -39,12 +39,12 @@ int main(void) {
     BOARD_Init(); // Board
     
     // Set pin as input
-    PORTV03_TRIS = 1;
+    PORTV04_TRIS = 1;
     
     // Main event loop
     while (1) {
         // Read from the switch value
-        int newStatus = PORTV03_BIT;
+        int newStatus = PORTV04_BIT;
         //printf("The status is %d \r\n", newStatus);
         if (newStatus != prev_switch_status) {
             if (newStatus == SWITCH_PRESSED) {
