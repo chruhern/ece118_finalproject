@@ -42,8 +42,8 @@
  ******************************************************************************/
 #define BATTERY_DISCONNECT_THRESHOLD 175
 
-#define TRACK_DETECTED_THRESHOLD 300
-#define TRACK_NOT_DETECTED_THRESHOLD 250
+#define TRACK_DETECTED_THRESHOLD 500
+#define TRACK_NOT_DETECTED_THRESHOLD 400
 
 #define TAPE_DETECTED_THRESHOLD 40
 #define TAPE_NOT_DETECTED_THRESHOLD 300

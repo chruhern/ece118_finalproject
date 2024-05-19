@@ -25,9 +25,10 @@
 ******************************************************************************/
 int EXPMA(int value);
 
-#define TRACK_WIRE_PIN AD_PORTV3 // AC pin definition
+#define TRACK_WIRE_PIN AD_PORTW7 // AC pin definition
 
-#define TRACK_DETECT_THRESHOLD 300
+#define TRACK_DETECT_THRESHOLD 400
+
 #define TRACK_NO_DETECT_THRESHOLD 250
 
 #define TRACK_DETECT 1
@@ -36,7 +37,6 @@ int EXPMA(int value);
 unsigned int track_wire_status = TRACK_NO_DETECT;
 
 // EMA
-unsigned int prev_track_reading = 0;
 
 // EMA Filter
 #define ALPHA 0.05
@@ -54,6 +54,7 @@ unsigned int prev_track_reading = 0;
 
 #ifdef TRACK_WIRE_HARNESS
 unsigned int EMA = 0;
+unsigned int prev_track_reading = 0;
 #endif
 
 #ifdef TRACK_WIRE_HARNESS

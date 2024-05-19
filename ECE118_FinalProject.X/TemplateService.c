@@ -192,6 +192,22 @@ ES_Event RunTemplateService(ES_Event ThisEvent)
     case RR_BUMPER_RELEASED:
         printf("Rear right bumper released. \r\n");
         break;
+        
+    case LEFT_TRACK_DETECTED:
+        printf("Left track detected. \r\n");
+        break;
+
+    case LEFT_TRACK_NOT_DETECTED:
+        printf("Left track not detected. \r\n");
+        break;
+
+    case RIGHT_TRACK_DETECTED:
+        printf("Right track detected. \r\n");
+        break;
+
+    case RIGHT_TRACK_NOT_DETECTED:
+        printf("Right track not detected. \r\n");
+        break;
 
     case ES_TIMEOUT:
         ES_Timer_InitTimer(SIMPLE_SERVICE_TIMER, TIMER_0_TICKS);
@@ -207,10 +223,6 @@ ES_Event RunTemplateService(ES_Event ThisEvent)
         EventCheck_BumperFR();
         EventCheck_BumperRL();
         EventCheck_BumperRR();
-        
-        // Track Wire
-        EventCheck_TrackWireFL();
-        EventCheck_TrackWireFR();
         
         // Beacon
         EventCheck_Beacon();

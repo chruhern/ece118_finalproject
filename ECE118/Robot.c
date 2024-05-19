@@ -264,8 +264,20 @@ char Robot_SetPropllerMode(int propellerMode) {
  * @brief  To be used for event checker, reads from ADC pin to check if track wire detects anything. 
  * F -> Front, L -> Left, R -> Right or Rear
  * @author Derrick Lai */
+unsigned int prev_left_reading = 0;
 unsigned int Robot_LevelGetTrackWireFL() {
+    
     return AD_ReadADPin(TRACK_WIRE_LEFT_PIN);
+//    unsigned int track_reading;
+//    if (AD_IsNewDataReady() == TRUE) {
+//        track_reading = AD_ReadADPin(TRACK_WIRE_LEFT_PIN);
+//        prev_left_reading = track_reading;
+//    } else {
+//        track_reading = prev_left_reading;
+//    }
+//    
+//    //printf("Reading: %d \r\n", track_reading);
+//    return track_reading;
 }
 
 unsigned int Robot_LevelGetTrackWireFR() {
