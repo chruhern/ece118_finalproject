@@ -24,6 +24,7 @@
 /*******************************************************************************
 * #DEFINES *
 ******************************************************************************/
+
 // Motors
 #define LEFT_MOTOR_EN PWM_PORTY04
 #define LEFT_MOTOR_INA_PIN_MODE PORTZ05_TRIS
@@ -66,7 +67,14 @@
 #define BUMPER_REAR_LEFT PORTV06_BIT
 #define BUMPER_REAR_RIGHT PORTV07_BIT
 
-#define BEACON_STATUS PORTV03_BIT
+//#define BEACON_STATUS PORTV03_BIT
+#define BEACON_PIN AD_PORTV3
+
+// Filters
+#define ALPHA 0.05
+unsigned int prev_left_reading = 0;
+unsigned int prev_right_reading = 0;
+
 /**
  * @Function Robot_Init()
  * @param None
@@ -128,7 +136,8 @@ char Robot_Init() {
     BUMPER_REAR_RIGHT_PIN_MODE = PIN_INPUT;
     
     // Beacon detector (digital value, but use Vpin, set as input)
-    BEACON_PIN_MODE = PIN_INPUT;
+    AD_AddPins(BEACON_PIN);
+    //BEACON_PIN_MODE = PIN_INPUT;
     
     // Ping sensor (Initialize IC3)
     
@@ -264,24 +273,20 @@ char Robot_SetPropllerMode(int propellerMode) {
  * @brief  To be used for event checker, reads from ADC pin to check if track wire detects anything. 
  * F -> Front, L -> Left, R -> Right or Rear
  * @author Derrick Lai */
-unsigned int prev_left_reading = 0;
 unsigned int Robot_LevelGetTrackWireFL() {
     
-    return AD_ReadADPin(TRACK_WIRE_LEFT_PIN);
-//    unsigned int track_reading;
-//    if (AD_IsNewDataReady() == TRUE) {
-//        track_reading = AD_ReadADPin(TRACK_WIRE_LEFT_PIN);
-//        prev_left_reading = track_reading;
-//    } else {
-//        track_reading = prev_left_reading;
-//    }
-//    
-//    //printf("Reading: %d \r\n", track_reading);
-//    return track_reading;
+    unsigned int track_reading = AD_ReadADPin(TRACK_WIRE_LEFT_PIN);
+    int filtered_reading = Robot_EXPMA(track_reading, &prev_left_reading);
+    return filtered_reading;
+
 }
 
 unsigned int Robot_LevelGetTrackWireFR() {
-    return AD_ReadADPin(TRACK_WIRE_RIGHT_PIN);
+    
+    unsigned int track_reading = AD_ReadADPin(TRACK_WIRE_RIGHT_PIN);
+    int filtered_reading = Robot_EXPMA(track_reading, &prev_left_reading);
+    return filtered_reading;
+    
 }
 
 /**
@@ -339,8 +344,10 @@ unsigned char Robot_GetBumperRR()  {
  * @brief  To be used for event checker, reads from ADC pin to check if track wire detects anything. 
  * F -> Front, L -> Left, R -> Right or Rear
  * @author Derrick Lai */
-unsigned char Robot_GetBeacon()  {
-    return BEACON_STATUS;
+unsigned int Robot_GetBeacon()  {
+    unsigned int beacon_adc = AD_ReadADPin(BEACON_PIN);
+    printf("Reading: %d \r\n", beacon_adc);
+    return beacon_adc;
 }
 
 /**
@@ -353,9 +360,10 @@ unsigned int Robot_GetPingDistance()  {
     
 }
 
-// This is a test function for the event checker, to be removed later
-int Robot_GetTape() {
-    return PORTV03_BIT;
+int Robot_EXPMA(int value, unsigned int *prev_value) {
+    int EMA = (value * ALPHA)+((*prev_value)*(1 - ALPHA));
+    *prev_value = EMA;
+    return EMA;
 }
 
 

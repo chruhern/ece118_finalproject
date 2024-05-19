@@ -208,6 +208,14 @@ ES_Event RunTemplateService(ES_Event ThisEvent)
     case RIGHT_TRACK_NOT_DETECTED:
         printf("Right track not detected. \r\n");
         break;
+        
+    case BEACON_DETECTED:
+        printf("Beacon has been detected. \r\n");
+        break;
+        
+    case BEACON_NOT_DETECTED:
+        printf("Beacon is no longer detected. \r\n");
+        break;
 
     case ES_TIMEOUT:
         ES_Timer_InitTimer(SIMPLE_SERVICE_TIMER, TIMER_0_TICKS);

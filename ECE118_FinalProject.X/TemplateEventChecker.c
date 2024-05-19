@@ -47,6 +47,9 @@
 
 #define TAPE_DETECTED_THRESHOLD 40
 #define TAPE_NOT_DETECTED_THRESHOLD 300
+
+#define BEACON_DETECTED_THRESHOLD 700
+#define BEACON_NOT_DETECTED_THRESHOLD 600
 /*******************************************************************************
  * EVENTCHECKER_TEST SPECIFIC CODE                                                             *
  ******************************************************************************/
@@ -434,14 +437,16 @@ uint8_t EventCheck_Beacon(void) {
     ES_EventTyp_t curEvent;
     ES_Event thisEvent;
     uint8_t returnVal = FALSE;
-    unsigned char beacon_status = Robot_GetBeacon();
+    unsigned int beacon_status = Robot_GetBeacon();
     
-    //printf("The tape status is %d. \r\n", tape_status);
-    if (beacon_status == BEACON_ON_SIGHT) { // is battery connected?
+    if (beacon_status > BEACON_DETECTED_THRESHOLD) {
         curEvent = BEACON_DETECTED;
-    } else {
+    } else if (beacon_status < BEACON_NOT_DETECTED_THRESHOLD){
         curEvent = BEACON_NOT_DETECTED;
+    } else {
+        curEvent = lastEvent;
     }
+    
     if (curEvent != lastEvent) { // check for change from last time
         thisEvent.EventType = curEvent;
         thisEvent.EventParam = beacon_status;

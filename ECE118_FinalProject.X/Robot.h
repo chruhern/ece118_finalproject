@@ -104,7 +104,7 @@ unsigned char Robot_GetBumperRR();
  * @brief  To be used for event checker, reads from ADC pin to check if track wire detects anything. 
  * F -> Front, L -> Left, R -> Right or Rear
  * @author Derrick Lai */
-unsigned char Robot_GetBeacon();
+unsigned int Robot_GetBeacon();
 
 /**
  * @Function Robot_GetPingDistance(void)
@@ -114,6 +114,13 @@ unsigned char Robot_GetBeacon();
  * @author Derrick Lai */
 unsigned int Robot_GetPingDistance(); 
 
-// Test, to be removed later
-int Robot_GetTape();
+/**
+ * @Function Robot_EXPMA(void)
+ * @param value -> The most current ADC reading
+ * @param prev_value -> The pointer to the previous ADC reading
+ * @return An integer representing the newly filtered value
+ * @brief  Used to smoothen data for the track wire detector.
+ * @author Derrick Lai */
+int Robot_EXPMA(int value, unsigned int *prev_value);
+
 
