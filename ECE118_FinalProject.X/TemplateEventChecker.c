@@ -32,6 +32,8 @@
 #include "serial.h"
 #include "AD.h"
 #include "TemplateService.h"
+#include "MainHSM.h"
+
 
 #include "Robot.h"
 #include <stdio.h>
@@ -113,7 +115,7 @@ uint8_t TemplateCheckBattery(void) {
         returnVal = TRUE;
         lastEvent = curEvent; // update history
 #ifndef EVENTCHECKER_TEST           // keep this as is for test harness
-        PostTemplateService(thisEvent);
+        PostTemplateHSM(thisEvent);
 #else
         SaveEvent(thisEvent);
 #endif   
@@ -149,7 +151,7 @@ uint8_t EventCheck_TapeFL(void) {
         returnVal = TRUE;
         lastEvent = curEvent; // update history
 #ifndef EVENTCHECKER_TEST           // keep this as is for test harness
-        PostTemplateService(thisEvent); // Change to HSM if transitioning to HSM
+        PostTemplateHSM(thisEvent); // Change to HSM if transitioning to HSM
 #else
         SaveEvent(thisEvent);
 #endif   
@@ -178,7 +180,7 @@ uint8_t EventCheck_TapeFR(void) {
         returnVal = TRUE;
         lastEvent = curEvent; // update history
 #ifndef EVENTCHECKER_TEST           // keep this as is for test harness
-        PostTemplateService(thisEvent); // Change to HSM if transitioning to HSM
+        PostTemplateHSM(thisEvent); // Change to HSM if transitioning to HSM
 #else
         SaveEvent(thisEvent);
 #endif   
@@ -207,7 +209,7 @@ uint8_t EventCheck_TapeRL(void) {
         returnVal = TRUE;
         lastEvent = curEvent; // update history
 #ifndef EVENTCHECKER_TEST           // keep this as is for test harness
-        PostTemplateService(thisEvent); // Change to HSM if transitioning to HSM
+        PostTemplateHSM(thisEvent); // Change to HSM if transitioning to HSM
 #else
         SaveEvent(thisEvent);
 #endif   
@@ -237,7 +239,7 @@ uint8_t EventCheck_TapeRR(void) {
         returnVal = TRUE;
         lastEvent = curEvent; // update history
 #ifndef EVENTCHECKER_TEST           // keep this as is for test harness
-        PostTemplateService(thisEvent); // Change to HSM if transitioning to HSM
+        PostTemplateHSM(thisEvent); // Change to HSM if transitioning to HSM
 #else
         SaveEvent(thisEvent);
 #endif   
@@ -270,7 +272,7 @@ uint8_t EventCheck_BumperFL(void) {
         returnVal = TRUE;
         lastEvent = curEvent; // update history
 #ifndef EVENTCHECKER_TEST           // keep this as is for test harness
-        PostTemplateService(thisEvent); // Change to HSM if transitioning to HSM
+        PostTemplateHSM(thisEvent); // Change to HSM if transitioning to HSM
 #else
         SaveEvent(thisEvent);
 #endif   
@@ -297,7 +299,7 @@ uint8_t EventCheck_BumperFR(void) {
         returnVal = TRUE;
         lastEvent = curEvent; // update history
 #ifndef EVENTCHECKER_TEST           // keep this as is for test harness
-        PostTemplateService(thisEvent); // Change to HSM if transitioning to HSM
+        PostTemplateHSM(thisEvent); // Change to HSM if transitioning to HSM
 #else
         SaveEvent(thisEvent);
 #endif   
@@ -324,7 +326,7 @@ uint8_t EventCheck_BumperRL(void) {
         returnVal = TRUE;
         lastEvent = curEvent; // update history
 #ifndef EVENTCHECKER_TEST           // keep this as is for test harness
-        PostTemplateService(thisEvent); // Change to HSM if transitioning to HSM
+        PostTemplateHSM(thisEvent); // Change to HSM if transitioning to HSM
 #else
         SaveEvent(thisEvent);
 #endif   
@@ -351,7 +353,7 @@ uint8_t EventCheck_BumperRR(void) {
         returnVal = TRUE;
         lastEvent = curEvent; // update history
 #ifndef EVENTCHECKER_TEST           // keep this as is for test harness
-        PostTemplateService(thisEvent); // Change to HSM if transitioning to HSM
+        PostTemplateHSM(thisEvent); // Change to HSM if transitioning to HSM
 #else
         SaveEvent(thisEvent);
 #endif   
@@ -387,7 +389,7 @@ uint8_t EventCheck_TrackWireFL(void) {
         returnVal = TRUE;
         lastEvent = curEvent; // update history
 #ifndef EVENTCHECKER_TEST           // keep this as is for test harness
-        PostTemplateService(thisEvent); // Change to HSM if transitioning to HSM
+        PostTemplateHSM(thisEvent); // Change to HSM if transitioning to HSM
 #else
         SaveEvent(thisEvent);
 #endif   
@@ -417,7 +419,7 @@ uint8_t EventCheck_TrackWireFR(void) {
         returnVal = TRUE;
         lastEvent = curEvent; // update history
 #ifndef EVENTCHECKER_TEST           // keep this as is for test harness
-        PostTemplateService(thisEvent); // Change to HSM if transitioning to HSM
+        PostTemplateHSM(thisEvent); // Change to HSM if transitioning to HSM
 #else
         SaveEvent(thisEvent);
 #endif   
@@ -453,7 +455,7 @@ uint8_t EventCheck_Beacon(void) {
         returnVal = TRUE;
         lastEvent = curEvent; // update history
 #ifndef EVENTCHECKER_TEST           // keep this as is for test harness
-        PostTemplateService(thisEvent); // Change to HSM if transitioning to HSM
+        PostTemplateHSM(thisEvent); // Change to HSM if transitioning to HSM
 #else
         SaveEvent(thisEvent);
 #endif   

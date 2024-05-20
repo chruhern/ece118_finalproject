@@ -28,6 +28,8 @@
       <itemPath>TemplateEventChecker.h</itemPath>
       <itemPath>TemplateService.h</itemPath>
       <itemPath>Robot.h</itemPath>
+      <itemPath>MainHSM.h</itemPath>
+      <itemPath>SubHSM_Align.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -62,6 +64,8 @@
       <itemPath>TemplateES_Main.c</itemPath>
       <itemPath>TemplateService.c</itemPath>
       <itemPath>../ECE118/Robot.c</itemPath>
+      <itemPath>MainHSM.c</itemPath>
+      <itemPath>SubHSM_Align.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

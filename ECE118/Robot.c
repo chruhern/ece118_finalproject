@@ -346,7 +346,7 @@ unsigned char Robot_GetBumperRR()  {
  * @author Derrick Lai */
 unsigned int Robot_GetBeacon()  {
     unsigned int beacon_adc = AD_ReadADPin(BEACON_PIN);
-    printf("Reading: %d \r\n", beacon_adc);
+    //printf("Reading: %d \r\n", beacon_adc);
     return beacon_adc;
 }
 
