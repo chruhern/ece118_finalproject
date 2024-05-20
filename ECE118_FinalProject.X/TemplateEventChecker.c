@@ -47,8 +47,8 @@
 #define TRACK_DETECTED_THRESHOLD 500
 #define TRACK_NOT_DETECTED_THRESHOLD 400
 
-#define TAPE_DETECTED_THRESHOLD 40
-#define TAPE_NOT_DETECTED_THRESHOLD 300
+#define TAPE_DETECTED_THRESHOLD 300
+#define TAPE_NOT_DETECTED_THRESHOLD 50
 
 #define BEACON_DETECTED_THRESHOLD 700
 #define BEACON_NOT_DETECTED_THRESHOLD 600
@@ -137,9 +137,9 @@ uint8_t EventCheck_TapeFL(void) {
     uint8_t returnVal = FALSE;
     unsigned int tape_status = Robot_GetTapeFL();
     
-    if (tape_status < TAPE_DETECTED_THRESHOLD) {
+    if (tape_status > TAPE_DETECTED_THRESHOLD) {
         curEvent = FL_TAPE_DETECTED;
-    } else if (tape_status > TAPE_NOT_DETECTED_THRESHOLD) {
+    } else if (tape_status < TAPE_NOT_DETECTED_THRESHOLD) {
         curEvent = FL_TAPE_NOT_DETECTED;
     } else {
         curEvent = lastEvent;
@@ -167,9 +167,9 @@ uint8_t EventCheck_TapeFR(void) {
     uint8_t returnVal = FALSE;
     unsigned int tape_status = Robot_GetTapeFR();
     
-    if (tape_status < TAPE_DETECTED_THRESHOLD) {
+    if (tape_status > TAPE_DETECTED_THRESHOLD) {
         curEvent = FR_TAPE_DETECTED;
-    } else if (tape_status > TAPE_NOT_DETECTED_THRESHOLD) {
+    } else if (tape_status < TAPE_NOT_DETECTED_THRESHOLD) {
         curEvent = FR_TAPE_NOT_DETECTED;
     } else {
         curEvent = lastEvent;
@@ -196,9 +196,9 @@ uint8_t EventCheck_TapeRL(void) {
     uint8_t returnVal = FALSE;
     unsigned int tape_status = Robot_GetTapeRL();
     
-    if (tape_status < TAPE_DETECTED_THRESHOLD) {
+    if (tape_status > TAPE_DETECTED_THRESHOLD) {
         curEvent = RL_TAPE_DETECTED;
-    } else if (tape_status > TAPE_NOT_DETECTED_THRESHOLD) {
+    } else if (tape_status < TAPE_NOT_DETECTED_THRESHOLD) {
         curEvent = RL_TAPE_NOT_DETECTED;
     } else {
         curEvent = lastEvent;
@@ -225,9 +225,9 @@ uint8_t EventCheck_TapeRR(void) {
     uint8_t returnVal = FALSE;
     unsigned int tape_status = Robot_GetTapeRR();
     
-    if (tape_status < TAPE_DETECTED_THRESHOLD) {
+    if (tape_status > TAPE_DETECTED_THRESHOLD) {
         curEvent = RR_TAPE_DETECTED;
-    } else if (tape_status > TAPE_NOT_DETECTED_THRESHOLD) {
+    } else if (tape_status < TAPE_NOT_DETECTED_THRESHOLD) {
         curEvent = RR_TAPE_NOT_DETECTED;
     } else {
         curEvent = lastEvent;

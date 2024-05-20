@@ -4,13 +4,12 @@
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
             <file>file:/C:/Users/derri/ECE118/ece118_finalproject/ECE118_FinalProject.X/Robot.h</file>
-            <file>file:/C:/Users/derri/ECE118/ece118_finalproject/ECE118_FinalProject.X/TrackWireDetectorHarness.c</file>
             <file>file:/C:/Users/derri/ECE118/ece118_finalproject/ECE118_FinalProject.X/ES_Configure.h</file>
+            <file>file:/C:/Users/derri/ECE118/ece118_finalproject/ECE118_FinalProject.X/MainHSM.c</file>
             <file>file:/C:/Users/derri/ECE118/ece118_finalproject/ECE118_FinalProject.X/TemplateEventChecker.c</file>
             <file>file:/C:/Users/derri/ECE118/ece118_finalproject/ECE118/Robot.c</file>
-            <file>file:/C:/Users/derri/ECE118/ece118_finalproject/ECE118_FinalProject.X/TemplateEventChecker.h</file>
             <file>file:/C:/Users/derri/ECE118/ece118_finalproject/ECE118_FinalProject.X/TemplateService.c</file>
-            <file>file:/C:/Users/derri/ECE118/ece118_finalproject/ECE118/include/AD.h</file>
+            <file>file:/C:/Users/derri/ECE118/ece118_finalproject/ECE118_FinalProject.X/SubHSM_Align.h</file>
         </group>
     </open-files>
 </project-private>
