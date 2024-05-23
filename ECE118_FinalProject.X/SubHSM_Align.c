@@ -33,17 +33,26 @@
 #include "MainHSM.h"
 #include "SubHSM_Align.h"
 
+#include <stdio.h>
+#include "ES_Timers.h"
+#include "Robot.h"
+
 /*******************************************************************************
  * MODULE #DEFINES                                                             *
  ******************************************************************************/
 typedef enum {
     InitPSubState,
-    SubFirstState,
+    SubForward,
+    SubReverse,
+    SubTurn,
+            
 } TemplateSubHSMState_t;
 
 static const char *StateNames[] = {
 	"InitPSubState",
-	"SubFirstState",
+	"SubForward",
+	"SubReverse",
+	"SubTurn",
 };
 
 
@@ -53,7 +62,7 @@ static const char *StateNames[] = {
  ******************************************************************************/
 /* Prototypes for private functions for this machine. They should be functions
    relevant to the behavior of this state machine */
-
+int sub_align_xor_shift(int seed);
 /*******************************************************************************
  * PRIVATE MODULE VARIABLES                                                            *
  ******************************************************************************/
@@ -63,7 +72,10 @@ static const char *StateNames[] = {
 static TemplateSubHSMState_t CurrentState = InitPSubState; // <- change name to match ENUM
 static uint8_t MyPriority;
 
-
+// Random number generation
+int seed = 0;
+int rand = 0;
+#define MAX_TURN_TIME_TICKS 250 // Assume time in milliseconds, of the time it takes to turn 90 degrees at maximum speed
 /*******************************************************************************
  * PUBLIC FUNCTIONS                                                            *
  ******************************************************************************/
@@ -121,19 +133,151 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
             // initial state
 
             // now put the machine into the actual initial state
-            nextState = SubFirstState;
+            nextState = SubForward;
             makeTransition = TRUE;
             ThisEvent.EventType = ES_NO_EVENT;
         }
         break;
 
-    case SubFirstState: // in the first state, replace this with correct names
+    case SubForward: // in the first state, replace this with correct names
+        printf("In forward state. \r\n");
         switch (ThisEvent.EventType) {
+            
+        case ES_ENTRY:
+            // Initialize actions to be performed at this state
+            // Move the robot forward
+            Robot_SetLeftMotor(MOTOR_MAX);
+            Robot_SetRightMotor(MOTOR_MAX);
+            break;
+
+        case ES_EXIT:
+            break;
+
+        case ES_TIMEOUT:
+            break;
+            
+        // If any of the front bumpers or tape sensors have triggered, then transition to the turn state
+        case FL_TAPE_DETECTED:
+            // Transition to the next state of reversal
+            nextState = SubReverse;
+            makeTransition = TRUE;
+            ThisEvent.EventType = ES_NO_EVENT;
+            break;
+
+        case FR_TAPE_DETECTED:
+            // Transition to the next state of reversal
+            nextState = SubReverse;
+            makeTransition = TRUE;
+            ThisEvent.EventType = ES_NO_EVENT;
+            break;
+
+        case FL_BUMPER_PRESSED:
+            // Transition to the next state of reversal
+            nextState = SubReverse;
+            makeTransition = TRUE;
+            ThisEvent.EventType = ES_NO_EVENT;
+            break;
+
+        case FR_BUMPER_PRESSED:
+            // Transition to the next state of reversal
+            nextState = SubReverse;
+            makeTransition = TRUE;
+            ThisEvent.EventType = ES_NO_EVENT;
+            break;
+            
         case ES_NO_EVENT:
         default: // all unhandled events pass the event back up to the next level
             break;
         }
         break;
+        
+    case SubReverse:
+        printf("Transitioning to reverse. \r\n");
+        switch (ThisEvent.EventType) {
+        case ES_ENTRY:
+            // Initialize actions to be performed at this state
+            // Reverse the bot
+            Robot_SetLeftMotor(-MOTOR_MAX);
+            Robot_SetRightMotor(-MOTOR_MAX);
+            break;
+            
+        case FL_TAPE_NOT_DETECTED:
+            // Transition to the next state of randomly turning
+            nextState = SubTurn;
+            makeTransition = TRUE;
+            ThisEvent.EventType = ES_NO_EVENT;
+            break;
+
+        case FR_TAPE_NOT_DETECTED:
+            // Transition to the next state of randomly turning
+            nextState = SubTurn;
+            makeTransition = TRUE;
+            ThisEvent.EventType = ES_NO_EVENT;
+            break;
+
+        case FL_BUMPER_RELEASED:
+            // Transition to the next state of randomly turning
+            nextState = SubTurn;
+            makeTransition = TRUE;
+            ThisEvent.EventType = ES_NO_EVENT;
+            break;
+
+        case FR_BUMPER_RELEASED:
+            // Transition to the next state of randomly turning
+            nextState = SubTurn;
+            makeTransition = TRUE;
+            ThisEvent.EventType = ES_NO_EVENT;
+            break;
+                
+        case ES_EXIT:
+            break;
+
+        case ES_TIMEOUT:
+            break;
+
+        case ES_NO_EVENT:
+        default: // Nothing happens on default states
+            break;
+        }
+        
+    case SubTurn:
+        printf("In sub turning state. \r\n");
+        switch (ThisEvent.EventType) {
+            case ES_ENTRY:
+                // Initialize actions to be performed at this state
+                // Randomly generate a number of time that moves within the range of -90 to 90.
+                seed = ES_Timer_GetTime();
+                rand = (sub_align_xor_shift(seed) % (2 * MAX_TURN_TIME_TICKS + 1)) - MAX_TURN_TIME_TICKS;
+                //printf("The randomly generated value is %d \r\n", rand);
+                // Determine direction to turn (negative is left, positive is right)
+                if (rand < 0) {
+                    Robot_SetLeftMotor(-MOTOR_MAX);
+                    Robot_SetRightMotor(MOTOR_MAX);
+                    rand = -MAX_TURN_TIME_TICKS + rand; // Invert the value to get positive
+                } else {
+                    Robot_SetLeftMotor(MOTOR_MAX);
+                    Robot_SetRightMotor(-MOTOR_MAX);
+                    rand = MAX_TURN_TIME_TICKS + rand;
+                }
+                // Initialize a timer from the given time
+                ES_Timer_InitTimer(SUB_ALIGN_TURN_TIMER, rand);
+                break;
+
+            case ES_EXIT:
+                break;
+
+            case ES_TIMEOUT:
+                if (ThisEvent.EventParam == SUB_ALIGN_TURN_TIMER) {
+                    nextState = SubForward;
+                    makeTransition = TRUE;
+                    ThisEvent.EventType = ES_NO_EVENT;
+                }
+                break;
+                
+            case ES_NO_EVENT:
+            default: // Nothing happens on default states
+                break;
+        }
         
     default: // all unhandled states fall into here
         break;
@@ -154,4 +298,11 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
 /*******************************************************************************
  * PRIVATE FUNCTIONS                                                           *
  ******************************************************************************/
-
+int sub_align_xor_shift(int seed) {
+    // Pseudorandomly generate a value
+    int val = seed;
+    val ^= (val << 13);
+    val ^= (val >> 17);
+    val ^= (val << 5);
+    return val;
+}

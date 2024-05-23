@@ -376,7 +376,7 @@ int Robot_EXPMA(int value, unsigned int *prev_value) {
 const unsigned int bot_switch_time = 5000000;
 unsigned int bot_curr_time = bot_switch_time;
 int bot_curr_direction = 1; // 1 is forward, -1 is backward
-int bot_speed = 250;
+int bot_speed = 1000; //250;
 int main() {
     
     printf("Running the test harness for the robot. \r\n");
@@ -389,63 +389,63 @@ int main() {
     
     // Main event loop
     // TEST CASE 1: LEFT AND RIGHT MOTORS ==================================================
-//    while (1) {
-//        
-//        // If the time passes the switch time, reverse direction.
-//        if (bot_curr_time >= bot_switch_time) {
-//            
-//            // Reverse direction
-//            bot_curr_direction = -bot_curr_direction;
-//            
-//            // Run motors
-//            int robot_speed = bot_speed * bot_curr_direction;
-//            printf("Bot speed is %d. \r\n", robot_speed);
-//            Robot_SetLeftMotor(robot_speed); // bot_speed * bot_curr_direction
-//            Robot_SetRightMotor(robot_speed);
-//            
-//            // Reset time
-//            bot_curr_time = 0;
-//        }
-//        
-//        // Increment time
-//        bot_curr_time++;
-//    }
+    while (1) {
+        
+        // If the time passes the switch time, reverse direction.
+        if (bot_curr_time >= bot_switch_time) {
+            
+            // Reverse direction
+            bot_curr_direction = -bot_curr_direction;
+            
+            // Run motors
+            int robot_speed = bot_speed * bot_curr_direction;
+            printf("Bot speed is %d. \r\n", robot_speed);
+            Robot_SetLeftMotor(robot_speed); // bot_speed * bot_curr_direction
+            Robot_SetRightMotor(robot_speed);
+            
+            // Reset time
+            bot_curr_time = 0;
+        }
+        
+        // Increment time
+        bot_curr_time++;
+    }
     //==================================================
     
     // Sensor Test ==================================================
     
-    int prev_status = 0;
-    int low = 40;
-    int high = 300;
-    while (1) {
-        unsigned int tape_fl_status = Robot_GetTapeFL();
-//        int tape_fr_status = Robot_GetTapeFR();
-//        int tape_rl_status = Robot_GetTapeRL();
-//        int tape_rr_status = Robot_GetTapeRR();
+//    int prev_status = 0;
+//    int low = 40;
+//    int high = 300;
+//    while (1) {
+//        unsigned int tape_fl_status = Robot_GetTapeFL();
+////        int tape_fr_status = Robot_GetTapeFR();
+////        int tape_rl_status = Robot_GetTapeRL();
+////        int tape_rr_status = Robot_GetTapeRR();
+//        
+//        int new_status;
+//        if (tape_fl_status > high) {
+//            new_status = 1;
+//        } else if (tape_fl_status < low) {
+//            new_status = 0;
+//        }
+//        
+//        if (new_status != prev_status) {
+//            if (new_status == TAPE_DETECTED) {
+//                printf("Tape detected \r\n");
+//                LED_SetBank(LED_BANK1, 0xF);
+//            } else {
+//                printf("Tape not detected \r\n");
+//                LED_SetBank(LED_BANK1, 0x0);
+//            }
+//        }
+//        printf("Adc is %d \r\n", tape_fl_status);
+//        
+//        // Update status
+//        prev_status = new_status;
+//        
         
-        int new_status;
-        if (tape_fl_status > high) {
-            new_status = 1;
-        } else if (tape_fl_status < low) {
-            new_status = 0;
-        }
-        
-        if (new_status != prev_status) {
-            if (new_status == TAPE_DETECTED) {
-                printf("Tape detected \r\n");
-                LED_SetBank(LED_BANK1, 0xF);
-            } else {
-                printf("Tape not detected \r\n");
-                LED_SetBank(LED_BANK1, 0x0);
-            }
-        }
-        printf("Adc is %d \r\n", tape_fl_status);
-        
-        // Update status
-        prev_status = new_status;
-        
-        
-    }
+//  }
     return (SUCCESS);
 }
 #endif

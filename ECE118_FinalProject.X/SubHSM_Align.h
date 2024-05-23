@@ -17,8 +17,8 @@
  * Updated on 16/Sep/2013
  */
 
-#ifndef SUB_TEMPLATE_HSM_H  // <- This should be changed to your own guard on both
-#define SUB_TEMPLATE_HSM_H  //    of these lines
+#ifndef SUB_HSM_ALIGN  // <- This should be changed to your own guard on both
+#define SUB_HSM_ALIGN  //    of these lines
 
 
 /*******************************************************************************
@@ -70,5 +70,5 @@ uint8_t InitAlignSubHSM(void);
  * @author Gabriel H Elkaim, 2011.10.23 19:25 */
 ES_Event RunAlignSubHSM(ES_Event ThisEvent);
 
-#endif /* SUB_HSM_Template_H */
+#endif /* SUB_HSM_ALIGN */
 

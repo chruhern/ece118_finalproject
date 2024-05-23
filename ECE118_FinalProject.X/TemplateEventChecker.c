@@ -50,8 +50,8 @@
 #define TAPE_DETECTED_THRESHOLD 300
 #define TAPE_NOT_DETECTED_THRESHOLD 50
 
-#define BEACON_DETECTED_THRESHOLD 700
-#define BEACON_NOT_DETECTED_THRESHOLD 600
+#define BEACON_DETECTED_THRESHOLD 640
+#define BEACON_NOT_DETECTED_THRESHOLD 610
 /*******************************************************************************
  * EVENTCHECKER_TEST SPECIFIC CODE                                                             *
  ******************************************************************************/

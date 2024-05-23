@@ -25,11 +25,11 @@
 // Prototypes
 int EXPMA(int value);
 
-#define TAPE_PIN AD_PORTV3 // AC pin definition
+#define TAPE_PIN AD_PORTW4 // AC pin definition
 
 // Tape sensor threshold values (experimentally determined)
-#define TAPE_HIGH_THRESHOLD 800
-#define TAPE_LOW_THRESHOLD 250
+#define TAPE_HIGH_THRESHOLD 500
+#define TAPE_LOW_THRESHOLD 50
 
 #define TAPE_HIGH 1
 #define TAPE_LOW 0
@@ -43,7 +43,7 @@ unsigned int prev_tape_reading = 0;
 * PUBLIC FUNCTION IMPLEMENTATIONS *
 ******************************************************************************/
 
-//#define TAPE_SENSOR_HARNESS
+#define TAPE_SENSOR_HARNESS
 
 #ifdef TAPE_SENSOR_HARNESS
     unsigned int EMA = 0;
@@ -77,21 +77,22 @@ int main(void) {
             }
             
             // Print out message if status is different
-//            if (new_status != tape_status) {
-//                if (new_status == TAPE_HIGH) {
-//                    printf("Tape sensor detected high. \r\n");
-//                } else {
-//                    printf("Tape sensor detected low. \r\n");
-//                }
-//                
-//                printf("The tape sensor reading from the ADC is %d. \r\n", tape_sensor_reading);
-//            }
+            if (new_status != tape_status) {
+                if (new_status == TAPE_HIGH) {
+                    printf("Tape sensor detected high. \r\n");
+                } else {
+                    printf("Tape sensor detected low. \r\n");
+                }
+                
+                printf("The tape sensor reading from the ADC is %d. \r\n", tape_sensor_reading);
+            }
             
             // Update previous status to the new status
             tape_status = new_status;
             
             // Test Display (remove when you have successfully gotten a pin reading)
-            printf("The tape sensor reading from the ADC is %d. \r\n", tape_sensor_reading);
+            //printf("The tape sensor reading from the ADC is %d. \r\n", tape_sensor_reading);
+            //printf("Tape: %d. \r\n", tape_sensor_reading);
         }
     }
     

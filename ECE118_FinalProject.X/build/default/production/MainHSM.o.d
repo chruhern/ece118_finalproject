@@ -7,7 +7,7 @@ build/default/production/MainHSM.o: MainHSM.c ES_Configure.h \
  ../ECE118/include/ES_Queue.h ../ECE118/include/ES_ServiceHeaders.h \
  ES_Configure.h MainHSM.h ES_Configure.h TemplateService.h \
  ../ECE118/include/ES_TattleTale.h ../ECE118/include/BOARD.h MainHSM.h \
- SubHSM_Align.h
+ SubHSM_Align.h SubHSM_TrackSearch.h
 
 ES_Configure.h:
 
@@ -50,3 +50,5 @@ TemplateService.h:
 MainHSM.h:
 
 SubHSM_Align.h:
+
+SubHSM_TrackSearch.h:

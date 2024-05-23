@@ -28,11 +28,14 @@
  * MODULE #INCLUDE                                                             *
  ******************************************************************************/
 
+
 #include "ES_Configure.h"
 #include "ES_Framework.h"
 #include "BOARD.h"
 #include "MainHSM.h"
+
 #include "SubHSM_Align.h" //#include all sub state machines called
+#include "SubHSM_TrackSearch.h"
 /*******************************************************************************
  * PRIVATE #DEFINES                                                            *
  ******************************************************************************/
@@ -45,12 +48,15 @@
 
 typedef enum {
     InitPState,
-    FirstState,
+    SubAlign,
+    SubTrackSearch,
+            
 } TemplateHSMState_t;
 
 static const char *StateNames[] = {
 	"InitPState",
-	"FirstState",
+	"SubAlign",
+	"SubTrackSearch",
 };
 
 
@@ -142,16 +148,17 @@ ES_Event RunTemplateHSM(ES_Event ThisEvent)
             // initial state
             // Initialize all sub-state machines
             InitAlignSubHSM();
+            InitTrackSubHSM();
             
             // now put the machine into the actual initial state
-            nextState = FirstState;
+            nextState = SubAlign;
             makeTransition = TRUE;
             ThisEvent.EventType = ES_NO_EVENT;
             ;
         }
         break;
 
-    case FirstState: // in the first state, replace this with correct names
+    case SubAlign: // in the first state, replace this with correct names
         // run sub-state machine for this state
         //NOTE: the SubState Machine runs and responds to events before anything in the this
         //state machine does
@@ -162,6 +169,16 @@ ES_Event RunTemplateHSM(ES_Event ThisEvent)
             break;
         }
         break;
+        
+    case SubTrackSearch:
+        ThisEvent = RunTrackSubHSM(ThisEvent);
+        switch (ThisEvent.EventType) {
+        case ES_NO_EVENT:
+        default:
+            break;
+        }
+        break;
+        
     default: // all unhandled states fall into here
         break;
     } // end switch on Current State
