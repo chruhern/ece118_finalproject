@@ -30,20 +30,37 @@
 #include "ES_Configure.h"
 #include "ES_Framework.h"
 #include "BOARD.h"
-#include "TemplateHSM.h"
-#include "TemplateSubHSM.h"
+#include "MainHSM.h"
+#include "SubHSM_TestHarness.h"
+
+#include "Robot.h"
 
 /*******************************************************************************
  * MODULE #DEFINES                                                             *
  ******************************************************************************/
 typedef enum {
     InitPSubState,
-    SubFirstState,
+    ForwardTape,
+    ReverseTape,
+    ForwardBumper,
+    ReverseBumper,
+    ForwardCalibration,
+    ReverseCalibration,
+    TurnLeftCalibration,
+    TurnRightCalibration,
+            
 } TemplateSubHSMState_t;
 
 static const char *StateNames[] = {
-    "InitPSubState",
-    "SubFirstState",
+	"InitPSubState",
+	"ForwardTape",
+	"ReverseTape",
+	"ForwardBumper",
+	"ReverseBumper",
+	"ForwardCalibration",
+	"ReverseCalibration",
+	"TurnLeftCalibration",
+	"TurnRightCalibration",
 };
 
 
@@ -78,12 +95,12 @@ static uint8_t MyPriority;
  *        to rename this to something appropriate.
  *        Returns TRUE if successful, FALSE otherwise
  * @author J. Edward Carryer, 2011.10.23 19:25 */
-uint8_t InitTemplateSubHSM(void)
+uint8_t InitHarnessSubHSM(void)
 {
     ES_Event returnEvent;
 
     CurrentState = InitPSubState;
-    returnEvent = RunTemplateSubHSM(INIT_EVENT);
+    returnEvent = RunHarnessSubHSM(INIT_EVENT);
     if (returnEvent.EventType == ES_NO_EVENT) {
         return TRUE;
     }
@@ -91,21 +108,16 @@ uint8_t InitTemplateSubHSM(void)
 }
 
 /**
- * @Function RunTemplateSubHSM(ES_Event ThisEvent)
+ * @Function RunHarnessSubHSM(ES_Event ThisEvent)
  * @param ThisEvent - the event (type and param) to be responded.
  * @return Event - return event (type and param), in general should be ES_NO_EVENT
- * @brief This function is where you implement the whole of the heirarchical state
- *        machine, as this is called any time a new event is passed to the event
- *        queue. This function will be called recursively to implement the correct
- *        order for a state transition to be: exit current state -> enter next state
- *        using the ES_EXIT and ES_ENTRY events.
+ * @brief This state is purely used as a test harness to test whether if the robot works for basic states.
  * @note Remember to rename to something appropriate.
  *       The lower level state machines are run first, to see if the event is dealt
  *       with there rather than at the current level. ES_EXIT and ES_ENTRY events are
  *       not consumed as these need to pass pack to the higher level state machine.
- * @author J. Edward Carryer, 2011.10.23 19:25
- * @author Gabriel H Elkaim, 2011.10.23 19:25 */
-ES_Event RunTemplateSubHSM(ES_Event ThisEvent)
+ */
+ES_Event RunHarnessSubHSM(ES_Event ThisEvent)
 {
     uint8_t makeTransition = FALSE; // use to flag transition
     TemplateSubHSMState_t nextState; // <- change type to correct enum
@@ -121,18 +133,221 @@ ES_Event RunTemplateSubHSM(ES_Event ThisEvent)
             // initial state
 
             // now put the machine into the actual initial state
-            nextState = SubFirstState;
+            nextState = ForwardTape;
             makeTransition = TRUE;
             ThisEvent.EventType = ES_NO_EVENT;
         }
         break;
 
-    case SubFirstState: // in the first state, replace this with correct names
+    case ForwardTape: // in the first state, replace this with correct names
         switch (ThisEvent.EventType) {
-        case ES_NO_EVENT:
-        default: // all unhandled events pass the event back up to the next level
-            break;
-        }
+            case ES_ENTRY:
+                // Make the robot move forward
+                Robot_SetLeftMotor(MOTOR_MAX);
+                Robot_SetRightMotor(MOTOR_MAX);
+                
+                break;
+
+            case ES_EXIT:
+                break;
+
+            case ES_TIMEOUT:
+                break;
+            
+            // Put all detection events over here. Check for all tape statuses
+            case FL_TAPE_DETECTED:
+                nextState = ReverseTape;
+                makeTransition = TRUE;
+                ThisEvent.EventType = ES_NO_EVENT;
+                break;
+                
+            case FR_TAPE_DETECTED:  
+                nextState = ReverseTape;
+                makeTransition = TRUE;
+                ThisEvent.EventType = ES_NO_EVENT;
+                break;
+
+            case ES_NO_EVENT:
+            default:
+                break;
+            }
+        break;
+    
+    case ReverseTape:
+        switch (ThisEvent.EventType) {
+            case ES_ENTRY:
+                // Make the robot move the opposite direction
+                Robot_SetLeftMotor(-MOTOR_MAX);
+                Robot_SetRightMotor(-MOTOR_MAX);
+                
+                break;
+
+            case ES_EXIT:
+                break;
+
+            case ES_TIMEOUT:
+                break;
+            
+            // Put all detection events over here
+            case RL_TAPE_DETECTED:
+                nextState = ForwardTape;
+                makeTransition = TRUE;
+                ThisEvent.EventType = ES_NO_EVENT;
+                break;
+                
+            case RR_TAPE_DETECTED:
+                nextState = ForwardTape;
+                makeTransition = TRUE;
+                ThisEvent.EventType = ES_NO_EVENT;
+                break;
+                
+            case ES_NO_EVENT:
+            default:
+                break;
+            }
+        break;
+
+    case ForwardBumper:
+        switch (ThisEvent.EventType) {
+            case ES_ENTRY:
+                // Move forward
+                Robot_SetLeftMotor(MOTOR_MAX);
+                Robot_SetRightMotor(MOTOR_MAX);
+                break;
+
+            case ES_EXIT:
+                break;
+
+            case ES_TIMEOUT:
+                break;
+            
+            // Put all detection events over here
+            case FL_BUMPER_PRESSED:
+                nextState = ReverseBumper;
+                makeTransition = TRUE;
+                ThisEvent.EventType = ES_NO_EVENT;
+                break;
+                
+            case FR_BUMPER_PRESSED:
+                nextState = ReverseBumper;
+                makeTransition = TRUE;
+                ThisEvent.EventType = ES_NO_EVENT;
+                break;
+
+            case ES_NO_EVENT:
+            default:
+                break;
+            }
+        break;
+        
+    case ReverseBumper:
+        switch (ThisEvent.EventType) {
+            case ES_ENTRY:
+                // Make the robot move the opposite direction
+                Robot_SetLeftMotor(-MOTOR_MAX);
+                Robot_SetRightMotor(-MOTOR_MAX);
+                break;
+
+            case ES_EXIT:
+                break;
+
+            case ES_TIMEOUT:
+                break;
+            
+            // Put all detection events over here
+            case RL_BUMPER_PRESSED:
+                nextState = ForwardBumper;
+                makeTransition = TRUE;
+                ThisEvent.EventType = ES_NO_EVENT;
+                break;
+                
+            case RR_BUMPER_PRESSED:
+                nextState = ForwardBumper;
+                makeTransition = TRUE;
+                ThisEvent.EventType = ES_NO_EVENT;
+                break;    
+
+            case ES_NO_EVENT:
+            default:
+                break;
+            }
+        break;
+     
+    // Calibration (to allow for as precise as possible forward, reverse, turn left and right movements)
+    case ForwardCalibration:
+        switch (ThisEvent.EventType) {
+            case ES_ENTRY:
+                break;
+
+            case ES_EXIT:
+                break;
+
+            case ES_TIMEOUT:
+                break;
+            
+            // Put all detection events over here
+
+            case ES_NO_EVENT:
+            default:
+                break;
+            }
+        break;
+        
+    case ReverseCalibration:
+        switch (ThisEvent.EventType) {
+            case ES_ENTRY:
+                break;
+
+            case ES_EXIT:
+                break;
+
+            case ES_TIMEOUT:
+                break;
+            
+            // Put all detection events over here
+
+            case ES_NO_EVENT:
+            default:
+                break;
+            }
+        break;
+        
+    case TurnLeftCalibration:
+        switch (ThisEvent.EventType) {
+            case ES_ENTRY:
+                break;
+
+            case ES_EXIT:
+                break;
+
+            case ES_TIMEOUT:
+                break;
+            
+            // Put all detection events over here
+
+            case ES_NO_EVENT:
+            default:
+                break;
+            }
+        break;
+        
+    case TurnRightCalibration:
+        switch (ThisEvent.EventType) {
+            case ES_ENTRY:
+                break;
+
+            case ES_EXIT:
+                break;
+
+            case ES_TIMEOUT:
+                break;
+            
+            // Put all detection events over here
+
+            case ES_NO_EVENT:
+            default:
+                break;
+            }
         break;
         
     default: // all unhandled states fall into here
@@ -141,9 +356,9 @@ ES_Event RunTemplateSubHSM(ES_Event ThisEvent)
 
     if (makeTransition == TRUE) { // making a state transition, send EXIT and ENTRY
         // recursively call the current state with an exit event
-        RunTemplateSubHSM(EXIT_EVENT); // <- rename to your own Run function
+        RunHarnessSubHSM(EXIT_EVENT); // <- rename to your own Run function
         CurrentState = nextState;
-        RunTemplateSubHSM(ENTRY_EVENT); // <- rename to your own Run function
+        RunHarnessSubHSM(ENTRY_EVENT); // <- rename to your own Run function
     }
 
     ES_Tail(); // trace call stack end

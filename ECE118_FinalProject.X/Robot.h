@@ -26,6 +26,13 @@
 
 #define BEACON_ON_SIGHT 1
 #define BEACON_OFF_SIGHT 0
+
+// ***** Calibration ***** //
+// Values that allow for maximum forward speed that maintains a straight line.
+#define LEFT_FORWARD_MAX 1000
+#define RIGHT_FORWARD_MAX 1000
+
+// Values that allow
 /*******************************************************************************
 * PUBLIC FUNCTION IMPLEMENTATIONS *
 ******************************************************************************/

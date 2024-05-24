@@ -33,7 +33,7 @@
  ******************************************************************************/
 
 #define BATTERY_DISCONNECT_THRESHOLD 175
-#define TIMER_0_TICKS 100 // 100ms
+#define TIMER_0_TICKS 20 // 100ms
 
 /*******************************************************************************
  * PRIVATE FUNCTION PROTOTYPES                                                 *

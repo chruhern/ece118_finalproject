@@ -36,6 +36,8 @@
 
 #include "SubHSM_Align.h" //#include all sub state machines called
 #include "SubHSM_TrackSearch.h"
+
+#include "SubHSM_TestHarness.h"
 /*******************************************************************************
  * PRIVATE #DEFINES                                                            *
  ******************************************************************************/
@@ -50,6 +52,7 @@ typedef enum {
     InitPState,
     SubAlign,
     SubTrackSearch,
+    SubHarness,
             
 } TemplateHSMState_t;
 
@@ -57,6 +60,7 @@ static const char *StateNames[] = {
 	"InitPState",
 	"SubAlign",
 	"SubTrackSearch",
+	"SubHarness",
 };
 
 
@@ -149,9 +153,10 @@ ES_Event RunTemplateHSM(ES_Event ThisEvent)
             // Initialize all sub-state machines
             InitAlignSubHSM();
             InitTrackSubHSM();
+            InitHarnessSubHSM();
             
             // now put the machine into the actual initial state
-            nextState = SubAlign;
+            nextState = SubHarness;
             makeTransition = TRUE;
             ThisEvent.EventType = ES_NO_EVENT;
             ;
@@ -178,7 +183,15 @@ ES_Event RunTemplateHSM(ES_Event ThisEvent)
             break;
         }
         break;
-        
+    
+    case SubHarness:
+        ThisEvent = RunHarnessSubHSM(ThisEvent);
+        switch (ThisEvent.EventType) {
+        case ES_NO_EVENT:
+        default:
+            break;
+        }
+        break;
     default: // all unhandled states fall into here
         break;
     } // end switch on Current State

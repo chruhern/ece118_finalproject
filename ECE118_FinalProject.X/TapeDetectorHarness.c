@@ -43,7 +43,7 @@ unsigned int prev_tape_reading = 0;
 * PUBLIC FUNCTION IMPLEMENTATIONS *
 ******************************************************************************/
 
-#define TAPE_SENSOR_HARNESS
+//#define TAPE_SENSOR_HARNESS
 
 #ifdef TAPE_SENSOR_HARNESS
     unsigned int EMA = 0;
