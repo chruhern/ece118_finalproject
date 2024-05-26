@@ -73,6 +73,12 @@ typedef enum {
     RR_BUMPER_PRESSED,
     RR_BUMPER_RELEASED,
             
+    FLO_BUMPER_PRESSED,
+    FLO_BUMPER_RELEASED,
+
+    FRO_BUMPER_PRESSED,
+    FRO_BUMPER_RELEASED,
+            
     // Track wire
     LEFT_TRACK_DETECTED,
     LEFT_TRACK_NOT_DETECTED,
@@ -116,6 +122,10 @@ static const char *EventNames[] = {
 	"RL_BUMPER_RELEASED",
 	"RR_BUMPER_PRESSED",
 	"RR_BUMPER_RELEASED",
+	"FLO_BUMPER_PRESSED",
+	"FLO_BUMPER_RELEASED",
+	"FRO_BUMPER_PRESSED",
+	"FRO_BUMPER_RELEASED",
 	"LEFT_TRACK_DETECTED",
 	"LEFT_TRACK_NOT_DETECTED",
 	"RIGHT_TRACK_DETECTED",
@@ -145,7 +155,7 @@ static const char *EventNames[] = {
 #define TIMER1_RESP_FUNC PostTemplateHSM
 #define TIMER2_RESP_FUNC PostTemplateHSM
 #define TIMER3_RESP_FUNC PostTemplateHSM
-#define TIMER4_RESP_FUNC TIMER_UNUSED
+#define TIMER4_RESP_FUNC PostTemplateHSM
 #define TIMER5_RESP_FUNC TIMER_UNUSED
 #define TIMER6_RESP_FUNC TIMER_UNUSED
 #define TIMER7_RESP_FUNC TIMER_UNUSED
@@ -165,9 +175,10 @@ static const char *EventNames[] = {
 // definitions for the response functions to make it easire to check that
 // the timer number matches where the timer event will be routed
 #define SIMPLE_SERVICE_TIMER 0
-#define SUB_ALIGN_TURN_TIMER 1
-#define SUB_TRACK_REVERSE_TIMER 2
-#define SUB_TRACK_TURN_TIMER 3
+#define SUB_HARNESS_TEST_TIMER 1
+#define SUB_ALIGN_TURN_TIMER 2
+#define SUB_TRACK_REVERSE_TIMER 3
+#define SUB_TRACK_TURN_TIMER 4
 //#define GENERIC_NAMED_TIMER 0 /*make sure this is enabled above and posting to the correct state machine*/
 
 

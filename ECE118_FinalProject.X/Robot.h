@@ -28,11 +28,31 @@
 #define BEACON_OFF_SIGHT 0
 
 // ***** Calibration ***** //
+// -- Straight Movement -- //
 // Values that allow for maximum forward speed that maintains a straight line.
 #define LEFT_FORWARD_MAX 1000
 #define RIGHT_FORWARD_MAX 1000
 
-// Values that allow
+// Values that allow for maximum reverse speed that maintains a straight line.
+#define LEFT_REVERSE_MAX -1000
+#define RIGHT_REVERSE_MAX -1000
+
+// -- Turning -- //
+// Timer value to allow for 90 degree turn.
+#define TURN_90_LEFT_TICKS 500
+#define TURN_90_RIGHT_TICKS 500
+
+// Values that allow for a tank turn 90 degree left turn
+#define MAX_LEFT_TURN_90_LEFT -1000
+#define MAX_LEFT_TURN_90_RIGHT 1000
+
+// Values that allow for a tank turn 90 degrees right turn
+#define MAX_RIGHT_TURN_90_LEFT 1000
+#define MAX_RIGHT_TURN_90_RIGHT -1000
+
+// Buffer time to prevent momentum of wheels from affecting directions.
+#define ROBOT_STOP_BUFFER_TICKS 2000
+// ************************************** //
 /*******************************************************************************
 * PUBLIC FUNCTION IMPLEMENTATIONS *
 ******************************************************************************/
@@ -103,6 +123,8 @@ unsigned char Robot_GetBumperFL();
 unsigned char Robot_GetBumperFR();
 unsigned char Robot_GetBumperRL();
 unsigned char Robot_GetBumperRR();
+unsigned char Robot_GetBumperFLO();
+unsigned char Robot_GetBumperFRO();
 
 /**
  * @Function Robot_GetBeacon(void)

@@ -47,8 +47,8 @@
 #define TRACK_DETECTED_THRESHOLD 600
 #define TRACK_NOT_DETECTED_THRESHOLD 500
 
-#define TAPE_DETECTED_THRESHOLD 100
-#define TAPE_NOT_DETECTED_THRESHOLD 160
+#define TAPE_DETECTED_THRESHOLD 500
+#define TAPE_NOT_DETECTED_THRESHOLD 100
 
 #define BEACON_DETECTED_THRESHOLD 640
 #define BEACON_NOT_DETECTED_THRESHOLD 610
@@ -138,9 +138,9 @@ uint8_t EventCheck_TapeFL(void) {
     unsigned int tape_status = Robot_GetTapeFL();
     
     //printf("the tape status of fl is %d \r\n", tape_status);
-    if (tape_status < TAPE_DETECTED_THRESHOLD) {
+    if (tape_status > TAPE_DETECTED_THRESHOLD) {
         curEvent = FL_TAPE_DETECTED;
-    } else if (tape_status > TAPE_NOT_DETECTED_THRESHOLD) {
+    } else if (tape_status < TAPE_NOT_DETECTED_THRESHOLD) {
         curEvent = FL_TAPE_NOT_DETECTED;
     } else {
         curEvent = lastEvent;
@@ -168,9 +168,9 @@ uint8_t EventCheck_TapeFR(void) {
     uint8_t returnVal = FALSE;
     unsigned int tape_status = Robot_GetTapeFR();
     
-    if (tape_status < TAPE_DETECTED_THRESHOLD) {
+    if (tape_status > TAPE_DETECTED_THRESHOLD) {
         curEvent = FR_TAPE_DETECTED;
-    } else if (tape_status > TAPE_NOT_DETECTED_THRESHOLD) {
+    } else if (tape_status < TAPE_NOT_DETECTED_THRESHOLD) {
         curEvent = FR_TAPE_NOT_DETECTED;
     } else {
         curEvent = lastEvent;
@@ -197,9 +197,9 @@ uint8_t EventCheck_TapeRL(void) {
     uint8_t returnVal = FALSE;
     unsigned int tape_status = Robot_GetTapeRL();
     
-    if (tape_status < TAPE_DETECTED_THRESHOLD) {
+    if (tape_status > TAPE_DETECTED_THRESHOLD) {
         curEvent = RL_TAPE_DETECTED;
-    } else if (tape_status > TAPE_NOT_DETECTED_THRESHOLD) {
+    } else if (tape_status < TAPE_NOT_DETECTED_THRESHOLD) {
         curEvent = RL_TAPE_NOT_DETECTED;
     } else {
         curEvent = lastEvent;
@@ -227,9 +227,9 @@ uint8_t EventCheck_TapeRR(void) {
     unsigned int tape_status = Robot_GetTapeRR();
     
     //printf("the tape status of fl is %d \r\n", tape_status);
-    if (tape_status < TAPE_DETECTED_THRESHOLD) {
+    if (tape_status > TAPE_DETECTED_THRESHOLD) {
         curEvent = RR_TAPE_DETECTED;
-    } else if (tape_status > TAPE_NOT_DETECTED_THRESHOLD) {
+    } else if (tape_status < TAPE_NOT_DETECTED_THRESHOLD) {
         curEvent = RR_TAPE_NOT_DETECTED;
     } else {
         curEvent = lastEvent;
@@ -361,6 +361,59 @@ uint8_t EventCheck_BumperRR(void) {
 #endif   
     }
     return (returnVal); 
+}
+
+uint8_t EventCheck_BumperFLO(void) {
+    
+    static ES_EventTyp_t lastEvent = FLO_BUMPER_RELEASED;
+    ES_EventTyp_t curEvent;
+    ES_Event thisEvent;
+    uint8_t returnVal = FALSE;
+    unsigned char bumper_status = Robot_GetBumperFLO();
+    
+    if (bumper_status == BUMPER_PRESSED) {
+        curEvent = FLO_BUMPER_PRESSED;
+    } else {
+        curEvent = FLO_BUMPER_RELEASED;
+    }
+    if (curEvent != lastEvent) { // check for change from last time
+        thisEvent.EventType = curEvent;
+        thisEvent.EventParam = bumper_status;
+        returnVal = TRUE;
+        lastEvent = curEvent; // update history
+#ifndef EVENTCHECKER_TEST           // keep this as is for test harness
+        PostTemplateHSM(thisEvent); // Change to HSM if transitioning to HSM
+#else
+        SaveEvent(thisEvent);
+#endif   
+    }
+    return (returnVal);
+}
+
+uint8_t EventCheck_BumperFRO(void) {
+        static ES_EventTyp_t lastEvent = FRO_BUMPER_RELEASED;
+    ES_EventTyp_t curEvent;
+    ES_Event thisEvent;
+    uint8_t returnVal = FALSE;
+    unsigned char bumper_status = Robot_GetBumperFRO();
+    
+    if (bumper_status == BUMPER_PRESSED) {
+        curEvent = FRO_BUMPER_PRESSED;
+    } else {
+        curEvent = FRO_BUMPER_RELEASED;
+    }
+    if (curEvent != lastEvent) { // check for change from last time
+        thisEvent.EventType = curEvent;
+        thisEvent.EventParam = bumper_status;
+        returnVal = TRUE;
+        lastEvent = curEvent; // update history
+#ifndef EVENTCHECKER_TEST           // keep this as is for test harness
+        PostTemplateHSM(thisEvent); // Change to HSM if transitioning to HSM
+#else
+        SaveEvent(thisEvent);
+#endif   
+    }
+    return (returnVal);
 }
 
 /**

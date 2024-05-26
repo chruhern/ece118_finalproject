@@ -18,6 +18,7 @@
 #include <AD.h>
 #include <IO_Ports.h>
 #include <pwm.h>
+#include <RC_Servo.h>
 #include <LED.h>
 #include <Robot.h>
 
@@ -51,24 +52,28 @@
 #define BUMPER_REAR_LEFT_PIN_MODE PORTV06_TRIS
 #define BUMPER_REAR_RIGHT_PIN_MODE PORTV07_TRIS
 
+#define BUMPER_FL_OBSTACLE_PIN_MODE PORTV03_TRIS
+#define BUMPER_FR_OBSTACLE_PIN_MODE PORTV08_TRIS
+
 #define TAPE_FRONT_LEFT_PIN AD_PORTW3
 #define TAPE_FRONT_RIGHT_PIN AD_PORTW4
 #define TAPE_REAR_LEFT_PIN AD_PORTW5
 #define TAPE_REAR_RIGHT_PIN AD_PORTW6
 
 #define TRACK_WIRE_LEFT_PIN AD_PORTW7
-#define TRACK_WIRE_RIGHT_PIN AD_PORTW8
-
-#define BEACON_PIN_MODE PORTV03_TRIS
+//#define TRACK_WIRE_RIGHT_PIN AD_PORTW8 // For Servo
 
 // Sensor Statuses
 #define BUMPER_FRONT_LEFT PORTV04_BIT
 #define BUMPER_FRONT_RIGHT PORTV05_BIT
 #define BUMPER_REAR_LEFT PORTV06_BIT
 #define BUMPER_REAR_RIGHT PORTV07_BIT
+#define BUMPER_FL_OBSTACLE PORTV03_BIT
+#define BUMPER_FR_OBSTACLE PORTV08_BIT
 
+// No more track wire or beacon will be used
+//#define BEACON_PIN_MODE PORTV03_TRIS
 //#define BEACON_STATUS PORTV03_BIT
-#define BEACON_PIN AD_PORTV3
 
 // Filters
 #define ALPHA 0.05
@@ -89,6 +94,7 @@ char Robot_Init() {
     AD_Init();
     LED_Init();
     PWM_Init();
+    RC_Init();
     
     //  ***** INITIALIZE MOTOR PINS ***** //
     // Left drive motor
@@ -121,7 +127,6 @@ char Robot_Init() {
     //  ***** INITIALIZE SENSOR PINS ***** //
     // Track wire detector (ADC is used for hysteresis, use V pins)
     AD_AddPins(TRACK_WIRE_LEFT_PIN);
-    AD_AddPins(TRACK_WIRE_RIGHT_PIN);
     
     // Tape detector (adc value)
     AD_AddPins(TAPE_FRONT_LEFT_PIN);
@@ -135,11 +140,17 @@ char Robot_Init() {
     BUMPER_REAR_LEFT_PIN_MODE = PIN_INPUT;
     BUMPER_REAR_RIGHT_PIN_MODE = PIN_INPUT;
     
+    BUMPER_FL_OBSTACLE_PIN_MODE = PIN_INPUT;
+    BUMPER_FR_OBSTACLE_PIN_MODE = PIN_INPUT;
+    
+    
     // Beacon detector (digital value, but use Vpin, set as input)
-    AD_AddPins(BEACON_PIN);
+    //AD_AddPins(BEACON_PIN);
     //BEACON_PIN_MODE = PIN_INPUT;
     
-    // Ping sensor (Initialize IC3)
+    // Initialize servo for dispensing
+    RC_AddPins(RC_PORTW08);
+    
     
     
     //  ***** INITIALIZE LEDs ***** //
@@ -283,9 +294,10 @@ unsigned int Robot_LevelGetTrackWireFL() {
 
 unsigned int Robot_LevelGetTrackWireFR() {
     
-    unsigned int track_reading = AD_ReadADPin(TRACK_WIRE_RIGHT_PIN);
-    int filtered_reading = Robot_EXPMA(track_reading, &prev_left_reading);
-    return filtered_reading;
+//    unsigned int track_reading = AD_ReadADPin(TRACK_WIRE_RIGHT_PIN);
+//    int filtered_reading = Robot_EXPMA(track_reading, &prev_left_reading);
+//    return filtered_reading;
+    return 0;
     
 }
 
@@ -336,6 +348,14 @@ unsigned char Robot_GetBumperRR()  {
     return BUMPER_REAR_RIGHT;
 }
 
+unsigned char Robot_GetBumperFLO() {
+    return BUMPER_FL_OBSTACLE;
+}
+
+unsigned char Robot_GetBumperFRO() {
+    return BUMPER_FR_OBSTACLE;
+}
+
 
 /**
  * @Function Robot_GetBeacon(void)
@@ -345,9 +365,10 @@ unsigned char Robot_GetBumperRR()  {
  * F -> Front, L -> Left, R -> Right or Rear
  * @author Derrick Lai */
 unsigned int Robot_GetBeacon()  {
-    unsigned int beacon_adc = AD_ReadADPin(BEACON_PIN);
+    //unsigned int beacon_adc = AD_ReadADPin(BEACON_PIN);
     //printf("Reading: %d \r\n", beacon_adc);
-    return beacon_adc;
+    //return beacon_adc;
+    return 0;
 }
 
 /**

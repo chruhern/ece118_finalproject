@@ -80,6 +80,8 @@ uint8_t EventCheck_BumperFL(void);
 uint8_t EventCheck_BumperFR(void);
 uint8_t EventCheck_BumperRL(void);
 uint8_t EventCheck_BumperRR(void);
+uint8_t EventCheck_BumperFLO(void);
+uint8_t EventCheck_BumperFRO(void);
 
 /**
  * @Function EventCheck_TrackWireXX(void)

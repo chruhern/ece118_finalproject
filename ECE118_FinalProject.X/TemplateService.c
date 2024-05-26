@@ -129,93 +129,93 @@ ES_Event RunTemplateService(ES_Event ThisEvent)
         break;
     
     // You have to put user events above the timeout, remove this, this is just as a test
-    case FL_TAPE_DETECTED:
-        printf("Front Left tape detected. \r\n");
-        break;
-        
-    case FL_TAPE_NOT_DETECTED:
-        printf("Front Left tape no longer detected. \r\n");
-        break;
-        
-    case FR_TAPE_DETECTED:
-        printf("Front right tape detected. \r\n");
-        break;
-        
-    case FR_TAPE_NOT_DETECTED:
-        printf("Front right tape no longer detected. \r\n");
-        break;
-
-    case RL_TAPE_DETECTED:\
-        printf("Rear Left tape detected. \r\n");
-        break;
-        
-    case RL_TAPE_NOT_DETECTED:
-        printf("Rear Left tape no longer detected. \r\n");
-        break;
-
-    case RR_TAPE_DETECTED:
-        printf("Rear right tape detected. \r\n");
-        break;
-        
-    case RR_TAPE_NOT_DETECTED:
-        printf("Rear right tape no longer detected. \r\n");
-        break;
-        
-    case FL_BUMPER_PRESSED:
-        printf("Front left bumper pressed. \r\n");
-        break;
-        
-    case FL_BUMPER_RELEASED:
-        printf("Front left bumper released. \r\n");
-        break;
-
-    case FR_BUMPER_PRESSED:
-        printf("Front right bumper pressed. \r\n");
-        break;
-        
-    case FR_BUMPER_RELEASED:
-        printf("Front right bumper released. \r\n");
-        break;
-
-    case RL_BUMPER_PRESSED:
-        printf("Rear left bumper pressed. \r\n");
-        break;
-        
-    case RL_BUMPER_RELEASED:
-        printf("Rear left bumper released. \r\n");
-        break;
-
-    case RR_BUMPER_PRESSED:
-        printf("Rear right bumper pressed. \r\n");
-        break;
-        
-    case RR_BUMPER_RELEASED:
-        printf("Rear right bumper released. \r\n");
-        break;
-        
-    case LEFT_TRACK_DETECTED:
-        printf("Left track detected. \r\n");
-        break;
-
-    case LEFT_TRACK_NOT_DETECTED:
-        printf("Left track not detected. \r\n");
-        break;
-
-    case RIGHT_TRACK_DETECTED:
-        printf("Right track detected. \r\n");
-        break;
-
-    case RIGHT_TRACK_NOT_DETECTED:
-        printf("Right track not detected. \r\n");
-        break;
-        
-    case BEACON_DETECTED:
-        printf("Beacon has been detected. \r\n");
-        break;
-        
-    case BEACON_NOT_DETECTED:
-        printf("Beacon is no longer detected. \r\n");
-        break;
+//    case FL_TAPE_DETECTED:
+//        printf("Front Left tape detected. \r\n");
+//        break;
+//        
+//    case FL_TAPE_NOT_DETECTED:
+//        printf("Front Left tape no longer detected. \r\n");
+//        break;
+//        
+//    case FR_TAPE_DETECTED:
+//        printf("Front right tape detected. \r\n");
+//        break;
+//        
+//    case FR_TAPE_NOT_DETECTED:
+//        printf("Front right tape no longer detected. \r\n");
+//        break;
+//
+//    case RL_TAPE_DETECTED:\
+//        printf("Rear Left tape detected. \r\n");
+//        break;
+//        
+//    case RL_TAPE_NOT_DETECTED:
+//        printf("Rear Left tape no longer detected. \r\n");
+//        break;
+//
+//    case RR_TAPE_DETECTED:
+//        printf("Rear right tape detected. \r\n");
+//        break;
+//        
+//    case RR_TAPE_NOT_DETECTED:
+//        printf("Rear right tape no longer detected. \r\n");
+//        break;
+//        
+//    case FL_BUMPER_PRESSED:
+//        printf("Front left bumper pressed. \r\n");
+//        break;
+//        
+//    case FL_BUMPER_RELEASED:
+//        printf("Front left bumper released. \r\n");
+//        break;
+//
+//    case FR_BUMPER_PRESSED:
+//        printf("Front right bumper pressed. \r\n");
+//        break;
+//        
+//    case FR_BUMPER_RELEASED:
+//        printf("Front right bumper released. \r\n");
+//        break;
+//
+//    case RL_BUMPER_PRESSED:
+//        printf("Rear left bumper pressed. \r\n");
+//        break;
+//        
+//    case RL_BUMPER_RELEASED:
+//        printf("Rear left bumper released. \r\n");
+//        break;
+//
+//    case RR_BUMPER_PRESSED:
+//        printf("Rear right bumper pressed. \r\n");
+//        break;
+//        
+//    case RR_BUMPER_RELEASED:
+//        printf("Rear right bumper released. \r\n");
+//        break;
+//        
+//    case LEFT_TRACK_DETECTED:
+//        printf("Left track detected. \r\n");
+//        break;
+//
+//    case LEFT_TRACK_NOT_DETECTED:
+//        printf("Left track not detected. \r\n");
+//        break;
+//
+//    case RIGHT_TRACK_DETECTED:
+//        printf("Right track detected. \r\n");
+//        break;
+//
+//    case RIGHT_TRACK_NOT_DETECTED:
+//        printf("Right track not detected. \r\n");
+//        break;
+//        
+//    case BEACON_DETECTED:
+//        printf("Beacon has been detected. \r\n");
+//        break;
+//        
+//    case BEACON_NOT_DETECTED:
+//        printf("Beacon is no longer detected. \r\n");
+//        break;
 
     case ES_TIMEOUT:
         ES_Timer_InitTimer(SIMPLE_SERVICE_TIMER, TIMER_0_TICKS);
@@ -231,6 +231,8 @@ ES_Event RunTemplateService(ES_Event ThisEvent)
         EventCheck_BumperFR();
         EventCheck_BumperRL();
         EventCheck_BumperRR();
+        EventCheck_BumperFLO();
+        EventCheck_BumperFRO();
         
         // Beacon
         EventCheck_Beacon();
