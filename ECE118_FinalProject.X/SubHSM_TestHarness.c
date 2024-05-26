@@ -248,13 +248,13 @@ ES_Event RunHarnessSubHSM(ES_Event ThisEvent)
             
             // Put all detection events over here
             case FL_BUMPER_PRESSED:
-                nextState = ReverseBumper;
+                nextState = BrakeRobot;
                 makeTransition = TRUE;
                 ThisEvent.EventType = ES_NO_EVENT;
                 break;
                 
             case FR_BUMPER_PRESSED:
-                nextState = ReverseBumper;
+                nextState = BrakeRobot;
                 makeTransition = TRUE;
                 ThisEvent.EventType = ES_NO_EVENT;
                 break;

@@ -42,19 +42,13 @@
  ******************************************************************************/
 typedef enum {
     InitPSubState,
-    SubForward,
     SubReverse,
-    SubTurn,
-    Brake,
             
 } TemplateSubHSMState_t;
 
 static const char *StateNames[] = {
 	"InitPSubState",
-	"SubForward",
 	"SubReverse",
-	"SubTurn",
-	"Brake",
 };
 
 
@@ -135,125 +129,30 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
             // initial state
 
             // now put the machine into the actual initial state
-            nextState = SubForward;
+            nextState = SubReverse;
             makeTransition = TRUE;
             ThisEvent.EventType = ES_NO_EVENT;
         }
         break;
-
-    case SubForward: // in the first state, replace this with correct names
-        printf("In forward state. \r\n");
-        switch (ThisEvent.EventType) {
-            
-            case ES_ENTRY:
-                // Initialize actions to be performed at this state
-                // Move the robot forward
-                Robot_SetLeftMotor(750);
-                Robot_SetRightMotor(750);
-                //Robot_SetLeftMotor(0);
-                //Robot_SetRightMotor(0);
-                break;
-
-            case ES_EXIT:
-                break;
-
-            case ES_TIMEOUT:
-                break;
-
-            // If any of the front bumpers or tape sensors have triggered, then transition to the turn state
-            case FL_TAPE_DETECTED:
-                // Transition to the next state of reversal
-                nextState = Brake;
-                makeTransition = TRUE;
-                ThisEvent.EventType = ES_NO_EVENT;
-                break;
-
-            case FR_TAPE_DETECTED:
-                // Transition to the next state of reversal
-                nextState = Brake;
-                makeTransition = TRUE;
-                ThisEvent.EventType = ES_NO_EVENT;
-                break;
-
-    //        case FL_BUMPER_PRESSED:
-    //            // Transition to the next state of reversal
-    //            nextState = SubReverse;
-    //            makeTransition = TRUE;
-    //            ThisEvent.EventType = ES_NO_EVENT;
-    //            break;
-    //
-    //        case FR_BUMPER_PRESSED:
-    //            // Transition to the next state of reversal
-    //            nextState = SubReverse;
-    //            makeTransition = TRUE;
-    //            ThisEvent.EventType = ES_NO_EVENT;
-    //            break;
-
-            case ES_NO_EVENT:
-            default: // all unhandled events pass the event back up to the next level
-                break;
-            }
-        break;
-        
-        case Brake:
-            printf("Braking. \r\n");
-            switch (ThisEvent.EventType) {
-                case ES_ENTRY:
-                    // Stop the robot
-                    Robot_SetLeftMotor(0);
-                    Robot_SetRightMotor(0);
-                    
-                    // Init Timer
-                    ES_Timer_InitTimer(SUB_ALIGN_TURN_TIMER, 2000);
-                    break;
-
-                case ES_EXIT:
-                    break;
-
-                case ES_TIMEOUT:
-                    if (ThisEvent.EventParam == SUB_ALIGN_TURN_TIMER) {
-                        nextState = SubReverse;
-                        makeTransition = TRUE;
-                        ThisEvent.EventType = ES_NO_EVENT;
-                    }
-                    break;
-
-                case ES_NO_EVENT:
-                default:
-                    break;
-                }
-            break; 
-            
+    
     case SubReverse:
-        printf("Transitioning to reverse. \r\n");
         switch (ThisEvent.EventType) {
         case ES_ENTRY:
-            // Initialize actions to be performed at this state
-            // Reverse the bot
-            Robot_SetLeftMotor(-750); // MOTOR_MAX
-            Robot_SetRightMotor(-750);
-
-            ES_Timer_InitTimer(SUB_TRACK_REVERSE_TIMER, 1500);
             break;
-                
+
         case ES_EXIT:
             break;
 
         case ES_TIMEOUT:
-            if (ThisEvent.EventParam == SUB_TRACK_REVERSE_TIMER) {
-                nextState = SubForward;
-                makeTransition = TRUE;
-                ThisEvent.EventType = ES_NO_EVENT;
-            }
             break;
 
+        // Put all detection events over here
+
         case ES_NO_EVENT:
-        default: // Nothing happens on default states
+        default:
             break;
         }
-        
-        break;
-        
+    break;
 
     default: // all unhandled states fall into here
         break;
