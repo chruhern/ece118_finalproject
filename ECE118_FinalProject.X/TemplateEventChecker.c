@@ -263,6 +263,7 @@ uint8_t EventCheck_BumperFL(void) {
     uint8_t returnVal = FALSE;
     unsigned char bumper_status = Robot_GetBumperFL();
     
+    //printf("FL: %d \r\n", bumper_status);
     if (bumper_status == BUMPER_PRESSED) {
         curEvent = FL_BUMPER_PRESSED;
     } else {

@@ -42,13 +42,49 @@
  ******************************************************************************/
 typedef enum {
     InitPSubState,
-    SubReverse,
-            
+       
+    AVOID_FORWARD,
+    AVOID_REVERSE,
+    AVOID_TURN_90_LEFT,
+
+    ALIGN_TURN_LEFT,
+    ALIGN_FORWARD_LEFT,
+    ALIGN_TURN_RIGHT,
+    ALIGN_FORWARD_RIGHT,
+    ALIGN_TURN_90_LEFT,
+
+    TRAVERSE_LEFT_FORWARD,
+    TRAVERSE_LEFT_90_LEFT,
+
+    TRAVERSE_RIGHT_REVERSE,
+    TRAVERSE_RIGHT_TURN_180_LEFT,
+    TRAVERSE_RIGHT_FORWARD,
+    TRAVERSE_RIGHT_TURN_90_RIGHT,
+    TRAVERSE_RIGHT_TURN_90_LEFT,
+
+    BOT_ALIGNED,         
+    BUFFER_STATE,
 } TemplateSubHSMState_t;
 
 static const char *StateNames[] = {
 	"InitPSubState",
-	"SubReverse",
+	"AVOID_FORWARD",
+	"AVOID_REVERSE",
+	"AVOID_TURN_90_LEFT",
+	"ALIGN_TURN_LEFT",
+	"ALIGN_FORWARD_LEFT",
+	"ALIGN_TURN_RIGHT",
+	"ALIGN_FORWARD_RIGHT",
+	"ALIGN_TURN_90_LEFT",
+	"TRAVERSE_LEFT_FORWARD",
+	"TRAVERSE_LEFT_90_LEFT",
+	"TRAVERSE_RIGHT_REVERSE",
+	"TRAVERSE_RIGHT_TURN_180_LEFT",
+	"TRAVERSE_RIGHT_FORWARD",
+	"TRAVERSE_RIGHT_TURN_90_RIGHT",
+	"TRAVERSE_RIGHT_TURN_90_LEFT",
+	"BOT_ALIGNED",
+	"BUFFER_STATE",
 };
 
 
@@ -58,7 +94,6 @@ static const char *StateNames[] = {
  ******************************************************************************/
 /* Prototypes for private functions for this machine. They should be functions
    relevant to the behavior of this state machine */
-int sub_align_xor_shift(int seed);
 /*******************************************************************************
  * PRIVATE MODULE VARIABLES                                                            *
  ******************************************************************************/
@@ -68,10 +103,12 @@ int sub_align_xor_shift(int seed);
 static TemplateSubHSMState_t CurrentState = InitPSubState; // <- change name to match ENUM
 static uint8_t MyPriority;
 
-// Random number generation
-int seed = 0;
-int rand = 0;
-#define MAX_TURN_TIME_TICKS 250 // Assume time in milliseconds, of the time it takes to turn 90 degrees at maximum speed
+#define BOT_BRAKE_TICKS 500 // Brake the robot for half a second after alignment.
+
+// If we have met the wall, then we know that the next tape detection is alignment with the track wire
+#define WALL_MET 1
+#define WALL_NOT_MET 0
+unsigned int right_traversal_met_wall = WALL_NOT_MET;
 /*******************************************************************************
  * PUBLIC FUNCTIONS                                                            *
  ******************************************************************************/
@@ -129,15 +166,617 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
             // initial state
 
             // now put the machine into the actual initial state
-            nextState = SubReverse;
+            nextState = AVOID_FORWARD;
             makeTransition = TRUE;
             ThisEvent.EventType = ES_NO_EVENT;
         }
         break;
+    // ******************** AVOIDANCE ******************** //
+    case AVOID_FORWARD:
+        switch (ThisEvent.EventType) {
+            case ES_ENTRY:
+                // Move the robot forward
+                Robot_SetLeftMotor(MOTOR_MAX);
+                Robot_SetRightMotor(MOTOR_MAX);
+                
+                break;
+
+            case ES_EXIT:
+                break;
+
+            case ES_TIMEOUT:
+                break;
+
+            // Put all detection events over here
+            // If bumped into either a wall or obstacle, turn and continue moving forward. We want to find the tape.
+            case FL_BUMPER_PRESSED:
+                nextState = AVOID_REVERSE;
+                makeTransition = TRUE;
+                ThisEvent.EventType = ES_NO_EVENT;
+                break;
+                
+            case FR_BUMPER_PRESSED:
+                nextState = AVOID_REVERSE;
+                makeTransition = TRUE;
+                ThisEvent.EventType = ES_NO_EVENT;
+                break;
+                
+            case FLO_BUMPER_PRESSED:
+                nextState = AVOID_REVERSE;
+                makeTransition = TRUE;
+                ThisEvent.EventType = ES_NO_EVENT;
+                break;
+                
+            case FRO_BUMPER_PRESSED:
+                nextState = AVOID_REVERSE;
+                makeTransition = TRUE;
+                ThisEvent.EventType = ES_NO_EVENT;
+                break;
+                
+            // If front tape is detected, then alignment is possible
+            // Buffer state to stop the state from continuing. This allows for incremental testing...
+            case FL_TAPE_DETECTED:
+                nextState = BUFFER_STATE; // ALIGN_LEFT
+                makeTransition = TRUE;
+                ThisEvent.EventType = ES_NO_EVENT;
+                break;
+                
+            case FR_TAPE_DETECTED:
+                nextState = BUFFER_STATE; // ALIGN_RIGHT
+                makeTransition = TRUE;
+                ThisEvent.EventType = ES_NO_EVENT;
+                break;
+
+            case ES_NO_EVENT:
+            default:
+                break;
+            }
+            break;
+        
+    case AVOID_REVERSE:
+        switch (ThisEvent.EventType) {
+            case ES_ENTRY:
+                // Move the robot backwards
+                Robot_SetLeftMotor(-MOTOR_MAX);
+                Robot_SetRightMotor(-MOTOR_MAX);
+                break;
+
+            case ES_EXIT:
+                break;
+
+            case ES_TIMEOUT:
+                break;
+
+            // Put all detection events over here
+            case FL_BUMPER_RELEASED:
+                nextState = AVOID_TURN_90_LEFT;
+                makeTransition = TRUE;
+                ThisEvent.EventType = ES_NO_EVENT;
+                break;
+                
+            case FR_BUMPER_RELEASED:
+                nextState = AVOID_TURN_90_LEFT;
+                makeTransition = TRUE;
+                ThisEvent.EventType = ES_NO_EVENT;
+                break;
+                
+            case FLO_BUMPER_RELEASED:
+                nextState = AVOID_TURN_90_LEFT;
+                makeTransition = TRUE;
+                ThisEvent.EventType = ES_NO_EVENT;
+                break;
+                
+            case FRO_BUMPER_RELEASED:
+                nextState = AVOID_TURN_90_LEFT;
+                makeTransition = TRUE;
+                ThisEvent.EventType = ES_NO_EVENT;
+                break;
+
+            case ES_NO_EVENT:
+            default:
+                break;
+            }
+        break;
     
-    case SubReverse:
+    case AVOID_TURN_90_LEFT:
+        switch (ThisEvent.EventType) {
+            case ES_ENTRY:
+                // Perform a left turn to the left
+                Robot_SetLeftMotor(MAX_LEFT_TURN_90_LEFT);
+                Robot_SetRightMotor(MAX_LEFT_TURN_90_RIGHT);
+
+                // Initialize a timer to track the turn time
+                ES_Timer_InitTimer(SUB_ALIGN_TURN_TIMER, TURN_90_LEFT_TICKS);
+                break;
+
+            case ES_EXIT:
+                break;
+
+            case ES_TIMEOUT:
+                // After finished turning, transition back to the forward state.
+                if (ThisEvent.EventParam == SUB_ALIGN_TURN_TIMER) {
+                    nextState = AVOID_FORWARD;
+                    makeTransition = TRUE;
+                    ThisEvent.EventType = ES_NO_EVENT;
+                }
+                break;
+
+            // Put all detection events over here
+
+            case ES_NO_EVENT:
+            default:
+                break;
+            }
+        break;
+        
+    // ******************** ALIGNMENT ******************** //
+    case ALIGN_TURN_LEFT:
+        switch (ThisEvent.EventType) {
+            case ES_ENTRY:
+                // Perform a left pivot turn (does timing matter as much as 90 degree?)
+                Robot_SetLeftMotor(-MOTOR_MAX);
+                Robot_SetRightMotor(0);
+                break;
+
+            case ES_EXIT:
+                break;
+
+            case ES_TIMEOUT:
+                break;
+            
+            // Put all detection events over here
+            case FL_TAPE_NOT_DETECTED:
+                nextState = ALIGN_FORWARD_LEFT;
+                makeTransition = TRUE;
+                ThisEvent.EventType = ES_NO_EVENT;
+                break;
+
+            case ES_NO_EVENT:
+            default:
+                break;
+            }
+        break;
+        
+    case ALIGN_FORWARD_LEFT:
+        switch (ThisEvent.EventType) {
+            case ES_ENTRY:
+                // Move forward
+                Robot_SetLeftMotor(LEFT_FORWARD_MAX);
+                Robot_SetRightMotor(RIGHT_FORWARD_MAX);
+                break;
+
+            case ES_EXIT:
+                break;
+
+            case ES_TIMEOUT:
+                break;
+            
+            // Put all detection events over here
+            // Continue adjusting to the left when tape has been detected. If front right, then consider it aligned
+            case FR_TAPE_DETECTED:
+                nextState = ALIGN_TURN_90_LEFT;
+                makeTransition = TRUE;
+                ThisEvent.EventType = ES_NO_EVENT;
+                break;
+                
+            case FL_TAPE_DETECTED:
+                nextState = ALIGN_TURN_LEFT;
+                makeTransition = TRUE;
+                ThisEvent.EventType = ES_NO_EVENT;
+                break;
+
+            case ES_NO_EVENT:
+            default:
+                break;
+            }
+        break;
+        
+    case ALIGN_TURN_RIGHT:\
+        switch (ThisEvent.EventType) {
+            case ES_ENTRY:
+                // Perform a left pivot turn (does timing matter as much as 90 degree?)
+                Robot_SetLeftMotor(0);
+                Robot_SetRightMotor(-MOTOR_MAX);
+                break;
+
+            case ES_EXIT:
+                break;
+
+            case ES_TIMEOUT:
+                break;
+            
+            // Put all detection events over here
+            case FR_TAPE_NOT_DETECTED:
+                nextState = ALIGN_FORWARD_RIGHT;
+                makeTransition = TRUE;
+                ThisEvent.EventType = ES_NO_EVENT;
+                break;
+
+            case ES_NO_EVENT:
+            default:
+                break;
+            }
+        break;
+        
+    case ALIGN_FORWARD_RIGHT:
+        switch (ThisEvent.EventType) {
+            case ES_ENTRY:
+                // Move forward
+                Robot_SetLeftMotor(LEFT_FORWARD_MAX);
+                Robot_SetRightMotor(RIGHT_FORWARD_MAX);
+                break;
+
+            case ES_EXIT:
+                break;
+
+            case ES_TIMEOUT:
+                break;
+            
+            // Put all detection events over here
+            // If the left tape has been detected, consider it aligned. Otherwise, rotate right
+            case FL_TAPE_DETECTED:
+                nextState = ALIGN_TURN_90_LEFT;
+                makeTransition = TRUE;
+                ThisEvent.EventType = ES_NO_EVENT;
+                break;
+                
+            case FR_TAPE_DETECTED:
+                nextState = ALIGN_TURN_RIGHT;
+                makeTransition = TRUE;
+                ThisEvent.EventType = ES_NO_EVENT;
+                break;
+
+            case ES_NO_EVENT:
+            default:
+                break;
+            }
+        break;
+        
+    case ALIGN_TURN_90_LEFT:
+        switch (ThisEvent.EventType) {
+            case ES_ENTRY:
+                // At this stage, start with traversing the left direction. Begin with a left turn.
+                
+                // Perform a left turn to the left
+                Robot_SetLeftMotor(MAX_LEFT_TURN_90_LEFT);
+                Robot_SetRightMotor(MAX_LEFT_TURN_90_RIGHT);
+
+                // Initialize a timer to track the turn time
+                ES_Timer_InitTimer(SUB_ALIGN_TURN_TIMER, TURN_90_LEFT_TICKS);
+                break;
+
+            case ES_EXIT:
+                break;
+
+            case ES_TIMEOUT:
+                // After timeout, begin the forward side traversal
+                if (ThisEvent.EventParam == SUB_ALIGN_TURN_TIMER) {
+                    nextState = TRAVERSE_LEFT_FORWARD;
+                    makeTransition = TRUE;
+                    ThisEvent.EventType = ES_NO_EVENT;
+                }
+                break;
+            
+            // Put all detection events over here
+
+            case ES_NO_EVENT:
+            default:
+                break;
+            }
+        break;
+        
+    // ******************** LEFT TRAVERSAL ******************** //
+    case TRAVERSE_LEFT_FORWARD:
+        switch (ThisEvent.EventType) {
+            case ES_ENTRY:
+                // Move forward
+                Robot_SetLeftMotor(LEFT_FORWARD_MAX);
+                Robot_SetRightMotor(RIGHT_FORWARD_MAX);
+                break;
+
+            case ES_EXIT:
+                break;
+
+            case ES_TIMEOUT:
+                break;
+            
+            // Put all detection events over here
+            // If the front left tape is detected, perform a 90 degree left turn.
+            case FL_TAPE_DETECTED:
+                nextState = TRAVERSE_LEFT_90_LEFT;
+                makeTransition = TRUE;
+                ThisEvent.EventType = ES_NO_EVENT;
+                break;
+                
+            // If an obstacle is detected (obstacle bumper, then transition to right turn.)
+            case FLO_BUMPER_PRESSED:
+                nextState = TRAVERSE_RIGHT_REVERSE;
+                makeTransition = TRUE;
+                ThisEvent.EventType = ES_NO_EVENT;
+                break;
+                
+            case FRO_BUMPER_PRESSED:
+                nextState = TRAVERSE_RIGHT_REVERSE;
+                makeTransition = TRUE;
+                ThisEvent.EventType = ES_NO_EVENT;
+                break;
+                   
+            // If it is a bumper, it may be an obstacle, so check that the obstacle bumper isn't also triggered.
+            // If it isn't the obstacle, then assumed it has reached the track wire.
+            case FL_BUMPER_PRESSED:
+                if (Robot_GetBumperFLO() == BUMPER_RELEASED) {
+                    nextState = BOT_ALIGNED;
+                    makeTransition = TRUE;
+                    ThisEvent.EventType = ES_NO_EVENT;
+                }
+                break;
+                
+            case FR_BUMPER_PRESSED:
+                if (Robot_GetBumperFRO() == BUMPER_RELEASED) {
+                    nextState = BOT_ALIGNED;
+                    makeTransition = TRUE;
+                    ThisEvent.EventType = ES_NO_EVENT;
+                }
+                break;
+                
+            case ES_NO_EVENT:
+            default:
+                break;
+            }
+        break;
+        
+    case TRAVERSE_LEFT_90_LEFT:
+        switch (ThisEvent.EventType) {
+            case ES_ENTRY:
+                // Perform a left tank turn
+                Robot_SetLeftMotor(MAX_LEFT_TURN_90_LEFT);
+                Robot_SetRightMotor(MAX_LEFT_TURN_90_RIGHT);
+
+                // Initialize a timer to track the turn time
+                ES_Timer_InitTimer(SUB_ALIGN_TURN_TIMER, TURN_90_LEFT_TICKS);
+                break;
+
+            case ES_EXIT:
+                break;
+
+            case ES_TIMEOUT:
+                // After timeout, perform transition back to the forward state
+                if (ThisEvent.EventParam == SUB_ALIGN_TURN_TIMER) {
+                    nextState = TRAVERSE_LEFT_FORWARD;
+                    makeTransition = TRUE;
+                    ThisEvent.EventType = ES_NO_EVENT;
+                }
+                break;
+            
+            // Put all detection events over here
+
+            case ES_NO_EVENT:
+            default:
+                break;
+            }
+        break;
+        
+    // ******************** RIGHT TRAVERSAL ******************** //
+    case TRAVERSE_RIGHT_REVERSE:
+        switch (ThisEvent.EventType) {
+            case ES_ENTRY:
+                // Start reversing the robot
+                Robot_SetLeftMotor(LEFT_REVERSE_MAX);
+                Robot_SetRightMotor(RIGHT_REVERSE_MAX);
+                break;
+
+            case ES_EXIT:
+                break;
+
+            case ES_TIMEOUT:
+                break;
+            
+            // Put all detection events over here
+            // Keep reversing until obstacle bumpers are no longer active.
+            case FLO_BUMPER_RELEASED:
+                nextState = TRAVERSE_RIGHT_TURN_180_LEFT;
+                makeTransition = TRUE;
+                ThisEvent.EventType = ES_NO_EVENT;
+                break;
+                
+            case FRO_BUMPER_RELEASED:
+                nextState = TRAVERSE_RIGHT_TURN_180_LEFT;
+                makeTransition = TRUE;
+                ThisEvent.EventType = ES_NO_EVENT;
+                break;
+                
+            // Add rear bumper events for guarding, but if this happens, there is a problem with your state machine...
+
+            case ES_NO_EVENT:
+            default:
+                break;
+            }
+        break;
+        
+    case TRAVERSE_RIGHT_TURN_180_LEFT:
+        switch (ThisEvent.EventType) {
+            case ES_ENTRY:
+                // Perform a full 180 tank turn
+                Robot_SetLeftMotor(MAX_LEFT_TURN_90_LEFT);
+                Robot_SetRightMotor(MAX_LEFT_TURN_90_RIGHT);
+
+                // Initialize a timer to track the turn time, try doubling the time of the 90 degrees timer.
+                ES_Timer_InitTimer(SUB_ALIGN_TURN_TIMER, TURN_90_LEFT_TICKS << 1);
+                break;
+
+            case ES_EXIT:
+                break;
+
+            case ES_TIMEOUT:
+                // After timeout, transition to the the forward stage of right traversal
+                if (ThisEvent.EventParam == SUB_ALIGN_TURN_TIMER) {
+                    nextState = TRAVERSE_RIGHT_FORWARD;
+                    makeTransition = TRUE;
+                    ThisEvent.EventType = ES_NO_EVENT;
+                }
+                break;
+            
+            // Put all detection events over here
+
+            case ES_NO_EVENT:
+            default:
+                break;
+            }
+        break;
+        
+    case TRAVERSE_RIGHT_FORWARD:
+        switch (ThisEvent.EventType) {
+            case ES_ENTRY:
+                // Move forward
+                Robot_SetLeftMotor(LEFT_FORWARD_MAX);
+                Robot_SetRightMotor(RIGHT_FORWARD_MAX);
+                
+                break;
+
+            case ES_EXIT:
+                break;
+
+            case ES_TIMEOUT:
+                break;
+            
+            // Put all detection events over here
+            // If front right tape is detected, or the front left/right bottom bumpers are detected, turn right to follow tape
+            // If the wall has been touched, then the next tape collision could lead to the track wire.
+            case FL_TAPE_DETECTED:
+                // If the wall has already been met, then assume alignment after 90' left. Otherwise, perform a 90' right turn.
+                if (right_traversal_met_wall == WALL_MET) {
+                    nextState = TRAVERSE_RIGHT_TURN_90_LEFT;
+                    makeTransition = TRUE;
+                    ThisEvent.EventType = ES_NO_EVENT;
+                } else {
+                    nextState = TRAVERSE_RIGHT_TURN_90_RIGHT;
+                    makeTransition = TRUE;
+                    ThisEvent.EventType = ES_NO_EVENT;
+                }
+                break;
+            
+            // If bottom bumpers are pressed, check if obstacle? Not sure, because right traversal assumes obstacle has been met.
+            // If such bumpers are pressed, assume that it has met the wal, to next time is the track?
+            case FL_BUMPER_PRESSED:
+                right_traversal_met_wall = WALL_MET;
+                nextState = TRAVERSE_RIGHT_TURN_90_RIGHT;
+                makeTransition = TRUE;
+                ThisEvent.EventType = ES_NO_EVENT;
+                break;
+                
+            case FR_BUMPER_PRESSED:
+                right_traversal_met_wall = WALL_MET;
+                nextState = TRAVERSE_RIGHT_TURN_90_RIGHT;
+                makeTransition = TRUE;
+                ThisEvent.EventType = ES_NO_EVENT;
+                break;
+
+            case ES_NO_EVENT:
+            default:
+                break;
+            }
+        break;
+        
+    case TRAVERSE_RIGHT_TURN_90_RIGHT:
+        switch (ThisEvent.EventType) {
+            case ES_ENTRY:
+                // Perform a right turn
+                Robot_SetLeftMotor(MAX_RIGHT_TURN_90_LEFT);
+                Robot_SetRightMotor(MAX_RIGHT_TURN_90_RIGHT);
+                
+                // Initialize a timer to keep track of turn time
+                ES_Timer_InitTimer(SUB_ALIGN_TURN_TIMER, TURN_90_RIGHT_TICKS);
+                break;
+
+            case ES_EXIT:
+                break;
+
+            case ES_TIMEOUT:
+                // When timed out, transition back to the forward state
+                if (ThisEvent.EventParam == SUB_ALIGN_TURN_TIMER) {
+                    nextState = TRAVERSE_RIGHT_FORWARD;
+                    makeTransition = TRUE;
+                    ThisEvent.EventType = ES_NO_EVENT;
+                }
+                break;
+            
+            // Put all detection events over here
+
+            case ES_NO_EVENT:
+            default:
+                break;
+            }
+        break;
+        
+    case TRAVERSE_RIGHT_TURN_90_LEFT:
+        switch (ThisEvent.EventType) {
+            case ES_ENTRY:
+                // Perform a left turn
+                Robot_SetLeftMotor(MAX_LEFT_TURN_90_LEFT);
+                Robot_SetRightMotor(MAX_LEFT_TURN_90_RIGHT);
+
+                // Initialize a timer to track the turn time.
+                ES_Timer_InitTimer(SUB_ALIGN_TURN_TIMER, TURN_90_LEFT_TICKS);
+                break;
+
+            case ES_EXIT:
+                break;
+
+            case ES_TIMEOUT:
+                // When timed out, assumed the robot is aligned
+                if (ThisEvent.EventParam == SUB_ALIGN_TURN_TIMER) {
+                    nextState = BOT_ALIGNED;
+                    makeTransition = TRUE;
+                    ThisEvent.EventType = ES_NO_EVENT;
+                }
+                break;
+            
+            // Put all detection events over here
+
+            case ES_NO_EVENT:
+            default:
+                break;
+            }
+        break;
+        
+    case BOT_ALIGNED:
+        switch (ThisEvent.EventType) {
+            case ES_ENTRY:
+                // Stop the robot
+                Robot_SetLeftMotor(0);
+                Robot_SetRightMotor(0);
+                
+                // Initialize a timer to brake the robot for a bit
+                ES_Timer_InitTimer(SUB_ALIGN_BRAKE_TIMER, BOT_BRAKE_TICKS);
+                // SUB_ALIGN_BRAKE_TIMER
+                break;
+
+            case ES_EXIT:
+                break;
+
+            case ES_TIMEOUT:
+                // When timed out, make no state transitions, but post an event to move to the next state.
+                // This will not work, it seems like you need a top level event.
+                if (ThisEvent.EventParam == SUB_ALIGN_BRAKE_TIMER) {
+                    ThisEvent.EventType = TRAP_DOOR_LOCATED;
+                }
+                break;
+            
+            // Put all detection events over here
+
+            case ES_NO_EVENT:
+            default:
+                break;
+            }
+        break;
+        
+    case BUFFER_STATE:
+        // This state offers no functionality except for stopping the robot for testing purposes.
         switch (ThisEvent.EventType) {
         case ES_ENTRY:
+            // Stop the robot and remain at this state
+            Robot_SetLeftMotor(0);
+            Robot_SetRightMotor(0);
             break;
 
         case ES_EXIT:
@@ -152,8 +791,8 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
         default:
             break;
         }
-    break;
-
+        break;
+    
     default: // all unhandled states fall into here
         break;
     } // end switch on Current State
@@ -169,15 +808,3 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
     return ThisEvent;
 }
 
-
-/*******************************************************************************
- * PRIVATE FUNCTIONS                                                           *
- ******************************************************************************/
-int sub_align_xor_shift(int seed) {
-    // Pseudorandomly generate a value
-    int val = seed;
-    val ^= (val << 13);
-    val ^= (val >> 17);
-    val ^= (val << 5);
-    return val;
-}

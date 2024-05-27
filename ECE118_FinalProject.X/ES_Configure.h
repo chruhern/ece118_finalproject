@@ -90,6 +90,9 @@ typedef enum {
     BEACON_DETECTED,
     BEACON_NOT_DETECTED,
             
+    // State Machine Signals
+    TRAP_DOOR_LOCATED,
+            
     NUMBEROFEVENTS,
 } ES_EventTyp_t;
 
@@ -132,6 +135,7 @@ static const char *EventNames[] = {
 	"RIGHT_TRACK_NOT_DETECTED",
 	"BEACON_DETECTED",
 	"BEACON_NOT_DETECTED",
+	"TRAP_DOOR_LOCATED",
 	"NUMBEROFEVENTS",
 };
 
@@ -156,7 +160,7 @@ static const char *EventNames[] = {
 #define TIMER2_RESP_FUNC PostTemplateHSM
 #define TIMER3_RESP_FUNC PostTemplateHSM
 #define TIMER4_RESP_FUNC PostTemplateHSM
-#define TIMER5_RESP_FUNC TIMER_UNUSED
+#define TIMER5_RESP_FUNC PostTemplateHSM
 #define TIMER6_RESP_FUNC TIMER_UNUSED
 #define TIMER7_RESP_FUNC TIMER_UNUSED
 #define TIMER8_RESP_FUNC TIMER_UNUSED
@@ -177,8 +181,9 @@ static const char *EventNames[] = {
 #define SIMPLE_SERVICE_TIMER 0
 #define SUB_HARNESS_TEST_TIMER 1
 #define SUB_ALIGN_TURN_TIMER 2
-#define SUB_TRACK_REVERSE_TIMER 3
-#define SUB_TRACK_TURN_TIMER 4
+#define SUB_ALIGN_BRAKE_TIMER 3
+#define SUB_TRACK_REVERSE_TIMER 4
+#define SUB_TRACK_TURN_TIMER 5
 //#define GENERIC_NAMED_TIMER 0 /*make sure this is enabled above and posting to the correct state machine*/
 
 

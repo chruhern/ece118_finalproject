@@ -47,13 +47,13 @@
 
 // -- Sensors -- \\
 // Sensor Pin Modes
-#define BUMPER_FRONT_LEFT_PIN_MODE PORTV04_TRIS
-#define BUMPER_FRONT_RIGHT_PIN_MODE PORTV05_TRIS
-#define BUMPER_REAR_LEFT_PIN_MODE PORTV06_TRIS
-#define BUMPER_REAR_RIGHT_PIN_MODE PORTV07_TRIS
+#define BUMPER_FRONT_LEFT_PIN_MODE PORTX03_TRIS
+#define BUMPER_FRONT_RIGHT_PIN_MODE PORTX04_TRIS
+#define BUMPER_REAR_LEFT_PIN_MODE PORTX05_TRIS
+#define BUMPER_REAR_RIGHT_PIN_MODE PORTX06_TRIS
 
-#define BUMPER_FL_OBSTACLE_PIN_MODE PORTV03_TRIS
-#define BUMPER_FR_OBSTACLE_PIN_MODE PORTV08_TRIS
+#define BUMPER_FL_OBSTACLE_PIN_MODE PORTX08_TRIS
+#define BUMPER_FR_OBSTACLE_PIN_MODE PORTX10_TRIS
 
 #define TAPE_FRONT_LEFT_PIN AD_PORTW3
 #define TAPE_FRONT_RIGHT_PIN AD_PORTW4
@@ -64,12 +64,13 @@
 //#define TRACK_WIRE_RIGHT_PIN AD_PORTW8 // For Servo
 
 // Sensor Statuses
-#define BUMPER_FRONT_LEFT PORTV04_BIT
-#define BUMPER_FRONT_RIGHT PORTV05_BIT
-#define BUMPER_REAR_LEFT PORTV06_BIT
-#define BUMPER_REAR_RIGHT PORTV07_BIT
-#define BUMPER_FL_OBSTACLE PORTV03_BIT
-#define BUMPER_FR_OBSTACLE PORTV08_BIT
+#define BUMPER_FRONT_LEFT PORTX03_BIT
+#define BUMPER_FRONT_RIGHT PORTX04_BIT
+#define BUMPER_REAR_LEFT PORTX05_BIT
+#define BUMPER_REAR_RIGHT PORTX06_BIT
+
+#define BUMPER_FL_OBSTACLE PORTX08_BIT
+#define BUMPER_FR_OBSTACLE PORTX10_BIT
 
 // No more track wire or beacon will be used
 //#define BEACON_PIN_MODE PORTV03_TRIS
@@ -92,7 +93,7 @@ char Robot_Init() {
     
     // Initialize all the necessary modules (I'm going to assume Board_Init() is active)
     AD_Init();
-    LED_Init();
+    //LED_Init();
     PWM_Init();
     RC_Init();
     
@@ -151,14 +152,6 @@ char Robot_Init() {
     // Initialize servo for dispensing
     RC_AddPins(RC_PORTW08);
     
-    
-    
-    //  ***** INITIALIZE LEDs ***** //
-    LED_AddBanks(LED_BANK1 | LED_BANK2 | LED_BANK3);
-    // Perform a quick test to check if the lights have initialized, remove them later
-//    LED_SetBank(LED_BANK1, 0xF);
-//    LED_SetBank(LED_BANK2, 0xF);
-//    LED_SetBank(LED_BANK3, 0xF);
     
     // Return status
     return SUCCESS;
