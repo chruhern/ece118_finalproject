@@ -135,7 +135,7 @@ ES_Event RunHarnessSubHSM(ES_Event ThisEvent)
             // initial state
 
             // now put the machine into the actual initial state
-            nextState = ForwardBumper; // Set this to the state you want to test out
+            nextState = ReverseTape; // Set this to the state you want to test out
             makeTransition = TRUE;
             ThisEvent.EventType = ES_NO_EVENT;
         }
@@ -145,8 +145,8 @@ ES_Event RunHarnessSubHSM(ES_Event ThisEvent)
         switch (ThisEvent.EventType) {
             case ES_ENTRY:
                 // Make the robot move forward
-                Robot_SetLeftMotor(MOTOR_MAX);
-                Robot_SetRightMotor(MOTOR_MAX);
+                Robot_SetLeftMotor(LEFT_FORWARD_MAX);
+                Robot_SetRightMotor(RIGHT_FORWARD_MAX);
                 
                 // Initialize a timer
                 //ES_Timer_InitTimer(SUB_HARNESS_TEST_TIMER, ROBOT_STOP_BUFFER_TICKS);
@@ -160,13 +160,13 @@ ES_Event RunHarnessSubHSM(ES_Event ThisEvent)
             
             // Put all detection events over here. Check for all tape statuses
             case FL_TAPE_DETECTED:
-                nextState = ReverseTape;
+                nextState = BrakeRobot;
                 makeTransition = TRUE;
                 ThisEvent.EventType = ES_NO_EVENT;
                 break;
                 
             case FR_TAPE_DETECTED:
-                nextState = ReverseTape;
+                nextState = BrakeRobot;
                 makeTransition = TRUE;
                 ThisEvent.EventType = ES_NO_EVENT;
                 break;
@@ -181,8 +181,8 @@ ES_Event RunHarnessSubHSM(ES_Event ThisEvent)
         switch (ThisEvent.EventType) {
             case ES_ENTRY:
                 // Make the robot move the opposite direction
-                Robot_SetLeftMotor(-MOTOR_MAX);
-                Robot_SetRightMotor(-MOTOR_MAX);
+                Robot_SetLeftMotor(LEFT_REVERSE_MAX);
+                Robot_SetRightMotor(RIGHT_REVERSE_MAX);
                 
                 break;
 
@@ -197,7 +197,7 @@ ES_Event RunHarnessSubHSM(ES_Event ThisEvent)
                     // Stop timer
                     //ES_Timer_StopTimer(SUB_HARNESS_TEST_TIMER);
                     
-                    nextState = ForwardTape;
+                    nextState = BrakeRobot;
                     makeTransition = TRUE;
                     ThisEvent.EventType = ES_NO_EVENT;
                 }                
@@ -205,26 +205,32 @@ ES_Event RunHarnessSubHSM(ES_Event ThisEvent)
             
             // Put all detection events over here
             case RL_TAPE_DETECTED:
-                if (!stop_timer_initialized) {
-                    // Stop the robot, initialize a new timer
-                    Robot_SetLeftMotor(0);
-                    Robot_SetRightMotor(0);
-                    ES_Timer_InitTimer(SUB_HARNESS_TEST_TIMER, ROBOT_STOP_BUFFER_TICKS);
-                    
-                    // Set status to true
-                    stop_timer_initialized = 1;
-                }
+                nextState = BrakeRobot;
+                makeTransition = TRUE;
+                ThisEvent.EventType = ES_NO_EVENT;
+//                if (!stop_timer_initialized) {
+//                    // Stop the robot, initialize a new timer
+//                    Robot_SetLeftMotor(0);
+//                    Robot_SetRightMotor(0);
+//                    ES_Timer_InitTimer(SUB_HARNESS_TEST_TIMER, ROBOT_STOP_BUFFER_TICKS);
+//                    
+//                    // Set status to true
+//                    stop_timer_initialized = 1;
+//                }
                 
             case RR_TAPE_DETECTED:
-                if (!stop_timer_initialized) {
-                    // Stop the robot, initialize a new timer
-                    Robot_SetLeftMotor(0);
-                    Robot_SetRightMotor(0);
-                    ES_Timer_InitTimer(SUB_HARNESS_TEST_TIMER, ROBOT_STOP_BUFFER_TICKS);
-                    
-                    // Set status to true
-                    stop_timer_initialized = 1;
-                }
+                nextState = BrakeRobot;
+                makeTransition = TRUE;
+                ThisEvent.EventType = ES_NO_EVENT;
+//                if (!stop_timer_initialized) {
+//                    // Stop the robot, initialize a new timer
+//                    Robot_SetLeftMotor(0);
+//                    Robot_SetRightMotor(0);
+//                    ES_Timer_InitTimer(SUB_HARNESS_TEST_TIMER, ROBOT_STOP_BUFFER_TICKS);
+//                    
+//                    // Set status to true
+//                    stop_timer_initialized = 1;
+//                }
                 
             case ES_NO_EVENT:
             default:

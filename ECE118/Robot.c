@@ -72,6 +72,9 @@
 #define BUMPER_FL_OBSTACLE PORTX08_BIT
 #define BUMPER_FR_OBSTACLE PORTX10_BIT
 
+// Servo
+#define DISPENSER_SERVO RC_PORTW08
+
 // No more track wire or beacon will be used
 //#define BEACON_PIN_MODE PORTV03_TRIS
 //#define BEACON_STATUS PORTV03_BIT
@@ -150,7 +153,7 @@ char Robot_Init() {
     //BEACON_PIN_MODE = PIN_INPUT;
     
     // Initialize servo for dispensing
-    RC_AddPins(RC_PORTW08);
+    RC_AddPins(DISPENSER_SERVO);
     
     
     // Return status

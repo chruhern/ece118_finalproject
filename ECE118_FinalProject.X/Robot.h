@@ -31,10 +31,10 @@
 // -- Straight Movement -- //
 // Values that allow for maximum forward speed that maintains a straight line.
 #define LEFT_FORWARD_MAX 1000
-#define RIGHT_FORWARD_MAX 1000
+#define RIGHT_FORWARD_MAX 990
 
 // Values that allow for maximum reverse speed that maintains a straight line.
-#define LEFT_REVERSE_MAX -1000
+#define LEFT_REVERSE_MAX -970
 #define RIGHT_REVERSE_MAX -1000
 
 // -- Turning -- //
