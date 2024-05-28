@@ -327,9 +327,9 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
     case ALIGN_TURN_LEFT:
         switch (ThisEvent.EventType) {
             case ES_ENTRY:
-                // Perform a left nudging turn (does timing matter as much as 90 degree?)
-                Robot_SetLeftMotor(-MOTOR_MAX);
-                Robot_SetRightMotor(-MOTOR_MAX + 100);
+                // Pivot the left wheel
+                Robot_SetLeftMotor(PIVOT_RIGHT_MOTOR_LEFT);
+                Robot_SetRightMotor(-PIVOT_RIGHT_MOTOR_RIGHT);
                 break;
 
             case ES_EXIT:
@@ -339,8 +339,9 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
                 break;
             
             // Put all detection events over here
-            case FL_TAPE_NOT_DETECTED:
-                nextState = ALIGN_FORWARD_LEFT;
+            // Pivot until the front right tape has been detected, then perform 90 degree turn
+            case FR_TAPE_DETECTED:
+                nextState = ALIGN_TURN_90_LEFT;
                 makeTransition = TRUE;
                 ThisEvent.EventType = ES_NO_EVENT;
                 break;
@@ -350,7 +351,7 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
                 break;
             }
         break;
-        
+    // Remove?    
     case ALIGN_FORWARD_LEFT:
         switch (ThisEvent.EventType) {
             case ES_ENTRY:
@@ -388,9 +389,9 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
     case ALIGN_TURN_RIGHT:\
         switch (ThisEvent.EventType) {
             case ES_ENTRY:
-                // Perform a left nudging turn (does timing matter as much as 90 degree?)
-                Robot_SetLeftMotor(0); // -MOTOR_MAX + 100
-                Robot_SetRightMotor(0); // -MOTOR_MAX)
+                // Perform a left reverse pivot until front left tape is detected
+                Robot_SetLeftMotor(-PIVOT_LEFT_MOTOR_LEFT); // -MOTOR_MAX + 100
+                Robot_SetRightMotor(PIVOT_LEFT_MOTOR_RIGHT); // -MOTOR_MAX)
                 break;
 
             case ES_EXIT:
@@ -400,8 +401,9 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
                 break;
             
             // Put all detection events over here
-            case FR_TAPE_NOT_DETECTED:
-                nextState = ALIGN_FORWARD_RIGHT; // ALIGN_FORWARD_RIGHT
+            // When front left tape is detected, consider it aligned
+            case FL_TAPE_DETECTED:
+                nextState = ALIGN_TURN_90_LEFT; // ALIGN_FORWARD_RIGHT
                 makeTransition = TRUE;
                 ThisEvent.EventType = ES_NO_EVENT;
                 break;
