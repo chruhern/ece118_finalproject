@@ -135,7 +135,7 @@ ES_Event RunHarnessSubHSM(ES_Event ThisEvent)
             // initial state
 
             // now put the machine into the actual initial state
-            nextState = ReverseTape; // Set this to the state you want to test out
+            nextState = BrakeRobot; // Set this to the state you want to test out
             makeTransition = TRUE;
             ThisEvent.EventType = ES_NO_EVENT;
         }
@@ -160,13 +160,13 @@ ES_Event RunHarnessSubHSM(ES_Event ThisEvent)
             
             // Put all detection events over here. Check for all tape statuses
             case FL_TAPE_DETECTED:
-                nextState = BrakeRobot;
+                nextState = ReverseTape;
                 makeTransition = TRUE;
                 ThisEvent.EventType = ES_NO_EVENT;
                 break;
                 
             case FR_TAPE_DETECTED:
-                nextState = BrakeRobot;
+                nextState = ReverseTape;
                 makeTransition = TRUE;
                 ThisEvent.EventType = ES_NO_EVENT;
                 break;
@@ -402,11 +402,11 @@ ES_Event RunHarnessSubHSM(ES_Event ThisEvent)
         switch (ThisEvent.EventType) {
             case ES_ENTRY:
                 // Perform a left tank turn
-                Robot_SetLeftMotor(MAX_LEFT_TURN_90_LEFT);
-                Robot_SetRightMotor(MAX_LEFT_TURN_90_RIGHT);
+                Robot_SetLeftMotor(-MOTOR_MAX); // MAX_LEFT_TURN_90_LEFT
+                Robot_SetRightMotor(0); // MAX_LEFT_TURN_90_RIGHT
                 
                 // Initialize timer for left turn
-                ES_Timer_InitTimer(SUB_HARNESS_TEST_TIMER, TURN_90_LEFT_TICKS);
+                //ES_Timer_InitTimer(SUB_HARNESS_TEST_TIMER, TURN_90_LEFT_TICKS);
                 break;
 
             case ES_EXIT:
@@ -433,8 +433,8 @@ ES_Event RunHarnessSubHSM(ES_Event ThisEvent)
         switch (ThisEvent.EventType) {
             case ES_ENTRY:
                 // Perform a right tank turn
-                Robot_SetLeftMotor(MAX_RIGHT_TURN_90_LEFT);
-                Robot_SetRightMotor(MAX_RIGHT_TURN_90_RIGHT);
+                Robot_SetLeftMotor(MAX_RIGHT_TURN_90_LEFT); // MAX_RIGHT_TURN_90_LEFT
+                Robot_SetRightMotor(MAX_RIGHT_TURN_90_RIGHT); // MAX_RIGHT_TURN_90_RIGHT
                 
                 // Initialize timer for right turn time
                 ES_Timer_InitTimer(SUB_HARNESS_TEST_TIMER, TURN_90_RIGHT_TICKS);

@@ -156,7 +156,7 @@ ES_Event RunTemplateHSM(ES_Event ThisEvent)
             InitHarnessSubHSM();
             
             // now put the machine into the actual initial state
-            nextState = SubHarness;
+            nextState = SubAlign;
             makeTransition = TRUE;
             ThisEvent.EventType = ES_NO_EVENT;
             ;
