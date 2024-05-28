@@ -135,7 +135,7 @@ ES_Event RunHarnessSubHSM(ES_Event ThisEvent)
             // initial state
 
             // now put the machine into the actual initial state
-            nextState = BrakeRobot; // Set this to the state you want to test out
+            nextState = ForwardTape; // Set this to the state you want to test out
             makeTransition = TRUE;
             ThisEvent.EventType = ES_NO_EVENT;
         }
@@ -160,13 +160,13 @@ ES_Event RunHarnessSubHSM(ES_Event ThisEvent)
             
             // Put all detection events over here. Check for all tape statuses
             case FL_TAPE_DETECTED:
-                nextState = ReverseTape;
+                nextState = BrakeRobot;
                 makeTransition = TRUE;
                 ThisEvent.EventType = ES_NO_EVENT;
                 break;
                 
             case FR_TAPE_DETECTED:
-                nextState = ReverseTape;
+                nextState = BrakeRobot;
                 makeTransition = TRUE;
                 ThisEvent.EventType = ES_NO_EVENT;
                 break;

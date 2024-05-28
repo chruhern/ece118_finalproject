@@ -48,9 +48,7 @@ typedef enum {
     AVOID_TURN_90_LEFT,
 
     ALIGN_TURN_LEFT,
-    ALIGN_FORWARD_LEFT,
     ALIGN_TURN_RIGHT,
-    ALIGN_FORWARD_RIGHT,
     ALIGN_TURN_90_LEFT,
 
     TRAVERSE_LEFT_FORWARD,
@@ -72,9 +70,7 @@ static const char *StateNames[] = {
 	"AVOID_REVERSE",
 	"AVOID_TURN_90_LEFT",
 	"ALIGN_TURN_LEFT",
-	"ALIGN_FORWARD_LEFT",
 	"ALIGN_TURN_RIGHT",
-	"ALIGN_FORWARD_RIGHT",
 	"ALIGN_TURN_90_LEFT",
 	"TRAVERSE_LEFT_FORWARD",
 	"TRAVERSE_LEFT_90_LEFT",
@@ -109,7 +105,7 @@ static uint8_t MyPriority;
 
 // ***** Pivoting ***** //
 // When pivoting, motor is set to the maximum
-#define PIVOT_LEFT_TICKS 1100 // Time to perform a left pivot turn
+#define PIVOT_LEFT_TICKS 1000 // Time to perform a left pivot turn
 #define PIVOT_RIGHT_TICKS 1100 // Time to perform a right pivot turn
 
 #define PIVOT_LEFT_MOTOR_LEFT -MOTOR_MAX
@@ -189,8 +185,8 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
         switch (ThisEvent.EventType) {
             case ES_ENTRY:
                 // Move the robot forward
-                Robot_SetLeftMotor(MOTOR_MAX);
-                Robot_SetRightMotor(MOTOR_MAX);
+                Robot_SetLeftMotor(LEFT_FORWARD_MAX);
+                Robot_SetRightMotor(RIGHT_FORWARD_MAX);
                 
                 break;
 
@@ -351,40 +347,6 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
                 break;
             }
         break;
-    // Remove?    
-    case ALIGN_FORWARD_LEFT:
-        switch (ThisEvent.EventType) {
-            case ES_ENTRY:
-                // Move forward
-                Robot_SetLeftMotor(LEFT_FORWARD_MAX);
-                Robot_SetRightMotor(RIGHT_FORWARD_MAX);
-                break;
-
-            case ES_EXIT:
-                break;
-
-            case ES_TIMEOUT:
-                break;
-            
-            // Put all detection events over here
-            // Continue adjusting to the left when tape has been detected. If front right, then consider it aligned
-            case FR_TAPE_DETECTED:
-                nextState = ALIGN_TURN_90_LEFT;
-                makeTransition = TRUE;
-                ThisEvent.EventType = ES_NO_EVENT;
-                break;
-                
-            case FL_TAPE_DETECTED:
-                nextState = ALIGN_TURN_LEFT;
-                makeTransition = TRUE;
-                ThisEvent.EventType = ES_NO_EVENT;
-                break;
-
-            case ES_NO_EVENT:
-            default:
-                break;
-            }
-        break;
         
     case ALIGN_TURN_RIGHT:\
         switch (ThisEvent.EventType) {
@@ -403,41 +365,7 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
             // Put all detection events over here
             // When front left tape is detected, consider it aligned
             case FL_TAPE_DETECTED:
-                nextState = ALIGN_TURN_90_LEFT; // ALIGN_FORWARD_RIGHT
-                makeTransition = TRUE;
-                ThisEvent.EventType = ES_NO_EVENT;
-                break;
-
-            case ES_NO_EVENT:
-            default:
-                break;
-            }
-        break;
-        
-    case ALIGN_FORWARD_RIGHT:
-        switch (ThisEvent.EventType) {
-            case ES_ENTRY:
-                // Move forward
-                Robot_SetLeftMotor(LEFT_FORWARD_MAX);
-                Robot_SetRightMotor(RIGHT_FORWARD_MAX);
-                break;
-
-            case ES_EXIT:
-                break;
-
-            case ES_TIMEOUT:
-                break;
-            
-            // Put all detection events over here
-            // If the left tape has been detected, consider it aligned. Otherwise, rotate right
-            case FL_TAPE_DETECTED:
                 nextState = ALIGN_TURN_90_LEFT;
-                makeTransition = TRUE;
-                ThisEvent.EventType = ES_NO_EVENT;
-                break;
-                
-            case FR_TAPE_DETECTED:
-                nextState = ALIGN_TURN_RIGHT;
                 makeTransition = TRUE;
                 ThisEvent.EventType = ES_NO_EVENT;
                 break;
@@ -467,7 +395,7 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
             case ES_TIMEOUT:
                 // After timeout, begin the forward side traversal
                 if (ThisEvent.EventParam == SUB_ALIGN_TURN_TIMER) {
-                    nextState = BOT_ALIGNED; // TRAVERSE_LEFT_FORWARD
+                    nextState = TRAVERSE_LEFT_FORWARD; // TRAVERSE_LEFT_FORWARD
                     makeTransition = TRUE;
                     ThisEvent.EventType = ES_NO_EVENT;
                 }
