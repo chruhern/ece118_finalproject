@@ -48,6 +48,9 @@ typedef enum {
     ReverseCalibration,
     TurnLeftCalibration,
     TurnRightCalibration,
+            
+    ForwardLeftBias,
+    ForwardRightBias,
     BrakeRobot,
             
 } TemplateSubHSMState_t;
@@ -62,6 +65,8 @@ static const char *StateNames[] = {
 	"ReverseCalibration",
 	"TurnLeftCalibration",
 	"TurnRightCalibration",
+	"ForwardLeftBias",
+	"ForwardRightBias",
 	"BrakeRobot",
 };
 
@@ -140,13 +145,86 @@ ES_Event RunHarnessSubHSM(ES_Event ThisEvent)
             ThisEvent.EventType = ES_NO_EVENT;
         }
         break;
+        
+    case ForwardLeftBias:
+        switch (ThisEvent.EventType) {
+            case ES_ENTRY:
+                // Move robot, but bias to the left
+                Robot_SetLeftMotor(980);
+                Robot_SetRightMotor(1000);
+                break;
 
+            case ES_EXIT:
+                break;
+
+            case ES_TIMEOUT:
+                break;
+            
+            // Put all detection events over here
+            case FR_TAPE_NOT_DETECTED:
+                nextState = ForwardRightBias;
+                makeTransition = TRUE;
+                ThisEvent.EventType = ES_NO_EVENT;
+                break;
+                
+            case FL_TAPE_DETECTED:
+                // Stop the robot
+                nextState = BrakeRobot;
+                makeTransition = TRUE;
+                ThisEvent.EventType = ES_NO_EVENT;
+                break;
+                    
+
+            case ES_NO_EVENT:
+            default:
+                break;
+            }
+        break;
+
+    case ForwardRightBias:
+        switch (ThisEvent.EventType) {
+            case ES_ENTRY:
+                // Move forward, but bias to the right
+                Robot_SetLeftMotor(1000);
+                Robot_SetRightMotor(985);
+                break;
+
+            case ES_EXIT:
+                break;
+
+            case ES_TIMEOUT:
+                break;
+            
+            // Put all detection events over here
+            case FR_TAPE_DETECTED:
+                nextState = ForwardLeftBias;
+                makeTransition = TRUE;
+                ThisEvent.EventType = ES_NO_EVENT;
+                break;
+                
+            case FL_TAPE_DETECTED:
+                // Stop the robot
+                nextState = BrakeRobot;
+                makeTransition = TRUE;
+                ThisEvent.EventType = ES_NO_EVENT;
+                break;
+
+            case ES_NO_EVENT:
+            default:
+                break;
+            }
+        break;
+            
     case ForwardTape: // in the first state, replace this with correct names
         switch (ThisEvent.EventType) {
             case ES_ENTRY:
                 // Make the robot move forward
-                Robot_SetLeftMotor(LEFT_FORWARD_MAX);
-                Robot_SetRightMotor(RIGHT_FORWARD_MAX);
+                Robot_SetLeftMotor(0); // LEFT_FORWARD_MAX
+                Robot_SetRightMotor(0); // RIGHT_FORWARD_MAX
+                
+                // Move the propeller
+                Robot_SetPropllerMode(0);
+                
                 
                 // Initialize a timer
                 //ES_Timer_InitTimer(SUB_HARNESS_TEST_TIMER, ROBOT_STOP_BUFFER_TICKS);
@@ -159,17 +237,17 @@ ES_Event RunHarnessSubHSM(ES_Event ThisEvent)
                 break;
             
             // Put all detection events over here. Check for all tape statuses
-            case FL_TAPE_DETECTED:
-                nextState = BrakeRobot;
-                makeTransition = TRUE;
-                ThisEvent.EventType = ES_NO_EVENT;
-                break;
-                
-            case FR_TAPE_DETECTED:
-                nextState = BrakeRobot;
-                makeTransition = TRUE;
-                ThisEvent.EventType = ES_NO_EVENT;
-                break;
+//            case FL_TAPE_DETECTED:
+//                nextState = BrakeRobot;
+//                makeTransition = TRUE;
+//                ThisEvent.EventType = ES_NO_EVENT;
+//                break;
+//                
+//            case FR_TAPE_DETECTED:
+//                nextState = BrakeRobot;
+//                makeTransition = TRUE;
+//                ThisEvent.EventType = ES_NO_EVENT;
+//                break;
 
             case ES_NO_EVENT:
             default:
@@ -242,8 +320,9 @@ ES_Event RunHarnessSubHSM(ES_Event ThisEvent)
         switch (ThisEvent.EventType) {
             case ES_ENTRY:
                 // Move forward
-                Robot_SetLeftMotor(MOTOR_MAX);
-                Robot_SetRightMotor(MOTOR_MAX);
+                Robot_SetLeftMotor(0);
+                Robot_SetRightMotor(0);
+                
                 break;
 
             case ES_EXIT:
@@ -254,13 +333,29 @@ ES_Event RunHarnessSubHSM(ES_Event ThisEvent)
             
             // Put all detection events over here
             case FL_BUMPER_PRESSED:
-                nextState = BrakeRobot;
+                //Robot_SetServoEnabled(D_SERVO_ACTIVE);
+                nextState = ForwardBumper;
                 makeTransition = TRUE;
                 ThisEvent.EventType = ES_NO_EVENT;
                 break;
                 
             case FR_BUMPER_PRESSED:
-                nextState = BrakeRobot;
+                //Robot_SetServoEnabled(D_SERVO_ACTIVE);
+                nextState = ForwardBumper;
+                makeTransition = TRUE;
+                ThisEvent.EventType = ES_NO_EVENT;
+                break;
+                
+            case FL_BUMPER_RELEASED:
+                //Robot_SetServoEnabled(D_SERVO_INACTIVE);
+                nextState = ForwardBumper;
+                makeTransition = TRUE;
+                ThisEvent.EventType = ES_NO_EVENT;
+                break;
+                
+            case FR_BUMPER_RELEASED:
+                //Robot_SetServoEnabled(D_SERVO_INACTIVE);
+                nextState = ForwardBumper;
                 makeTransition = TRUE;
                 ThisEvent.EventType = ES_NO_EVENT;
                 break;
@@ -333,17 +428,17 @@ ES_Event RunHarnessSubHSM(ES_Event ThisEvent)
                 ThisEvent.EventType = ES_NO_EVENT;
                 break;
                 
-            case FL_BUMPER_PRESSED:
-                nextState = BrakeRobot;
-                makeTransition = TRUE;
-                ThisEvent.EventType = ES_NO_EVENT;
-                break;
-                
-            case FR_BUMPER_PRESSED:
-                nextState = BrakeRobot;
-                makeTransition = TRUE;
-                ThisEvent.EventType = ES_NO_EVENT;
-                break;
+//            case FL_BUMPER_PRESSED:
+//                nextState = BrakeRobot;
+//                makeTransition = TRUE;
+//                ThisEvent.EventType = ES_NO_EVENT;
+//                break;
+//                
+//            case FR_BUMPER_PRESSED:
+//                nextState = BrakeRobot;
+//                makeTransition = TRUE;
+//                ThisEvent.EventType = ES_NO_EVENT;
+//                break;
 
             case ES_NO_EVENT:
             default:
@@ -403,7 +498,7 @@ ES_Event RunHarnessSubHSM(ES_Event ThisEvent)
             case ES_ENTRY:
                 // Perform a left tank turn
                 Robot_SetLeftMotor(-MOTOR_MAX); // MAX_LEFT_TURN_90_LEFT
-                Robot_SetRightMotor(0); // MAX_LEFT_TURN_90_RIGHT
+                Robot_SetRightMotor(MOTOR_MAX); // MAX_LEFT_TURN_90_RIGHT
                 
                 // Initialize timer for left turn
                 //ES_Timer_InitTimer(SUB_HARNESS_TEST_TIMER, TURN_90_LEFT_TICKS);
@@ -433,11 +528,11 @@ ES_Event RunHarnessSubHSM(ES_Event ThisEvent)
         switch (ThisEvent.EventType) {
             case ES_ENTRY:
                 // Perform a right tank turn
-                Robot_SetLeftMotor(MAX_RIGHT_TURN_90_LEFT); // MAX_RIGHT_TURN_90_LEFT
-                Robot_SetRightMotor(MAX_RIGHT_TURN_90_RIGHT); // MAX_RIGHT_TURN_90_RIGHT
+                Robot_SetLeftMotor(MOTOR_MAX); // MAX_RIGHT_TURN_90_LEFT
+                Robot_SetRightMotor(-MOTOR_MAX); // MAX_RIGHT_TURN_90_RIGHT
                 
                 // Initialize timer for right turn time
-                ES_Timer_InitTimer(SUB_HARNESS_TEST_TIMER, TURN_90_RIGHT_TICKS);
+                //ES_Timer_InitTimer(SUB_HARNESS_TEST_TIMER, TURN_90_RIGHT_TICKS);
                 break;
 
             case ES_EXIT:
@@ -466,6 +561,9 @@ ES_Event RunHarnessSubHSM(ES_Event ThisEvent)
                 // Stop the robot from moving, nothing comes after this state
                 Robot_SetLeftMotor(0);
                 Robot_SetRightMotor(0);
+                
+                //Robot_SetServoEnabled(D_SERVO_ACTIVE);
+                
                 break;
 
             case ES_EXIT:

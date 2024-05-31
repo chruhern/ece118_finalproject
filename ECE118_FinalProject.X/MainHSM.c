@@ -35,9 +35,12 @@
 #include "MainHSM.h"
 
 #include "SubHSM_Align.h" //#include all sub state machines called
-#include "SubHSM_TrackSearch.h"
+#include "SubHSM_Search.h"
+#include "SubHSM_TraverseBasic.h"
 
 #include "SubHSM_TestHarness.h"
+
+#include "Robot.h"
 /*******************************************************************************
  * PRIVATE #DEFINES                                                            *
  ******************************************************************************/
@@ -51,7 +54,8 @@
 typedef enum {
     InitPState,
     SubAlign,
-    SubTrackSearch,
+    SubSearch,
+    SubTraverseBasic,
     SubHarness,
             
 } TemplateHSMState_t;
@@ -59,7 +63,8 @@ typedef enum {
 static const char *StateNames[] = {
 	"InitPState",
 	"SubAlign",
-	"SubTrackSearch",
+	"SubSearch",
+	"SubTraverseBasic",
 	"SubHarness",
 };
 
@@ -152,11 +157,12 @@ ES_Event RunTemplateHSM(ES_Event ThisEvent)
             // initial state
             // Initialize all sub-state machines
             InitAlignSubHSM();
-            InitTrackSubHSM();
+            InitSearchSubHSM();
             InitHarnessSubHSM();
+            InitTraverseBasicSubHSM();
             
             // now put the machine into the actual initial state
-            nextState = SubAlign;
+            nextState = SubHarness;
             makeTransition = TRUE;
             ThisEvent.EventType = ES_NO_EVENT;
             ;
@@ -169,14 +175,20 @@ ES_Event RunTemplateHSM(ES_Event ThisEvent)
         //state machine does
         ThisEvent = RunAlignSubHSM(ThisEvent);
         switch (ThisEvent.EventType) {
+            
+        // Events here
+        // When the trap door has been located, transition to the search state
+        case TRAP_DOOR_LOCATED:
+            break;
+            
         case ES_NO_EVENT:
         default:
             break;
         }
         break;
         
-    case SubTrackSearch:
-        ThisEvent = RunTrackSubHSM(ThisEvent);
+    case SubSearch:
+        ThisEvent = RunSearchSubHSM(ThisEvent);
         switch (ThisEvent.EventType) {
         case ES_NO_EVENT:
         default:
@@ -184,6 +196,37 @@ ES_Event RunTemplateHSM(ES_Event ThisEvent)
         }
         break;
     
+    case SubTraverseBasic:
+        ThisEvent = RunTraverseBasicSubHSM(ThisEvent);
+        switch (ThisEvent.EventType) {
+            case ES_ENTRY:
+                // Start a timer SUB_HARNESS_TEST_TIMER
+                ES_Timer_InitTimer(SUB_HARNESS_TEST_TIMER, 120000);
+                
+                // Start Propeller
+                Robot_SetPropllerMode(PROPELLER_COLLECT);
+                break;
+
+            case ES_EXIT:
+                break;
+
+            case ES_TIMEOUT:
+                if (ThisEvent.EventParam == SUB_HARNESS_TEST_TIMER) {
+                    // Stop the robot and propeller
+                    Robot_SetLeftMotor(0);
+                    Robot_SetRightMotor(0);
+                    Robot_SetPropllerMode(PROPELLER_RELEASE);
+                }
+                break;
+            
+            // Put all detection events over here
+
+            case ES_NO_EVENT:
+            default:
+                break;
+            }
+        break;
+        
     case SubHarness:
         ThisEvent = RunHarnessSubHSM(ThisEvent);
         switch (ThisEvent.EventType) {

@@ -23,7 +23,7 @@
 //#define POSTFUNCTION_FOR_KEYBOARD_INPUT PostTemplateHSM
 
 //define for TattleTale
-#define USE_TATTLETALE
+//#define USE_TATTLETALE
 
 //uncomment to supress the entry and exit events
 //#define SUPPRESS_EXIT_ENTRY_IN_TATTLE
@@ -92,6 +92,7 @@ typedef enum {
             
     // State Machine Signals
     TRAP_DOOR_LOCATED,
+    FIELD_MAPPED,
             
     NUMBEROFEVENTS,
 } ES_EventTyp_t;
@@ -136,6 +137,7 @@ static const char *EventNames[] = {
 	"BEACON_DETECTED",
 	"BEACON_NOT_DETECTED",
 	"TRAP_DOOR_LOCATED",
+	"FIELD_MAPPED",
 	"NUMBEROFEVENTS",
 };
 
@@ -161,7 +163,7 @@ static const char *EventNames[] = {
 #define TIMER3_RESP_FUNC PostTemplateHSM
 #define TIMER4_RESP_FUNC PostTemplateHSM
 #define TIMER5_RESP_FUNC PostTemplateHSM
-#define TIMER6_RESP_FUNC TIMER_UNUSED
+#define TIMER6_RESP_FUNC PostTemplateHSM
 #define TIMER7_RESP_FUNC TIMER_UNUSED
 #define TIMER8_RESP_FUNC TIMER_UNUSED
 #define TIMER9_RESP_FUNC TIMER_UNUSED
@@ -180,10 +182,15 @@ static const char *EventNames[] = {
 // the timer number matches where the timer event will be routed
 #define SIMPLE_SERVICE_TIMER 0
 #define SUB_HARNESS_TEST_TIMER 1
-#define SUB_ALIGN_TURN_TIMER 2
-#define SUB_ALIGN_BRAKE_TIMER 3
-#define SUB_TRACK_REVERSE_TIMER 4
-#define SUB_TRACK_TURN_TIMER 5
+
+#define GENERIC_BRAKE_TIMER 2 // For general braking purposes
+
+#define SUB_ALIGN_TURN_TIMER 3
+
+#define SUB_SEARCH_TURN_TIMER 4
+#define SUB_SEARCH_FORWARD_INC_TIMER 5
+
+#define SUB_BASIC_TRAVERSE_TURN_TIMER 6
 //#define GENERIC_NAMED_TIMER 0 /*make sure this is enabled above and posting to the correct state machine*/
 
 

@@ -30,9 +30,11 @@
       <itemPath>Robot.h</itemPath>
       <itemPath>MainHSM.h</itemPath>
       <itemPath>SubHSM_Align.h</itemPath>
-      <itemPath>SubHSM_TrackSearch.h</itemPath>
       <itemPath>SubHSM_TestHarness.h</itemPath>
       <itemPath>../ECE118/include/RC_Servo.h</itemPath>
+      <itemPath>SubHSM_Search.h</itemPath>
+      <itemPath>GridNavigation.h</itemPath>
+      <itemPath>SubHSM_TraverseBasic.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -70,9 +72,11 @@
       <itemPath>MainHSM.c</itemPath>
       <itemPath>SubHSM_Align.c</itemPath>
       <itemPath>TapeDetectorBallHarness.c</itemPath>
-      <itemPath>SubHSM_TrackSearch.c</itemPath>
       <itemPath>SubHSM_TestHarness.c</itemPath>
       <itemPath>../ECE118/src/RC_Servo.c</itemPath>
+      <itemPath>SubHSM_Search.c</itemPath>
+      <itemPath>GridNavigation.c</itemPath>
+      <itemPath>SubHSM_TraverseBasic.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

@@ -105,14 +105,14 @@ static uint8_t MyPriority;
 
 // ***** Pivoting ***** //
 // When pivoting, motor is set to the maximum
-#define PIVOT_LEFT_TICKS 1000 // Time to perform a left pivot turn
+#define PIVOT_LEFT_TICKS 1200 // Time to perform a left pivot turn
 #define PIVOT_RIGHT_TICKS 1100 // Time to perform a right pivot turn
 
-#define PIVOT_LEFT_MOTOR_LEFT -MOTOR_MAX
+#define PIVOT_LEFT_MOTOR_LEFT MOTOR_MAX
 #define PIVOT_LEFT_MOTOR_RIGHT 0
 
 #define PIVOT_RIGHT_MOTOR_LEFT 0
-#define PIVOT_RIGHT_MOTOR_RIGHT -MOTOR_MAX
+#define PIVOT_RIGHT_MOTOR_RIGHT MOTOR_MAX
 
 // If we have met the wall, then we know that the next tape detection is alignment with the track wire
 #define WALL_MET 1
@@ -211,17 +211,17 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
                 break;
               
              // Uncomment this when your obstacle bumeprs are installed...
-//            case FLO_BUMPER_PRESSED:
-//                nextState = AVOID_REVERSE;
-//                makeTransition = TRUE;
-//                ThisEvent.EventType = ES_NO_EVENT;
-//                break;
-//                
-//            case FRO_BUMPER_PRESSED:
-//                nextState = AVOID_REVERSE;
-//                makeTransition = TRUE;
-//                ThisEvent.EventType = ES_NO_EVENT;
-//                break;
+            case FLO_BUMPER_PRESSED:
+                nextState = AVOID_REVERSE;
+                makeTransition = TRUE;
+                ThisEvent.EventType = ES_NO_EVENT;
+                break;
+                
+            case FRO_BUMPER_PRESSED:
+                nextState = AVOID_REVERSE;
+                makeTransition = TRUE;
+                ThisEvent.EventType = ES_NO_EVENT;
+                break;
                 
             // If front tape is detected, then alignment is possible
             // Buffer state to stop the state from continuing. This allows for incremental testing...
@@ -324,8 +324,8 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
         switch (ThisEvent.EventType) {
             case ES_ENTRY:
                 // Pivot the left wheel
-                Robot_SetLeftMotor(PIVOT_RIGHT_MOTOR_LEFT);
-                Robot_SetRightMotor(-PIVOT_RIGHT_MOTOR_RIGHT);
+                Robot_SetLeftMotor(0); // PIVOT_RIGHT_MOTOR_LEFT
+                Robot_SetRightMotor(1000); // PIVOT_RIGHT_MOTOR_RIGHT
                 break;
 
             case ES_EXIT:
@@ -352,8 +352,8 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
         switch (ThisEvent.EventType) {
             case ES_ENTRY:
                 // Perform a left reverse pivot until front left tape is detected
-                Robot_SetLeftMotor(-PIVOT_LEFT_MOTOR_LEFT); // -MOTOR_MAX + 100
-                Robot_SetRightMotor(PIVOT_LEFT_MOTOR_RIGHT); // -MOTOR_MAX)
+                Robot_SetLeftMotor(1000); // -MOTOR_MAX + 100
+                Robot_SetRightMotor(0); // -MOTOR_MAX)
                 break;
 
             case ES_EXIT:
@@ -382,11 +382,11 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
                 // At this stage, start with traversing the left direction. Begin with a left turn.
                 
                 // Perform a pivot left turn to the left
-                Robot_SetLeftMotor(PIVOT_LEFT_MOTOR_LEFT);
-                Robot_SetRightMotor(PIVOT_LEFT_MOTOR_RIGHT);
+                Robot_SetLeftMotor(-1000);
+                Robot_SetRightMotor(0);
 
                 // Initialize a timer to track the turn time
-                ES_Timer_InitTimer(SUB_ALIGN_TURN_TIMER, PIVOT_LEFT_TICKS);
+                ES_Timer_InitTimer(SUB_ALIGN_TURN_TIMER, 1250);
                 break;
 
             case ES_EXIT:
@@ -473,11 +473,11 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
         switch (ThisEvent.EventType) {
             case ES_ENTRY:
                 // Perform a left pivot turn
-                Robot_SetLeftMotor(PIVOT_LEFT_MOTOR_LEFT); // MAX_LEFT_TURN_90_LEFT
-                Robot_SetRightMotor(PIVOT_LEFT_MOTOR_RIGHT); // MAX_LEFT_TURN_90_RIGHT
+                Robot_SetLeftMotor(-1000); // MAX_LEFT_TURN_90_LEFT
+                Robot_SetRightMotor(1000); // MAX_LEFT_TURN_90_RIGHT
 
                 // Initialize a timer to track the turn time
-                ES_Timer_InitTimer(SUB_ALIGN_TURN_TIMER, PIVOT_LEFT_TICKS); // TURN_90_LEFT_TICKS
+                ES_Timer_InitTimer(SUB_ALIGN_TURN_TIMER, 600); // TURN_90_LEFT_TICKS
                 break;
 
             case ES_EXIT:
@@ -691,8 +691,7 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
                 Robot_SetRightMotor(0);
                 
                 // Initialize a timer to brake the robot for a bit
-                ES_Timer_InitTimer(SUB_ALIGN_BRAKE_TIMER, BOT_BRAKE_TICKS);
-                // SUB_ALIGN_BRAKE_TIMER
+                ES_Timer_InitTimer(GENERIC_BRAKE_TIMER, BOT_BRAKE_TICKS);
                 break;
 
             case ES_EXIT:
@@ -701,7 +700,7 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
             case ES_TIMEOUT:
                 // When timed out, make no state transitions, but post an event to move to the next state.
                 // This will not work, it seems like you need a top level event.
-                if (ThisEvent.EventParam == SUB_ALIGN_BRAKE_TIMER) {
+                if (ThisEvent.EventParam == GENERIC_BRAKE_TIMER) {
                     ThisEvent.EventType = TRAP_DOOR_LOCATED;
                 }
                 break;

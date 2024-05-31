@@ -15,7 +15,7 @@
 #define PIN_OUTPUT 0
 
 #define MOTOR_MAX 1000 // Max cycle for the motor (goes both ways, positive and negative)
-#define PROPELLER_MAX 1000 // Max speed of the propeller
+#define PROPELLER_MAX 800 // Max speed of the propeller
 
 // Sensor statuses
 #define TAPE_DETECTED 0
@@ -27,11 +27,17 @@
 #define BEACON_ON_SIGHT 1
 #define BEACON_OFF_SIGHT 0
 
+// ***** Servo ***** //
+#define D_SERVO_ACTIVE 1
+#define D_SERVO_INACTIVE 0
+#define D_SERVO_MAX_PULSE 2000
+#define D_SERVO_MIN_PULSE 1000
+
 // ***** Calibration ***** //
 // -- Straight Movement -- //
 // Values that allow for maximum forward speed that maintains a straight line.
 #define LEFT_FORWARD_MAX 1000
-#define RIGHT_FORWARD_MAX 985
+#define RIGHT_FORWARD_MAX 990
 
 // Values that allow for maximum reverse speed that maintains a straight line.
 #define LEFT_REVERSE_MAX -970
@@ -89,6 +95,15 @@ char Robot_SetRightMotor(int motorSpeed);
  * @brief  Allows for setting the direction of the motor that controls the propeller to either collect or release the balls
  * @author Derrick Lai */
 char Robot_SetPropllerMode(int propellerMode);
+
+/**
+ * @Function Robot_GetBeacon(void)
+ * @param None
+ * @return Status of the beacon, returns 1 if beacon is detected, 0 otherwise.
+ * @brief  To be used for event checker, reads from ADC pin to check if track wire detects anything. 
+ * F -> Front, L -> Left, R -> Right or Rear
+ * @author Derrick Lai */
+char Robot_SetServoEnabled(int servoStatus);
 
 /**
  * @Function Robot_GetTrackWireXX(void)

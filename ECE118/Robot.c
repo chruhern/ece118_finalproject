@@ -256,9 +256,11 @@ char Robot_SetPropllerMode(int propellerMode) {
     if (propellerMode == PROPELLER_COLLECT) {
         PROPELLER_MOTOR_INA = 1;
         PROPELLER_MOTOR_INB = 0;
+        printf("Setting to collection mode. \r\n");
     } else {
         PROPELLER_MOTOR_INA = 0;
         PROPELLER_MOTOR_INB = 1;
+        printf("Setting to release mode. \r\n");
     }
     
     // Set the pwm
@@ -271,6 +273,23 @@ char Robot_SetPropllerMode(int propellerMode) {
         return ERROR;
     }
     
+}
+
+/**
+ * @Function Robot_GetBeacon(void)
+ * @param None
+ * @return Status of the beacon, returns 1 if beacon is detected, 0 otherwise.
+ * @brief  To be used for event checker, reads from ADC pin to check if track wire detects anything. 
+ * F -> Front, L -> Left, R -> Right or Rear
+ * @author Derrick Lai */
+char Robot_SetServoEnabled(int servoStatus) {
+    
+    // Set servo status based on the status given
+    if (servoStatus == D_SERVO_ACTIVE) {
+        RC_SetPulseTime(DISPENSER_SERVO, D_SERVO_MAX_PULSE);
+    } else {
+        RC_SetPulseTime(DISPENSER_SERVO, D_SERVO_MIN_PULSE);
+    }
 }
 
 /**

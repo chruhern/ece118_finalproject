@@ -57,17 +57,17 @@ OBJECTDIR=build/${CND_CONF}/${IMAGE_TYPE}
 DISTDIR=dist/${CND_CONF}/${IMAGE_TYPE}
 
 # Source Files Quoted if spaced
-SOURCEFILES_QUOTED_IF_SPACED=HelloWorld.c ../ECE118/src/AD.c ../ECE118/src/BOARD.c ../ECE118/src/serial.c ../ECE118/src/IO_Ports.c ../ECE118/src/LED.c ../ECE118/src/pwm.c ../ECE118/src/timers.c TapeDetectorHarness.c TrackWireDetectorHarness.c BeaconDetectorHarness.c ../ECE118/DC_Motor_TestHarness.c ../ECE118/TapeChipDetectorHarness.c ../ECE118/SwitchTestHarness.c ../ECE118/src/ES_CheckEvents.c ../ECE118/src/ES_Framework.c ../ECE118/src/ES_KeyboardInput.c ../ECE118/src/ES_PostList.c ../ECE118/src/ES_Queue.c ../ECE118/src/ES_TattleTale.c ../ECE118/src/ES_Timers.c TemplateEventChecker.c TemplateES_Main.c TemplateService.c ../ECE118/Robot.c MainHSM.c SubHSM_Align.c TapeDetectorBallHarness.c SubHSM_TrackSearch.c SubHSM_TestHarness.c ../ECE118/src/RC_Servo.c
+SOURCEFILES_QUOTED_IF_SPACED=HelloWorld.c ../ECE118/src/AD.c ../ECE118/src/BOARD.c ../ECE118/src/serial.c ../ECE118/src/IO_Ports.c ../ECE118/src/LED.c ../ECE118/src/pwm.c ../ECE118/src/timers.c TapeDetectorHarness.c TrackWireDetectorHarness.c BeaconDetectorHarness.c ../ECE118/DC_Motor_TestHarness.c ../ECE118/TapeChipDetectorHarness.c ../ECE118/SwitchTestHarness.c ../ECE118/src/ES_CheckEvents.c ../ECE118/src/ES_Framework.c ../ECE118/src/ES_KeyboardInput.c ../ECE118/src/ES_PostList.c ../ECE118/src/ES_Queue.c ../ECE118/src/ES_TattleTale.c ../ECE118/src/ES_Timers.c TemplateEventChecker.c TemplateES_Main.c TemplateService.c ../ECE118/Robot.c MainHSM.c SubHSM_Align.c TapeDetectorBallHarness.c SubHSM_TestHarness.c ../ECE118/src/RC_Servo.c SubHSM_Search.c GridNavigation.c SubHSM_TraverseBasic.c
 
 # Object Files Quoted if spaced
-OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/HelloWorld.o ${OBJECTDIR}/_ext/1347132459/AD.o ${OBJECTDIR}/_ext/1347132459/BOARD.o ${OBJECTDIR}/_ext/1347132459/serial.o ${OBJECTDIR}/_ext/1347132459/IO_Ports.o ${OBJECTDIR}/_ext/1347132459/LED.o ${OBJECTDIR}/_ext/1347132459/pwm.o ${OBJECTDIR}/_ext/1347132459/timers.o ${OBJECTDIR}/TapeDetectorHarness.o ${OBJECTDIR}/TrackWireDetectorHarness.o ${OBJECTDIR}/BeaconDetectorHarness.o ${OBJECTDIR}/_ext/2123729024/DC_Motor_TestHarness.o ${OBJECTDIR}/_ext/2123729024/TapeChipDetectorHarness.o ${OBJECTDIR}/_ext/2123729024/SwitchTestHarness.o ${OBJECTDIR}/_ext/1347132459/ES_CheckEvents.o ${OBJECTDIR}/_ext/1347132459/ES_Framework.o ${OBJECTDIR}/_ext/1347132459/ES_KeyboardInput.o ${OBJECTDIR}/_ext/1347132459/ES_PostList.o ${OBJECTDIR}/_ext/1347132459/ES_Queue.o ${OBJECTDIR}/_ext/1347132459/ES_TattleTale.o ${OBJECTDIR}/_ext/1347132459/ES_Timers.o ${OBJECTDIR}/TemplateEventChecker.o ${OBJECTDIR}/TemplateES_Main.o ${OBJECTDIR}/TemplateService.o ${OBJECTDIR}/_ext/2123729024/Robot.o ${OBJECTDIR}/MainHSM.o ${OBJECTDIR}/SubHSM_Align.o ${OBJECTDIR}/TapeDetectorBallHarness.o ${OBJECTDIR}/SubHSM_TrackSearch.o ${OBJECTDIR}/SubHSM_TestHarness.o ${OBJECTDIR}/_ext/1347132459/RC_Servo.o
-POSSIBLE_DEPFILES=${OBJECTDIR}/HelloWorld.o.d ${OBJECTDIR}/_ext/1347132459/AD.o.d ${OBJECTDIR}/_ext/1347132459/BOARD.o.d ${OBJECTDIR}/_ext/1347132459/serial.o.d ${OBJECTDIR}/_ext/1347132459/IO_Ports.o.d ${OBJECTDIR}/_ext/1347132459/LED.o.d ${OBJECTDIR}/_ext/1347132459/pwm.o.d ${OBJECTDIR}/_ext/1347132459/timers.o.d ${OBJECTDIR}/TapeDetectorHarness.o.d ${OBJECTDIR}/TrackWireDetectorHarness.o.d ${OBJECTDIR}/BeaconDetectorHarness.o.d ${OBJECTDIR}/_ext/2123729024/DC_Motor_TestHarness.o.d ${OBJECTDIR}/_ext/2123729024/TapeChipDetectorHarness.o.d ${OBJECTDIR}/_ext/2123729024/SwitchTestHarness.o.d ${OBJECTDIR}/_ext/1347132459/ES_CheckEvents.o.d ${OBJECTDIR}/_ext/1347132459/ES_Framework.o.d ${OBJECTDIR}/_ext/1347132459/ES_KeyboardInput.o.d ${OBJECTDIR}/_ext/1347132459/ES_PostList.o.d ${OBJECTDIR}/_ext/1347132459/ES_Queue.o.d ${OBJECTDIR}/_ext/1347132459/ES_TattleTale.o.d ${OBJECTDIR}/_ext/1347132459/ES_Timers.o.d ${OBJECTDIR}/TemplateEventChecker.o.d ${OBJECTDIR}/TemplateES_Main.o.d ${OBJECTDIR}/TemplateService.o.d ${OBJECTDIR}/_ext/2123729024/Robot.o.d ${OBJECTDIR}/MainHSM.o.d ${OBJECTDIR}/SubHSM_Align.o.d ${OBJECTDIR}/TapeDetectorBallHarness.o.d ${OBJECTDIR}/SubHSM_TrackSearch.o.d ${OBJECTDIR}/SubHSM_TestHarness.o.d ${OBJECTDIR}/_ext/1347132459/RC_Servo.o.d
+OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/HelloWorld.o ${OBJECTDIR}/_ext/1347132459/AD.o ${OBJECTDIR}/_ext/1347132459/BOARD.o ${OBJECTDIR}/_ext/1347132459/serial.o ${OBJECTDIR}/_ext/1347132459/IO_Ports.o ${OBJECTDIR}/_ext/1347132459/LED.o ${OBJECTDIR}/_ext/1347132459/pwm.o ${OBJECTDIR}/_ext/1347132459/timers.o ${OBJECTDIR}/TapeDetectorHarness.o ${OBJECTDIR}/TrackWireDetectorHarness.o ${OBJECTDIR}/BeaconDetectorHarness.o ${OBJECTDIR}/_ext/2123729024/DC_Motor_TestHarness.o ${OBJECTDIR}/_ext/2123729024/TapeChipDetectorHarness.o ${OBJECTDIR}/_ext/2123729024/SwitchTestHarness.o ${OBJECTDIR}/_ext/1347132459/ES_CheckEvents.o ${OBJECTDIR}/_ext/1347132459/ES_Framework.o ${OBJECTDIR}/_ext/1347132459/ES_KeyboardInput.o ${OBJECTDIR}/_ext/1347132459/ES_PostList.o ${OBJECTDIR}/_ext/1347132459/ES_Queue.o ${OBJECTDIR}/_ext/1347132459/ES_TattleTale.o ${OBJECTDIR}/_ext/1347132459/ES_Timers.o ${OBJECTDIR}/TemplateEventChecker.o ${OBJECTDIR}/TemplateES_Main.o ${OBJECTDIR}/TemplateService.o ${OBJECTDIR}/_ext/2123729024/Robot.o ${OBJECTDIR}/MainHSM.o ${OBJECTDIR}/SubHSM_Align.o ${OBJECTDIR}/TapeDetectorBallHarness.o ${OBJECTDIR}/SubHSM_TestHarness.o ${OBJECTDIR}/_ext/1347132459/RC_Servo.o ${OBJECTDIR}/SubHSM_Search.o ${OBJECTDIR}/GridNavigation.o ${OBJECTDIR}/SubHSM_TraverseBasic.o
+POSSIBLE_DEPFILES=${OBJECTDIR}/HelloWorld.o.d ${OBJECTDIR}/_ext/1347132459/AD.o.d ${OBJECTDIR}/_ext/1347132459/BOARD.o.d ${OBJECTDIR}/_ext/1347132459/serial.o.d ${OBJECTDIR}/_ext/1347132459/IO_Ports.o.d ${OBJECTDIR}/_ext/1347132459/LED.o.d ${OBJECTDIR}/_ext/1347132459/pwm.o.d ${OBJECTDIR}/_ext/1347132459/timers.o.d ${OBJECTDIR}/TapeDetectorHarness.o.d ${OBJECTDIR}/TrackWireDetectorHarness.o.d ${OBJECTDIR}/BeaconDetectorHarness.o.d ${OBJECTDIR}/_ext/2123729024/DC_Motor_TestHarness.o.d ${OBJECTDIR}/_ext/2123729024/TapeChipDetectorHarness.o.d ${OBJECTDIR}/_ext/2123729024/SwitchTestHarness.o.d ${OBJECTDIR}/_ext/1347132459/ES_CheckEvents.o.d ${OBJECTDIR}/_ext/1347132459/ES_Framework.o.d ${OBJECTDIR}/_ext/1347132459/ES_KeyboardInput.o.d ${OBJECTDIR}/_ext/1347132459/ES_PostList.o.d ${OBJECTDIR}/_ext/1347132459/ES_Queue.o.d ${OBJECTDIR}/_ext/1347132459/ES_TattleTale.o.d ${OBJECTDIR}/_ext/1347132459/ES_Timers.o.d ${OBJECTDIR}/TemplateEventChecker.o.d ${OBJECTDIR}/TemplateES_Main.o.d ${OBJECTDIR}/TemplateService.o.d ${OBJECTDIR}/_ext/2123729024/Robot.o.d ${OBJECTDIR}/MainHSM.o.d ${OBJECTDIR}/SubHSM_Align.o.d ${OBJECTDIR}/TapeDetectorBallHarness.o.d ${OBJECTDIR}/SubHSM_TestHarness.o.d ${OBJECTDIR}/_ext/1347132459/RC_Servo.o.d ${OBJECTDIR}/SubHSM_Search.o.d ${OBJECTDIR}/GridNavigation.o.d ${OBJECTDIR}/SubHSM_TraverseBasic.o.d
 
 # Object Files
-OBJECTFILES=${OBJECTDIR}/HelloWorld.o ${OBJECTDIR}/_ext/1347132459/AD.o ${OBJECTDIR}/_ext/1347132459/BOARD.o ${OBJECTDIR}/_ext/1347132459/serial.o ${OBJECTDIR}/_ext/1347132459/IO_Ports.o ${OBJECTDIR}/_ext/1347132459/LED.o ${OBJECTDIR}/_ext/1347132459/pwm.o ${OBJECTDIR}/_ext/1347132459/timers.o ${OBJECTDIR}/TapeDetectorHarness.o ${OBJECTDIR}/TrackWireDetectorHarness.o ${OBJECTDIR}/BeaconDetectorHarness.o ${OBJECTDIR}/_ext/2123729024/DC_Motor_TestHarness.o ${OBJECTDIR}/_ext/2123729024/TapeChipDetectorHarness.o ${OBJECTDIR}/_ext/2123729024/SwitchTestHarness.o ${OBJECTDIR}/_ext/1347132459/ES_CheckEvents.o ${OBJECTDIR}/_ext/1347132459/ES_Framework.o ${OBJECTDIR}/_ext/1347132459/ES_KeyboardInput.o ${OBJECTDIR}/_ext/1347132459/ES_PostList.o ${OBJECTDIR}/_ext/1347132459/ES_Queue.o ${OBJECTDIR}/_ext/1347132459/ES_TattleTale.o ${OBJECTDIR}/_ext/1347132459/ES_Timers.o ${OBJECTDIR}/TemplateEventChecker.o ${OBJECTDIR}/TemplateES_Main.o ${OBJECTDIR}/TemplateService.o ${OBJECTDIR}/_ext/2123729024/Robot.o ${OBJECTDIR}/MainHSM.o ${OBJECTDIR}/SubHSM_Align.o ${OBJECTDIR}/TapeDetectorBallHarness.o ${OBJECTDIR}/SubHSM_TrackSearch.o ${OBJECTDIR}/SubHSM_TestHarness.o ${OBJECTDIR}/_ext/1347132459/RC_Servo.o
+OBJECTFILES=${OBJECTDIR}/HelloWorld.o ${OBJECTDIR}/_ext/1347132459/AD.o ${OBJECTDIR}/_ext/1347132459/BOARD.o ${OBJECTDIR}/_ext/1347132459/serial.o ${OBJECTDIR}/_ext/1347132459/IO_Ports.o ${OBJECTDIR}/_ext/1347132459/LED.o ${OBJECTDIR}/_ext/1347132459/pwm.o ${OBJECTDIR}/_ext/1347132459/timers.o ${OBJECTDIR}/TapeDetectorHarness.o ${OBJECTDIR}/TrackWireDetectorHarness.o ${OBJECTDIR}/BeaconDetectorHarness.o ${OBJECTDIR}/_ext/2123729024/DC_Motor_TestHarness.o ${OBJECTDIR}/_ext/2123729024/TapeChipDetectorHarness.o ${OBJECTDIR}/_ext/2123729024/SwitchTestHarness.o ${OBJECTDIR}/_ext/1347132459/ES_CheckEvents.o ${OBJECTDIR}/_ext/1347132459/ES_Framework.o ${OBJECTDIR}/_ext/1347132459/ES_KeyboardInput.o ${OBJECTDIR}/_ext/1347132459/ES_PostList.o ${OBJECTDIR}/_ext/1347132459/ES_Queue.o ${OBJECTDIR}/_ext/1347132459/ES_TattleTale.o ${OBJECTDIR}/_ext/1347132459/ES_Timers.o ${OBJECTDIR}/TemplateEventChecker.o ${OBJECTDIR}/TemplateES_Main.o ${OBJECTDIR}/TemplateService.o ${OBJECTDIR}/_ext/2123729024/Robot.o ${OBJECTDIR}/MainHSM.o ${OBJECTDIR}/SubHSM_Align.o ${OBJECTDIR}/TapeDetectorBallHarness.o ${OBJECTDIR}/SubHSM_TestHarness.o ${OBJECTDIR}/_ext/1347132459/RC_Servo.o ${OBJECTDIR}/SubHSM_Search.o ${OBJECTDIR}/GridNavigation.o ${OBJECTDIR}/SubHSM_TraverseBasic.o
 
 # Source Files
-SOURCEFILES=HelloWorld.c ../ECE118/src/AD.c ../ECE118/src/BOARD.c ../ECE118/src/serial.c ../ECE118/src/IO_Ports.c ../ECE118/src/LED.c ../ECE118/src/pwm.c ../ECE118/src/timers.c TapeDetectorHarness.c TrackWireDetectorHarness.c BeaconDetectorHarness.c ../ECE118/DC_Motor_TestHarness.c ../ECE118/TapeChipDetectorHarness.c ../ECE118/SwitchTestHarness.c ../ECE118/src/ES_CheckEvents.c ../ECE118/src/ES_Framework.c ../ECE118/src/ES_KeyboardInput.c ../ECE118/src/ES_PostList.c ../ECE118/src/ES_Queue.c ../ECE118/src/ES_TattleTale.c ../ECE118/src/ES_Timers.c TemplateEventChecker.c TemplateES_Main.c TemplateService.c ../ECE118/Robot.c MainHSM.c SubHSM_Align.c TapeDetectorBallHarness.c SubHSM_TrackSearch.c SubHSM_TestHarness.c ../ECE118/src/RC_Servo.c
+SOURCEFILES=HelloWorld.c ../ECE118/src/AD.c ../ECE118/src/BOARD.c ../ECE118/src/serial.c ../ECE118/src/IO_Ports.c ../ECE118/src/LED.c ../ECE118/src/pwm.c ../ECE118/src/timers.c TapeDetectorHarness.c TrackWireDetectorHarness.c BeaconDetectorHarness.c ../ECE118/DC_Motor_TestHarness.c ../ECE118/TapeChipDetectorHarness.c ../ECE118/SwitchTestHarness.c ../ECE118/src/ES_CheckEvents.c ../ECE118/src/ES_Framework.c ../ECE118/src/ES_KeyboardInput.c ../ECE118/src/ES_PostList.c ../ECE118/src/ES_Queue.c ../ECE118/src/ES_TattleTale.c ../ECE118/src/ES_Timers.c TemplateEventChecker.c TemplateES_Main.c TemplateService.c ../ECE118/Robot.c MainHSM.c SubHSM_Align.c TapeDetectorBallHarness.c SubHSM_TestHarness.c ../ECE118/src/RC_Servo.c SubHSM_Search.c GridNavigation.c SubHSM_TraverseBasic.c
 
 
 
@@ -291,12 +291,6 @@ ${OBJECTDIR}/TapeDetectorBallHarness.o: TapeDetectorBallHarness.c  .generated_fi
 	@${RM} ${OBJECTDIR}/TapeDetectorBallHarness.o 
 	${MP_CC}  $(MP_EXTRA_CC_PRE) -g -D__DEBUG   -fframe-base-loclist  -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -fno-common -DSIMPLESERVICE_TEST -I"." -I"../ECE118/include" -MP -MMD -MF "${OBJECTDIR}/TapeDetectorBallHarness.o.d" -o ${OBJECTDIR}/TapeDetectorBallHarness.o TapeDetectorBallHarness.c    -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -mdfp="${DFP_DIR}"  
 	
-${OBJECTDIR}/SubHSM_TrackSearch.o: SubHSM_TrackSearch.c  .generated_files/flags/default/8e7b6e7723195f1c5ed8e9155cebf2fdacaf05b3 .generated_files/flags/default/a8d72842549110e9d8f1974f4230d40db2209aef
-	@${MKDIR} "${OBJECTDIR}" 
-	@${RM} ${OBJECTDIR}/SubHSM_TrackSearch.o.d 
-	@${RM} ${OBJECTDIR}/SubHSM_TrackSearch.o 
-	${MP_CC}  $(MP_EXTRA_CC_PRE) -g -D__DEBUG   -fframe-base-loclist  -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -fno-common -DSIMPLESERVICE_TEST -I"." -I"../ECE118/include" -MP -MMD -MF "${OBJECTDIR}/SubHSM_TrackSearch.o.d" -o ${OBJECTDIR}/SubHSM_TrackSearch.o SubHSM_TrackSearch.c    -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -mdfp="${DFP_DIR}"  
-	
 ${OBJECTDIR}/SubHSM_TestHarness.o: SubHSM_TestHarness.c  .generated_files/flags/default/e2fe61c39f10c87815ee7beb67e17a83453da61f .generated_files/flags/default/a8d72842549110e9d8f1974f4230d40db2209aef
 	@${MKDIR} "${OBJECTDIR}" 
 	@${RM} ${OBJECTDIR}/SubHSM_TestHarness.o.d 
@@ -308,6 +302,24 @@ ${OBJECTDIR}/_ext/1347132459/RC_Servo.o: ../ECE118/src/RC_Servo.c  .generated_fi
 	@${RM} ${OBJECTDIR}/_ext/1347132459/RC_Servo.o.d 
 	@${RM} ${OBJECTDIR}/_ext/1347132459/RC_Servo.o 
 	${MP_CC}  $(MP_EXTRA_CC_PRE) -g -D__DEBUG   -fframe-base-loclist  -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -fno-common -DSIMPLESERVICE_TEST -I"." -I"../ECE118/include" -MP -MMD -MF "${OBJECTDIR}/_ext/1347132459/RC_Servo.o.d" -o ${OBJECTDIR}/_ext/1347132459/RC_Servo.o ../ECE118/src/RC_Servo.c    -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -mdfp="${DFP_DIR}"  
+	
+${OBJECTDIR}/SubHSM_Search.o: SubHSM_Search.c  .generated_files/flags/default/28aaa5829375cdc005ef38afdfbfbcdb944016e2 .generated_files/flags/default/a8d72842549110e9d8f1974f4230d40db2209aef
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/SubHSM_Search.o.d 
+	@${RM} ${OBJECTDIR}/SubHSM_Search.o 
+	${MP_CC}  $(MP_EXTRA_CC_PRE) -g -D__DEBUG   -fframe-base-loclist  -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -fno-common -DSIMPLESERVICE_TEST -I"." -I"../ECE118/include" -MP -MMD -MF "${OBJECTDIR}/SubHSM_Search.o.d" -o ${OBJECTDIR}/SubHSM_Search.o SubHSM_Search.c    -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -mdfp="${DFP_DIR}"  
+	
+${OBJECTDIR}/GridNavigation.o: GridNavigation.c  .generated_files/flags/default/bcd4f847897d3ce0776af7e6ec4229551b48f0d7 .generated_files/flags/default/a8d72842549110e9d8f1974f4230d40db2209aef
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/GridNavigation.o.d 
+	@${RM} ${OBJECTDIR}/GridNavigation.o 
+	${MP_CC}  $(MP_EXTRA_CC_PRE) -g -D__DEBUG   -fframe-base-loclist  -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -fno-common -DSIMPLESERVICE_TEST -I"." -I"../ECE118/include" -MP -MMD -MF "${OBJECTDIR}/GridNavigation.o.d" -o ${OBJECTDIR}/GridNavigation.o GridNavigation.c    -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -mdfp="${DFP_DIR}"  
+	
+${OBJECTDIR}/SubHSM_TraverseBasic.o: SubHSM_TraverseBasic.c  .generated_files/flags/default/7eebbcd7f4b969713bb8fca60e2aef527a65af57 .generated_files/flags/default/a8d72842549110e9d8f1974f4230d40db2209aef
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/SubHSM_TraverseBasic.o.d 
+	@${RM} ${OBJECTDIR}/SubHSM_TraverseBasic.o 
+	${MP_CC}  $(MP_EXTRA_CC_PRE) -g -D__DEBUG   -fframe-base-loclist  -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -fno-common -DSIMPLESERVICE_TEST -I"." -I"../ECE118/include" -MP -MMD -MF "${OBJECTDIR}/SubHSM_TraverseBasic.o.d" -o ${OBJECTDIR}/SubHSM_TraverseBasic.o SubHSM_TraverseBasic.c    -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -mdfp="${DFP_DIR}"  
 	
 else
 ${OBJECTDIR}/HelloWorld.o: HelloWorld.c  .generated_files/flags/default/87a1b3b24806377601743d296994d81fb786c0bf .generated_files/flags/default/a8d72842549110e9d8f1974f4230d40db2209aef
@@ -478,12 +490,6 @@ ${OBJECTDIR}/TapeDetectorBallHarness.o: TapeDetectorBallHarness.c  .generated_fi
 	@${RM} ${OBJECTDIR}/TapeDetectorBallHarness.o 
 	${MP_CC}  $(MP_EXTRA_CC_PRE)  -g -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -fno-common -DSIMPLESERVICE_TEST -I"." -I"../ECE118/include" -MP -MMD -MF "${OBJECTDIR}/TapeDetectorBallHarness.o.d" -o ${OBJECTDIR}/TapeDetectorBallHarness.o TapeDetectorBallHarness.c    -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -mdfp="${DFP_DIR}"  
 	
-${OBJECTDIR}/SubHSM_TrackSearch.o: SubHSM_TrackSearch.c  .generated_files/flags/default/b8cb4fdb9f43dec07b89e17abcecb17bccdd67bf .generated_files/flags/default/a8d72842549110e9d8f1974f4230d40db2209aef
-	@${MKDIR} "${OBJECTDIR}" 
-	@${RM} ${OBJECTDIR}/SubHSM_TrackSearch.o.d 
-	@${RM} ${OBJECTDIR}/SubHSM_TrackSearch.o 
-	${MP_CC}  $(MP_EXTRA_CC_PRE)  -g -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -fno-common -DSIMPLESERVICE_TEST -I"." -I"../ECE118/include" -MP -MMD -MF "${OBJECTDIR}/SubHSM_TrackSearch.o.d" -o ${OBJECTDIR}/SubHSM_TrackSearch.o SubHSM_TrackSearch.c    -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -mdfp="${DFP_DIR}"  
-	
 ${OBJECTDIR}/SubHSM_TestHarness.o: SubHSM_TestHarness.c  .generated_files/flags/default/bab798b0bf5fbe088aa1fb525acb1b806a95fcf .generated_files/flags/default/a8d72842549110e9d8f1974f4230d40db2209aef
 	@${MKDIR} "${OBJECTDIR}" 
 	@${RM} ${OBJECTDIR}/SubHSM_TestHarness.o.d 
@@ -495,6 +501,24 @@ ${OBJECTDIR}/_ext/1347132459/RC_Servo.o: ../ECE118/src/RC_Servo.c  .generated_fi
 	@${RM} ${OBJECTDIR}/_ext/1347132459/RC_Servo.o.d 
 	@${RM} ${OBJECTDIR}/_ext/1347132459/RC_Servo.o 
 	${MP_CC}  $(MP_EXTRA_CC_PRE)  -g -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -fno-common -DSIMPLESERVICE_TEST -I"." -I"../ECE118/include" -MP -MMD -MF "${OBJECTDIR}/_ext/1347132459/RC_Servo.o.d" -o ${OBJECTDIR}/_ext/1347132459/RC_Servo.o ../ECE118/src/RC_Servo.c    -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -mdfp="${DFP_DIR}"  
+	
+${OBJECTDIR}/SubHSM_Search.o: SubHSM_Search.c  .generated_files/flags/default/67b22f570a49adcf014c28d1ab0115fdaeeb90bf .generated_files/flags/default/a8d72842549110e9d8f1974f4230d40db2209aef
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/SubHSM_Search.o.d 
+	@${RM} ${OBJECTDIR}/SubHSM_Search.o 
+	${MP_CC}  $(MP_EXTRA_CC_PRE)  -g -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -fno-common -DSIMPLESERVICE_TEST -I"." -I"../ECE118/include" -MP -MMD -MF "${OBJECTDIR}/SubHSM_Search.o.d" -o ${OBJECTDIR}/SubHSM_Search.o SubHSM_Search.c    -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -mdfp="${DFP_DIR}"  
+	
+${OBJECTDIR}/GridNavigation.o: GridNavigation.c  .generated_files/flags/default/9d9ce29be5212a0a86201f881addd67b5415cbec .generated_files/flags/default/a8d72842549110e9d8f1974f4230d40db2209aef
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/GridNavigation.o.d 
+	@${RM} ${OBJECTDIR}/GridNavigation.o 
+	${MP_CC}  $(MP_EXTRA_CC_PRE)  -g -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -fno-common -DSIMPLESERVICE_TEST -I"." -I"../ECE118/include" -MP -MMD -MF "${OBJECTDIR}/GridNavigation.o.d" -o ${OBJECTDIR}/GridNavigation.o GridNavigation.c    -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -mdfp="${DFP_DIR}"  
+	
+${OBJECTDIR}/SubHSM_TraverseBasic.o: SubHSM_TraverseBasic.c  .generated_files/flags/default/93eac15f009ee823258d1a5d6d3e59aa7c13e2e3 .generated_files/flags/default/a8d72842549110e9d8f1974f4230d40db2209aef
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/SubHSM_TraverseBasic.o.d 
+	@${RM} ${OBJECTDIR}/SubHSM_TraverseBasic.o 
+	${MP_CC}  $(MP_EXTRA_CC_PRE)  -g -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -fno-common -DSIMPLESERVICE_TEST -I"." -I"../ECE118/include" -MP -MMD -MF "${OBJECTDIR}/SubHSM_TraverseBasic.o.d" -o ${OBJECTDIR}/SubHSM_TraverseBasic.o SubHSM_TraverseBasic.c    -DXPRJ_default=$(CND_CONF)    $(COMPARISON_BUILD)  -mdfp="${DFP_DIR}"  
 	
 endif
 
