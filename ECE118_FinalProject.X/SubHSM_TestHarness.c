@@ -219,8 +219,8 @@ ES_Event RunHarnessSubHSM(ES_Event ThisEvent)
         switch (ThisEvent.EventType) {
             case ES_ENTRY:
                 // Make the robot move forward
-                Robot_SetLeftMotor(0); // LEFT_FORWARD_MAX
-                Robot_SetRightMotor(0); // RIGHT_FORWARD_MAX
+                Robot_SetLeftMotor(-1000); // LEFT_FORWARD_MAX
+                Robot_SetRightMotor(1000); // RIGHT_FORWARD_MAX
                 
                 // Move the propeller
                 Robot_SetPropllerMode(0);
