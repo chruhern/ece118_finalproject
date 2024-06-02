@@ -49,7 +49,7 @@ typedef enum {
 
     ALIGN_PIVOT_LEFT_INWARD,
     ALIGN_PIVOT_RIGHT_INWARD,
-    ALIGN_TANK_RIGHT,
+    ALIGN_PIVOT_RIGHT_OUTWARD,
             
     TRAVERSE_LEFT_TANK_LEFT_90_OVER,
     TRAVERSE_LEFT_FWDR_BIAS,
@@ -77,7 +77,7 @@ static const char *StateNames[] = {
 	"AVOID_TURN_90_LEFT",
 	"ALIGN_PIVOT_LEFT_INWARD",
 	"ALIGN_PIVOT_RIGHT_INWARD",
-	"ALIGN_TANK_RIGHT",
+	"ALIGN_PIVOT_RIGHT_OUTWARD",
 	"TRAVERSE_LEFT_TANK_LEFT_90_OVER",
 	"TRAVERSE_LEFT_FWDR_BIAS",
 	"TRAVERSE_LEFT_FWDL_BIAS",
@@ -128,8 +128,8 @@ static uint8_t MyPriority;
 #define PIVOT_RIGHT_OUTWARD_ML -MOTOR_MAX
 #define PIVOT_RIGHT_OUTWARD_MR 0
 
-#define TANK_90_LEFT_OVERSHOOT_TICK 1000
-#define TANK_90_RIGHT_OVERSHOOT_TICK 1000
+#define TANK_90_LEFT_OVERSHOOT_TICK 650
+#define TANK_90_RIGHT_OVERSHOOT_TICK 650
 
 // If we have met the wall, then we know that the next tape detection is alignment with the track wire
 #define WALL_MET 1
@@ -139,11 +139,11 @@ unsigned int right_traversal_met_wall = WALL_NOT_MET;
 // Biasing //
 int source_state = InitPSubState; // This could cause problems. But this is meant to use the previous state to compare which events to detect for biasing.
 
-#define LEFT_BIAS_ML 980
+#define LEFT_BIAS_ML 800
 #define LEFT_BIAS_MR 1000
 
 #define RIGHT_BIAS_ML 1000
-#define RIGHT_BIAS_MR 0
+#define RIGHT_BIAS_MR 800
 /*******************************************************************************
  * PUBLIC FUNCTIONS                                                            *
  ******************************************************************************/
@@ -201,7 +201,7 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
             // initial state
 
             // now put the machine into the actual initial state
-            nextState = AVOID_FORWARD;
+            nextState = AVOID_FORWARD; //AVOID_FORWARD;
             makeTransition = TRUE;
             ThisEvent.EventType = ES_NO_EVENT;
         }
@@ -366,7 +366,7 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
             // Put all detection events over here
             // When front right tape is detected, assume alignment with tape
             case FR_TAPE_DETECTED:
-                nextState = ALIGN_TANK_RIGHT;
+                nextState = ALIGN_PIVOT_RIGHT_OUTWARD;
                 makeTransition = TRUE;
                 ThisEvent.EventType = ES_NO_EVENT;
                 break;
@@ -395,7 +395,7 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
             // Put all detection events over here
             // When left tape touches, assume alignment with tape
             case FL_TAPE_DETECTED:
-                nextState = ALIGN_TANK_RIGHT;
+                nextState = ALIGN_PIVOT_RIGHT_OUTWARD;
                 makeTransition = TRUE;
                 ThisEvent.EventType = ES_NO_EVENT;
                 break;
@@ -406,7 +406,7 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
             }
         break;
 
-    case ALIGN_TANK_RIGHT:
+    case ALIGN_PIVOT_RIGHT_OUTWARD:
         switch (ThisEvent.EventType) {
             case ES_ENTRY:
                 Robot_SetLeftMotor(PIVOT_RIGHT_OUTWARD_ML); // PIVOT RIGHT OUTWARD
@@ -571,12 +571,12 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
     case TRAVERSE_LEFT_TANK_LEFT_90_OVER:
         switch (ThisEvent.EventType) {
             case ES_ENTRY:
-                // Perform a left tank turn
-                Robot_SetLeftMotor(-MOTOR_MAX);
-                Robot_SetRightMotor(MOTOR_MAX);
+                // Perform a tank turn left
+                Robot_SetLeftMotor(PIVOT_RIGHT_OUTWARD_ML); // Pivot right outward, bias right
+                Robot_SetRightMotor(PIVOT_RIGHT_OUTWARD_MR);
                 
                 // Initialize a timer to keep track of the turn (our goal is to overshoot it above 90)
-                ES_Timer_InitTimer(SUB_ALIGN_TURN_TIMER, TANK_90_LEFT_OVERSHOOT_TICK);
+                //ES_Timer_InitTimer(SUB_ALIGN_TURN_TIMER, TANK_90_LEFT_OVERSHOOT_TICK);
                 
                 break;
 
@@ -585,14 +585,22 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
 
             case ES_TIMEOUT:
                 // When timeout, assume bot is skewed to the left, so apply right bias.
-                if (ThisEvent.EventParam == SUB_ALIGN_TURN_TIMER) {
-                    nextState = TRAVERSE_LEFT_FWDR_BIAS;
-                    makeTransition = TRUE;
-                    ThisEvent.EventType = ES_NO_EVENT;
-                }
+//                if (ThisEvent.EventParam == SUB_ALIGN_TURN_TIMER) {
+//                    nextState = TRAVERSE_LEFT_FWDR_BIAS;
+//                    makeTransition = TRUE;
+//                    ThisEvent.EventType = ES_NO_EVENT;
+//                }
                 break;
             
             // Put all detection events over here
+            // Since you are tank turning left, at a corner, to make sure side is adjacent, make rear left is detected
+            case RL_TAPE_DETECTED:
+                // Pivot right outwards, bias right
+                nextState = TRAVERSE_LEFT_FWDL_BIAS;
+                makeTransition = TRUE;
+                ThisEvent.EventType = ES_NO_EVENT;
+                break;
+                
             // Keep performing the turn until the front left tape is detected. Then transition to right bias mode.
 
             case ES_NO_EVENT:
