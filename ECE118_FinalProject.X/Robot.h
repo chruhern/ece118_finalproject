@@ -8,14 +8,14 @@
 /*******************************************************************************
  * PUBLIC #DEFINES                                                             *
  ******************************************************************************/
-#define PROPELLER_COLLECT 0
-#define PROPELLER_RELEASE 1
+#define PROPELLER_RELEASE 0
+#define PROPELLER_COLLECT 1
 
 #define PIN_INPUT 1
 #define PIN_OUTPUT 0
 
 #define MOTOR_MAX 1000 // Max cycle for the motor (goes both ways, positive and negative)
-#define PROPELLER_MAX 800 // Max speed of the propeller
+#define PROPELLER_MAX 300 // Max speed of the propeller
 
 // Sensor statuses
 #define TAPE_DETECTED 0
@@ -94,7 +94,7 @@ char Robot_SetRightMotor(int motorSpeed);
  * @return SUCCESS or ERRORS
  * @brief  Allows for setting the direction of the motor that controls the propeller to either collect or release the balls
  * @author Derrick Lai */
-char Robot_SetPropllerMode(int propellerMode);
+char Robot_SetPropllerMode(int propellerMode, int pwm);
 
 /**
  * @Function Robot_GetBeacon(void)

@@ -73,7 +73,7 @@
 #define BUMPER_FR_OBSTACLE PORTX10_BIT
 
 // Servo
-#define DISPENSER_SERVO RC_PORTW08
+#define DISPENSER_SERVO RC_PORTY06
 
 // No more track wire or beacon will be used
 //#define BEACON_PIN_MODE PORTV03_TRIS
@@ -250,7 +250,7 @@ char Robot_SetRightMotor(int motorSpeed) {
  * @return SUCCESS or ERRORS
  * @brief  Allows for setting the direction of the motor that controls the propeller to either collect or release the balls
  * @author Derrick Lai */
-char Robot_SetPropllerMode(int propellerMode) {
+char Robot_SetPropllerMode(int propellerMode, int pwm) {
     
     // Set the direction of the motor based on the mode
     if (propellerMode == PROPELLER_COLLECT) {
@@ -264,7 +264,7 @@ char Robot_SetPropllerMode(int propellerMode) {
     }
     
     // Set the pwm
-    char motor_status = PWM_SetDutyCycle(PROPELLER_MOTOR_EN, PROPELLER_MAX);
+    char motor_status = PWM_SetDutyCycle(PROPELLER_MOTOR_EN, pwm);
     if (motor_status == SUCCESS) {
         printf("Setting the propeller... \r\n");
         return SUCCESS;

@@ -214,6 +214,9 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
                 Robot_SetLeftMotor(LEFT_FORWARD_MAX);
                 Robot_SetRightMotor(RIGHT_FORWARD_MAX);
                 
+                // Deactivate servo
+                Robot_SetServoEnabled(D_SERVO_ACTIVE);
+                
                 break;
 
             case ES_EXIT:
@@ -406,8 +409,8 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
     case ALIGN_TANK_RIGHT:
         switch (ThisEvent.EventType) {
             case ES_ENTRY:
-                Robot_SetLeftMotor(-MOTOR_MAX);
-                Robot_SetRightMotor(MOTOR_MAX);
+                Robot_SetLeftMotor(PIVOT_RIGHT_OUTWARD_ML); // PIVOT RIGHT OUTWARD
+                Robot_SetRightMotor(PIVOT_RIGHT_OUTWARD_MR);
                 
                 break;
 
@@ -438,8 +441,8 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
         switch (ThisEvent.EventType) {
             case ES_ENTRY:
                 // Move forward drifting a bit to the right
-                Robot_SetLeftMotor(RIGHT_BIAS_ML);
-                Robot_SetRightMotor(RIGHT_BIAS_MR);
+                Robot_SetLeftMotor(RIGHT_BIAS_ML); // RIGHT_BIAS_ML
+                Robot_SetRightMotor(RIGHT_BIAS_MR); // RIGHT_BIAS_MR
                 break;
 
             case ES_EXIT:
@@ -450,7 +453,7 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
             
             // Put all detection events over here
             // Keep moving forward until the rear right is no longer detected, traverse left bias when this occurs
-            case FR_TAPE_NOT_DETECTED:
+            case FR_TAPE_DETECTED:
                 nextState = TRAVERSE_LEFT_FWDL_BIAS;
                 makeTransition = TRUE;
                 ThisEvent.EventType = ES_NO_EVENT;
@@ -504,6 +507,8 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
     case TRAVERSE_LEFT_FWDL_BIAS:
         switch (ThisEvent.EventType) {
             case ES_ENTRY:
+                Robot_SetLeftMotor(LEFT_BIAS_ML);
+                Robot_SetRightMotor(LEFT_BIAS_MR);
                 break;
 
             case ES_EXIT:
@@ -514,7 +519,7 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
             
             // Put all detection events over here
             // When the rear right has been detected, that means it must be turned left to recorrect itself.
-            case FR_TAPE_DETECTED:
+            case FR_TAPE_NOT_DETECTED:
                 nextState = TRAVERSE_LEFT_FWDR_BIAS;
                 makeTransition = TRUE;
                 ThisEvent.EventType = ES_NO_EVENT;

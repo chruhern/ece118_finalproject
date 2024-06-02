@@ -33,6 +33,7 @@
 #include "MainHSM.h"
 #include "SubHSM_TestHarness.h"
 
+#include <stdio.h>
 #include "Robot.h"
 
 /*******************************************************************************
@@ -140,7 +141,7 @@ ES_Event RunHarnessSubHSM(ES_Event ThisEvent)
             // initial state
 
             // now put the machine into the actual initial state
-            nextState = ForwardTape; // Set this to the state you want to test out
+            nextState = ForwardBumper; // Set this to the state you want to test out
             makeTransition = TRUE;
             ThisEvent.EventType = ES_NO_EVENT;
         }
@@ -219,11 +220,11 @@ ES_Event RunHarnessSubHSM(ES_Event ThisEvent)
         switch (ThisEvent.EventType) {
             case ES_ENTRY:
                 // Make the robot move forward
-                Robot_SetLeftMotor(-1000); // LEFT_FORWARD_MAX
-                Robot_SetRightMotor(1000); // RIGHT_FORWARD_MAX
+                Robot_SetLeftMotor(0); // LEFT_FORWARD_MAX
+                Robot_SetRightMotor(0); // RIGHT_FORWARD_MAX
                 
-                // Move the propeller
-                Robot_SetPropllerMode(0);
+                // Stop Servo
+                //Robot_SetServoEnabled(D_SERVO_INACTIVE);
                 
                 
                 // Initialize a timer
@@ -333,32 +334,36 @@ ES_Event RunHarnessSubHSM(ES_Event ThisEvent)
             
             // Put all detection events over here
             case FL_BUMPER_PRESSED:
-                //Robot_SetServoEnabled(D_SERVO_ACTIVE);
-                nextState = ForwardBumper;
+                Robot_SetServoEnabled(D_SERVO_ACTIVE);
+                //Robot_SetPropllerMode(PROPELLER_COLLECT, 400);
+                printf("Setting to collect. \r\n");
+                nextState = ReverseBumper;
                 makeTransition = TRUE;
                 ThisEvent.EventType = ES_NO_EVENT;
                 break;
                 
-            case FR_BUMPER_PRESSED:
-                //Robot_SetServoEnabled(D_SERVO_ACTIVE);
-                nextState = ForwardBumper;
-                makeTransition = TRUE;
-                ThisEvent.EventType = ES_NO_EVENT;
-                break;
+//            case FR_BUMPER_PRESSED:
+//                //Robot_SetServoEnabled(D_SERVO_ACTIVE);
+//                Robot_SetPropllerMode(PROPELLER_RELEASE, 500);
+//                printf("Setting to release. \r\n");
+//                nextState = ForwardBumper;
+//                makeTransition = TRUE;
+//                ThisEvent.EventType = ES_NO_EVENT;
+//                break;
                 
-            case FL_BUMPER_RELEASED:
-                //Robot_SetServoEnabled(D_SERVO_INACTIVE);
-                nextState = ForwardBumper;
-                makeTransition = TRUE;
-                ThisEvent.EventType = ES_NO_EVENT;
-                break;
+//            case FL_BUMPER_RELEASED:
+//                //Robot_SetServoEnabled(D_SERVO_INACTIVE);
+//                nextState = ForwardBumper;
+//                makeTransition = TRUE;
+//                ThisEvent.EventType = ES_NO_EVENT;
+//                break;
                 
-            case FR_BUMPER_RELEASED:
-                //Robot_SetServoEnabled(D_SERVO_INACTIVE);
-                nextState = ForwardBumper;
-                makeTransition = TRUE;
-                ThisEvent.EventType = ES_NO_EVENT;
-                break;
+//            case FR_BUMPER_RELEASED:
+//                //Robot_SetServoEnabled(D_SERVO_INACTIVE);
+//                nextState = ForwardBumper;
+//                makeTransition = TRUE;
+//                ThisEvent.EventType = ES_NO_EVENT;
+//                break;
 
             case ES_NO_EVENT:
             default:
@@ -370,8 +375,8 @@ ES_Event RunHarnessSubHSM(ES_Event ThisEvent)
         switch (ThisEvent.EventType) {
             case ES_ENTRY:
                 // Make the robot move the opposite direction
-                Robot_SetLeftMotor(-MOTOR_MAX);
-                Robot_SetRightMotor(-MOTOR_MAX);
+//                Robot_SetLeftMotor(-MOTOR_MAX);
+//                Robot_SetRightMotor(-MOTOR_MAX);
                 break;
 
             case ES_EXIT:
@@ -379,19 +384,27 @@ ES_Event RunHarnessSubHSM(ES_Event ThisEvent)
 
             case ES_TIMEOUT:
                 break;
-            
-            // Put all detection events over here
-            case RL_BUMPER_PRESSED:
-                nextState = BrakeRobot;
+                
+            case FR_BUMPER_PRESSED:
+                Robot_SetServoEnabled(D_SERVO_INACTIVE);
+                //Robot_SetPropllerMode(PROPELLER_RELEASE, 400);
+                printf("Setting to release. \r\n");
+                nextState = ForwardBumper;
                 makeTransition = TRUE;
                 ThisEvent.EventType = ES_NO_EVENT;
                 break;
-                
-            case RR_BUMPER_PRESSED:
-                nextState = BrakeRobot;
-                makeTransition = TRUE;
-                ThisEvent.EventType = ES_NO_EVENT;
-                break;    
+            // Put all detection events over here
+//            case RL_BUMPER_PRESSED:
+//                nextState = BrakeRobot;
+//                makeTransition = TRUE;
+//                ThisEvent.EventType = ES_NO_EVENT;
+//                break;
+//                
+//            case RR_BUMPER_PRESSED:
+//                nextState = BrakeRobot;
+//                makeTransition = TRUE;
+//                ThisEvent.EventType = ES_NO_EVENT;
+//                break;    
 
             case ES_NO_EVENT:
             default:

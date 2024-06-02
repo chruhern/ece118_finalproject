@@ -204,7 +204,7 @@ ES_Event RunTemplateHSM(ES_Event ThisEvent)
                 ES_Timer_InitTimer(SUB_HARNESS_TEST_TIMER, 120000);
                 
                 // Start Propeller
-                Robot_SetPropllerMode(PROPELLER_COLLECT);
+                //Robot_SetPropllerMode(PROPELLER_COLLECT);
                 break;
 
             case ES_EXIT:
@@ -215,7 +215,7 @@ ES_Event RunTemplateHSM(ES_Event ThisEvent)
                     // Stop the robot and propeller
                     Robot_SetLeftMotor(0);
                     Robot_SetRightMotor(0);
-                    Robot_SetPropllerMode(PROPELLER_RELEASE);
+                    //Robot_SetPropllerMode(PROPELLER_RELEASE);
                 }
                 break;
             
