@@ -62,7 +62,12 @@ typedef enum {
             
     TRAVERSE_RIGHT_REVERSE_WALL,
     TRAVERSE_RIGHT_TANK_RIGHT_WALL,
-    TRAVERSE_RIGHT_PIVOT_RIGHT_OUTWARD_WALL,
+    TRAVERSE_RIGHT_FORWARD_WALL,
+            
+    TRAVERSE_RIGHT_PV_RIGHT_IN_ALIGN,
+    TRAVERSE_RIGHT_PV_LEFT_IN_ALIGN,
+    TRAVERSE_RIGHT_PV_RIGHT_OUT_ALIGN,
+            
     TRAVERSE_RIGHT_WALL_FWDR_BIAS,
     TRAVERSE_RIGHT_WALL_FWDL_BIAS,
             
@@ -87,7 +92,10 @@ static const char *StateNames[] = {
 	"TRAVERSE_RIGHT_FWDL_BIAS",
 	"TRAVERSE_RIGHT_REVERSE_WALL",
 	"TRAVERSE_RIGHT_TANK_RIGHT_WALL",
-	"TRAVERSE_RIGHT_PIVOT_RIGHT_OUTWARD_WALL",
+	"TRAVERSE_RIGHT_FORWARD_WALL",
+	"TRAVERSE_RIGHT_PV_RIGHT_IN_ALIGN",
+	"TRAVERSE_RIGHT_PV_LEFT_IN_ALIGN",
+	"TRAVERSE_RIGHT_PV_RIGHT_OUT_ALIGN",
 	"TRAVERSE_RIGHT_WALL_FWDR_BIAS",
 	"TRAVERSE_RIGHT_WALL_FWDL_BIAS",
 	"BOT_ALIGNED",
@@ -131,6 +139,8 @@ static uint8_t MyPriority;
 #define TANK_90_LEFT_OVERSHOOT_TICK 650
 #define TANK_90_RIGHT_OVERSHOOT_TICK 650
 
+#define WALL_REVERSE_TICK 500
+
 // If we have met the wall, then we know that the next tape detection is alignment with the track wire
 #define WALL_MET 1
 #define WALL_NOT_MET 0
@@ -139,11 +149,17 @@ unsigned int right_traversal_met_wall = WALL_NOT_MET;
 // Biasing //
 int source_state = InitPSubState; // This could cause problems. But this is meant to use the previous state to compare which events to detect for biasing.
 
-#define LEFT_BIAS_ML 800
+#define LEFT_BIAS_ML 700
 #define LEFT_BIAS_MR 1000
 
 #define RIGHT_BIAS_ML 1000
 #define RIGHT_BIAS_MR 800
+
+#define TR_LEFT_BIAS_ML 800
+#define TR_LEFT_BIAS_MR 1000
+
+#define TR_RIGHT_BIAS_ML 1000
+#define TR_RIGHT_BIAS_MR 700
 /*******************************************************************************
  * PUBLIC FUNCTIONS                                                            *
  ******************************************************************************/
@@ -201,7 +217,7 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
             // initial state
 
             // now put the machine into the actual initial state
-            nextState = AVOID_FORWARD; //AVOID_FORWARD;
+            nextState = TRAVERSE_RIGHT_FWDL_BIAS; //AVOID_FORWARD;
             makeTransition = TRUE;
             ThisEvent.EventType = ES_NO_EVENT;
         }
@@ -213,9 +229,6 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
                 // Move the robot forward
                 Robot_SetLeftMotor(LEFT_FORWARD_MAX);
                 Robot_SetRightMotor(RIGHT_FORWARD_MAX);
-                
-                // Deactivate servo
-                Robot_SetServoEnabled(D_SERVO_ACTIVE);
                 
                 break;
 
@@ -469,6 +482,7 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
             // If the wall has been detected (but not the obstacle), this indicates potential alignment with the track wire.
             // However, a check must also be performed to ensure it is not an obstacle (obstacle bumper not active)
             case FL_BUMPER_PRESSED: // BUMPER_RELEASED 
+                printf("Front traverse right, front left, bumper left hit");
                 if ((Robot_GetBumperFLO() == BUMPER_RELEASED) && (Robot_GetBumperFRO() == BUMPER_RELEASED)) {
                     nextState = BOT_ALIGNED;
                     makeTransition = TRUE;
@@ -477,6 +491,7 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
                 break;
                 
             case FR_BUMPER_PRESSED:
+                printf("bias right, bumper right hit. \r\n");
                 if ((Robot_GetBumperFLO() == BUMPER_RELEASED) && (Robot_GetBumperFRO() == BUMPER_RELEASED)) {
                     nextState = BOT_ALIGNED;
                     makeTransition = TRUE;
@@ -533,7 +548,8 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
                 break;
              
             // However, a check must also be performed to ensure it is not an obstacle (obstacle bumper not active)
-            case FL_BUMPER_PRESSED: // BUMPER_RELEASED 
+            case FL_BUMPER_PRESSED: // BUMPER_RELEASED
+                printf("FL bumper pressed. \r\n");
                 if ((Robot_GetBumperFLO() == BUMPER_RELEASED) && (Robot_GetBumperFRO() == BUMPER_RELEASED)) {
                     nextState = BOT_ALIGNED;
                     makeTransition = TRUE;
@@ -542,6 +558,7 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
                 break;
                 
             case FR_BUMPER_PRESSED:
+                printf("FR bumper pressed. \r\n");
                 if ((Robot_GetBumperFLO() == BUMPER_RELEASED) && (Robot_GetBumperFRO() == BUMPER_RELEASED)) {
                     nextState = BOT_ALIGNED;
                     makeTransition = TRUE;
@@ -640,14 +657,39 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
         break;
         
     case TRAVERSE_RIGHT_TANK_RIGHT_90_OVER:
+        switch (ThisEvent.EventType) {
+            case ES_ENTRY:
+                // Perform an left outward pivot.
+                Robot_SetLeftMotor(PIVOT_LEFT_OUTWARD_ML);
+                Robot_SetRightMotor(PIVOT_LEFT_OUTWARD_MR);
+                break;
+
+            case ES_EXIT:
+                break;
+
+            case ES_TIMEOUT:
+                break;
+            
+            // Put all detection events over here
+            // Pivot until the rear right tape detector senses.
+            case RR_TAPE_DETECTED:
+                nextState = TRAVERSE_RIGHT_FWDR_BIAS; // change to left if it doesn't work
+                makeTransition = TRUE;
+                ThisEvent.EventType = ES_NO_EVENT;
+                break;
+            
+            case ES_NO_EVENT:
+            default:
+                break;
+            }
         break;
     
     case TRAVERSE_RIGHT_FWDR_BIAS:
         switch (ThisEvent.EventType) {
             case ES_ENTRY:
                 // Move forward drifting a bit to the right
-                Robot_SetLeftMotor(RIGHT_BIAS_ML);
-                Robot_SetRightMotor(RIGHT_BIAS_MR);
+                Robot_SetLeftMotor(TR_RIGHT_BIAS_ML);
+                Robot_SetRightMotor(TR_RIGHT_BIAS_MR);
                 break;
 
             case ES_EXIT:
@@ -694,8 +736,8 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
         switch (ThisEvent.EventType) {
             case ES_ENTRY:
                 // Move forward drifting a bit to the right
-                Robot_SetLeftMotor(LEFT_BIAS_ML);
-                Robot_SetRightMotor(LEFT_BIAS_MR);
+                Robot_SetLeftMotor(TR_LEFT_BIAS_ML);
+                Robot_SetRightMotor(TR_LEFT_BIAS_MR);
                 break;
 
             case ES_EXIT:
@@ -750,20 +792,24 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
                 break;
 
             case ES_TIMEOUT:
+                // After timeout, transfer to the final turn state, keep reversing.
+                if (ThisEvent.EventParam == SUB_ALIGN_TURN_TIMER) {
+                    nextState = TRAVERSE_RIGHT_TANK_RIGHT_WALL;
+                    makeTransition = TRUE;
+                    ThisEvent.EventType = ES_NO_EVENT;
+                }
                 break;
             
             // Put all detection events over here
             // Keep reversing until a bumper is released
             case FL_BUMPER_RELEASED:
-                nextState = TRAVERSE_RIGHT_TANK_RIGHT_WALL;
-                makeTransition = TRUE;
-                ThisEvent.EventType = ES_NO_EVENT;
+                // Init the timer to back out a bit more after a bumper event.
+                ES_Timer_InitTimer(SUB_ALIGN_TURN_TIMER, WALL_REVERSE_TICK);
                 break;
                 
             case FR_BUMPER_RELEASED:
-                nextState = TRAVERSE_RIGHT_TANK_RIGHT_WALL;
-                makeTransition = TRUE;
-                ThisEvent.EventType = ES_NO_EVENT;
+                // Init the timer to back out a bit more after a bumper event.
+                ES_Timer_InitTimer(SUB_ALIGN_TURN_TIMER, WALL_REVERSE_TICK);
                 break;
                 
             case ES_NO_EVENT:
@@ -789,7 +835,7 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
             case ES_TIMEOUT:
                 // After time out, assume tilt to right, bias left to follow the wall until front left bumper touches.
                 if (ThisEvent.EventParam == SUB_ALIGN_TURN_TIMER) {
-                    nextState = TRAVERSE_RIGHT_WALL_FWDL_BIAS;
+                    nextState = TRAVERSE_RIGHT_FORWARD_WALL;
                     makeTransition = TRUE;
                     ThisEvent.EventType = ES_NO_EVENT;
                 }
@@ -803,10 +849,104 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
             }
         break;
         
-    case TRAVERSE_RIGHT_PIVOT_RIGHT_OUTWARD_WALL:
+    case TRAVERSE_RIGHT_FORWARD_WALL:
         switch (ThisEvent.EventType) {
             case ES_ENTRY:
-                // Pivot with the right wheel being the center of mass and outwards (positive left motor speed)
+                // Move forward as straight as possible
+                Robot_SetLeftMotor(MOTOR_MAX);
+                Robot_SetRightMotor(MOTOR_MAX);
+                
+                break;
+
+            case ES_EXIT:
+                break;
+
+            case ES_TIMEOUT:
+                break;
+            
+            // Put all detection events over here
+            // Keep running until the front left or front right tape touches, align with the tape
+            case FL_TAPE_DETECTED:
+                nextState = TRAVERSE_RIGHT_PV_LEFT_IN_ALIGN;
+                makeTransition = TRUE;
+                ThisEvent.EventType = ES_NO_EVENT;
+                break;
+                
+            case FR_TAPE_DETECTED:
+                nextState = TRAVERSE_RIGHT_PV_RIGHT_IN_ALIGN;
+                makeTransition = TRUE;
+                ThisEvent.EventType = ES_NO_EVENT;
+                break;
+                
+
+            case ES_NO_EVENT:
+            default:
+                break;
+            }
+        break;   
+    
+    // ********** Right Traverse Alignment ********** //
+    case TRAVERSE_RIGHT_PV_LEFT_IN_ALIGN:
+        switch (ThisEvent.EventType) {
+            case ES_ENTRY:
+                Robot_SetLeftMotor(PIVOT_LEFT_INWARD_ML);
+                Robot_SetRightMotor(PIVOT_LEFT_INWARD_MR);
+                break;
+
+            case ES_EXIT:
+                break;
+
+            case ES_TIMEOUT:
+                break;
+            
+            // Put all detection events over here
+            // Pivot until front right tape is detected, which then perform a tank turn until rear right is aligned.
+            case FR_TAPE_DETECTED:
+                // After assumed alignment, perform a right outward pivot to face the door.
+                nextState = TRAVERSE_RIGHT_PV_RIGHT_OUT_ALIGN;
+                makeTransition = TRUE;
+                ThisEvent.EventType = ES_NO_EVENT;
+                break;
+            
+
+            case ES_NO_EVENT:
+            default:
+                break;
+            }
+        break;
+        
+    case TRAVERSE_RIGHT_PV_RIGHT_IN_ALIGN:
+        switch (ThisEvent.EventType) {
+            case ES_ENTRY:
+                Robot_SetLeftMotor(PIVOT_RIGHT_INWARD_ML);
+                Robot_SetRightMotor(PIVOT_RIGHT_INWARD_MR);
+                break;
+
+            case ES_EXIT:
+                break;
+
+            case ES_TIMEOUT:
+                break;
+            
+            // Put all detection events over here
+            // Pivot until front left tape is detected
+            case FL_TAPE_DETECTED:
+                // After assumed alignment, perform a right outward pivot to face the door.
+                nextState = TRAVERSE_RIGHT_PV_RIGHT_OUT_ALIGN;
+                makeTransition = TRUE;
+                ThisEvent.EventType = ES_NO_EVENT;
+                break;
+
+            case ES_NO_EVENT:
+            default:
+                break;
+            }
+        break;
+    
+    case TRAVERSE_RIGHT_PV_RIGHT_OUT_ALIGN:
+        switch (ThisEvent.EventType) {
+            case ES_ENTRY:
+                // Pivot outward
                 Robot_SetLeftMotor(PIVOT_RIGHT_OUTWARD_ML);
                 Robot_SetRightMotor(PIVOT_RIGHT_OUTWARD_MR);
                 break;
@@ -818,19 +958,20 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
                 break;
             
             // Put all detection events over here
-            // Keep pivoting right until rear right tape has been detected, assume alignment when this occurs.
+            // Keep pivoting until rear right sensor triggers
             case RR_TAPE_DETECTED:
+                // After facing the door, move forward
                 nextState = BOT_ALIGNED;
                 makeTransition = TRUE;
                 ThisEvent.EventType = ES_NO_EVENT;
                 break;
-                
+
             case ES_NO_EVENT:
             default:
                 break;
             }
         break;
-        
+             
     case TRAVERSE_RIGHT_WALL_FWDR_BIAS:
         switch (ThisEvent.EventType) {
             case ES_ENTRY:
@@ -845,17 +986,9 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
             case ES_TIMEOUT:
                 break;
             
-            // Put all detection events over here
-            // If front left bumper released, then bias to the left to align with the wall.
-            case FL_BUMPER_RELEASED:
-                nextState = TRAVERSE_RIGHT_WALL_FWDL_BIAS;
-                makeTransition = TRUE;
-                ThisEvent.EventType = ES_NO_EVENT;
-                break;
-                
+            // Put all detection events over here  
             case FR_TAPE_DETECTED:
-                // Detection of the front right tape while traversing right and on a wall means the trap door is located.
-                nextState = TRAVERSE_RIGHT_PIVOT_RIGHT_OUTWARD_WALL;
+                nextState = TRAVERSE_RIGHT_WALL_FWDL_BIAS;
                 makeTransition = TRUE;
                 ThisEvent.EventType = ES_NO_EVENT;
                 break;
@@ -880,16 +1013,9 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
             case ES_TIMEOUT:
                 break;
             
-            // Put all detection events over here
-            // If front left bumper is touched, then bias to the right until it is no longer touched (prevents scrapping)
-            case FL_BUMPER_PRESSED:
-                nextState = TRAVERSE_RIGHT_WALL_FWDR_BIAS;
-                makeTransition = TRUE;
-                ThisEvent.EventType = ES_NO_EVENT;
-                break;
-                
+            // Put all detection events over here      
             case FR_TAPE_DETECTED:
-                nextState = TRAVERSE_RIGHT_PIVOT_RIGHT_OUTWARD_WALL;
+                nextState = TRAVERSE_RIGHT_WALL_FWDR_BIAS;
                 makeTransition = TRUE;
                 ThisEvent.EventType = ES_NO_EVENT;
                 break;

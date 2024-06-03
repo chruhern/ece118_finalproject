@@ -175,6 +175,11 @@ ES_Event RunTemplateHSM(ES_Event ThisEvent)
         //state machine does
         ThisEvent = RunAlignSubHSM(ThisEvent);
         switch (ThisEvent.EventType) {
+        
+        case ES_ENTRY:
+            // Deactivate the servo
+            Robot_SetServoEnabled(D_SERVO_ACTIVE);
+            break;
             
         // Events here
         // When the trap door has been located, transition to the search state
