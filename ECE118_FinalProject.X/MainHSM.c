@@ -177,7 +177,8 @@ ES_Event RunTemplateHSM(ES_Event ThisEvent)
         switch (ThisEvent.EventType) {
         
         case ES_ENTRY:
-            // Deactivate the servo
+            // Deactivate the servo, enable propeller mode (as a test)
+            Robot_SetPropllerMode(PROPELLER_COLLECT, 400);
             Robot_SetServoEnabled(D_SERVO_ACTIVE);
             break;
             

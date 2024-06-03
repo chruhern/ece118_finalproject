@@ -8,8 +8,8 @@
 /*******************************************************************************
  * PUBLIC #DEFINES                                                             *
  ******************************************************************************/
-#define PROPELLER_RELEASE 0
-#define PROPELLER_COLLECT 1
+#define PROPELLER_RELEASE 1
+#define PROPELLER_COLLECT 0
 
 #define PIN_INPUT 1
 #define PIN_OUTPUT 0

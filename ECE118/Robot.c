@@ -253,7 +253,7 @@ char Robot_SetRightMotor(int motorSpeed) {
 char Robot_SetPropllerMode(int propellerMode, int pwm) {
     
     // Set the direction of the motor based on the mode
-    if (propellerMode == PROPELLER_COLLECT) {
+    if (propellerMode == PROPELLER_RELEASE) {
         PROPELLER_MOTOR_INA = 1;
         PROPELLER_MOTOR_INB = 0;
         printf("Setting to collection mode. \r\n");

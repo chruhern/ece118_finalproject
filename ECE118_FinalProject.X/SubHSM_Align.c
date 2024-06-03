@@ -46,6 +46,8 @@ typedef enum {
     AVOID_FORWARD,
     AVOID_REVERSE,
     AVOID_TURN_90_LEFT,
+    AVOID_REAR_GRADUAL_LEFT,
+    AVOID_REAR_GRADUAL_RIGHT,
 
     ALIGN_PIVOT_LEFT_INWARD,
     ALIGN_PIVOT_RIGHT_INWARD,
@@ -54,6 +56,9 @@ typedef enum {
     TRAVERSE_LEFT_TANK_LEFT_90_OVER,
     TRAVERSE_LEFT_FWDR_BIAS,
     TRAVERSE_LEFT_FWDL_BIAS,
+            
+    TRAVERSE_LEFT_REVERSE_SERVO,
+    TRAVERSE_LEFT_FORWARD_SERVO,
 
     TRAVERSE_RIGHT_TANK_LEFT_180_OVER,
     TRAVERSE_RIGHT_TANK_RIGHT_90_OVER,
@@ -80,12 +85,16 @@ static const char *StateNames[] = {
 	"AVOID_FORWARD",
 	"AVOID_REVERSE",
 	"AVOID_TURN_90_LEFT",
+	"AVOID_REAR_GRADUAL_LEFT",
+	"AVOID_REAR_GRADUAL_RIGHT",
 	"ALIGN_PIVOT_LEFT_INWARD",
 	"ALIGN_PIVOT_RIGHT_INWARD",
 	"ALIGN_PIVOT_RIGHT_OUTWARD",
 	"TRAVERSE_LEFT_TANK_LEFT_90_OVER",
 	"TRAVERSE_LEFT_FWDR_BIAS",
 	"TRAVERSE_LEFT_FWDL_BIAS",
+	"TRAVERSE_LEFT_REVERSE_SERVO",
+	"TRAVERSE_LEFT_FORWARD_SERVO",
 	"TRAVERSE_RIGHT_TANK_LEFT_180_OVER",
 	"TRAVERSE_RIGHT_TANK_RIGHT_90_OVER",
 	"TRAVERSE_RIGHT_FWDR_BIAS",
@@ -141,6 +150,8 @@ static uint8_t MyPriority;
 
 #define WALL_REVERSE_TICK 500
 
+#define LEFT_SERVO_REVERSE_TICK 250
+
 // If we have met the wall, then we know that the next tape detection is alignment with the track wire
 #define WALL_MET 1
 #define WALL_NOT_MET 0
@@ -160,6 +171,10 @@ int source_state = InitPSubState; // This could cause problems. But this is mean
 
 #define TR_RIGHT_BIAS_ML 1000
 #define TR_RIGHT_BIAS_MR 700
+
+#define GRADUAL_FORWARD_TICKS 2000
+#define GRADUAL_TURN_FACTOR_L 600
+#define GRADUAL_TURN_FACTOR_R 600
 /*******************************************************************************
  * PUBLIC FUNCTIONS                                                            *
  ******************************************************************************/
@@ -360,6 +375,87 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
                 break;
             }
         break;
+    
+    case AVOID_REAR_GRADUAL_LEFT:
+        switch (ThisEvent.EventType) {
+            case ES_ENTRY:
+                //printf("Supposedly going gradual left... \r\n");
+                // Move forward with a gradual left turn for a few seconds
+                Robot_SetLeftMotor(MOTOR_MAX - GRADUAL_TURN_FACTOR_L); // MOTOR_MAX - GRADUAL_TURN_FACTOR_L
+                Robot_SetRightMotor(MOTOR_MAX);
+                
+                // Set a timer to determine how long to move
+                ES_Timer_InitTimer(SUB_ALIGN_TURN_TIMER, GRADUAL_FORWARD_TICKS);
+                break;
+
+            case ES_EXIT:
+                break;
+
+            case ES_TIMEOUT:
+                // After timeout, go back to the avoid forward state.
+                if (ThisEvent.EventParam == SUB_ALIGN_TURN_TIMER) {
+                    nextState = AVOID_FORWARD;
+                    makeTransition = TRUE;
+                    ThisEvent.EventType = ES_NO_EVENT;
+                }
+                break;
+            
+            // Put all detection events over here
+            // If any events take place, stop the existing timers to prevent conflicts.
+            // If the front left tape detects something, go straight to attempt alignment
+            case FL_TAPE_DETECTED:
+                // Stop the timer
+                ES_Timer_StopTimer(SUB_ALIGN_TURN_TIMER);
+                nextState = ALIGN_PIVOT_LEFT_INWARD;
+                makeTransition = TRUE;
+                ThisEvent.EventType = ES_NO_EVENT;
+                break;
+
+            case ES_NO_EVENT:
+            default:
+                break;
+            }
+        break;
+        
+    case AVOID_REAR_GRADUAL_RIGHT:
+        switch (ThisEvent.EventType) {
+            case ES_ENTRY:
+                // Move forward in a gradual right for a few seconds
+                Robot_SetLeftMotor(MOTOR_MAX);
+                Robot_SetRightMotor(MOTOR_MAX - GRADUAL_TURN_FACTOR_R);
+                
+                // Set a timer to determine how long to move
+                ES_Timer_InitTimer(SUB_ALIGN_TURN_TIMER, GRADUAL_FORWARD_TICKS);
+                break;
+
+            case ES_EXIT:
+                break;
+
+            case ES_TIMEOUT:
+                // After timeout, go back to the avoid forward state.
+                if (ThisEvent.EventParam == SUB_ALIGN_TURN_TIMER) {
+                    nextState = AVOID_FORWARD;
+                    makeTransition = TRUE;
+                    ThisEvent.EventType = ES_NO_EVENT;
+                }
+                break;
+            
+            // Put all detection events over here
+            // If any events take place, stop the existing timers to prevent conflicts.
+            // If the front right tape detects something, go straight to attempt alignment
+            case FR_TAPE_DETECTED:
+                // Stop the timer
+                ES_Timer_StopTimer(SUB_ALIGN_TURN_TIMER);
+                nextState = ALIGN_PIVOT_RIGHT_INWARD;
+                makeTransition = TRUE;
+                ThisEvent.EventType = ES_NO_EVENT;
+                break;
+
+            case ES_NO_EVENT:
+            default:
+                break;
+            }
+        break;
         
     // ******************** ALIGNMENT ******************** //
     case ALIGN_PIVOT_LEFT_INWARD:
@@ -440,6 +536,22 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
                 makeTransition = TRUE;
                 ThisEvent.EventType = ES_NO_EVENT;
                 break;
+                
+            // If the rear bumpers are hit, we must turn away from the source and revert back to the forward state.
+            // AVOID_REAR_GRADUAL_LEFT, AVOID_REAR_GRADUAL_RIGHT
+            case RL_BUMPER_PRESSED:
+                printf("Rear left bumper pressed. \r\n");
+                nextState = AVOID_REAR_GRADUAL_RIGHT;
+                makeTransition = TRUE;
+                ThisEvent.EventType = ES_NO_EVENT;
+                break;
+                
+            case RR_BUMPER_PRESSED:
+                printf("Rear right bumper pressed. \r\n");
+                nextState = AVOID_REAR_GRADUAL_LEFT;
+                makeTransition = TRUE;
+                ThisEvent.EventType = ES_NO_EVENT;
+                break;
 
             case ES_NO_EVENT:
             default:
@@ -484,7 +596,7 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
             case FL_BUMPER_PRESSED: // BUMPER_RELEASED 
                 printf("Front traverse right, front left, bumper left hit");
                 if ((Robot_GetBumperFLO() == BUMPER_RELEASED) && (Robot_GetBumperFRO() == BUMPER_RELEASED)) {
-                    nextState = BOT_ALIGNED;
+                    nextState = TRAVERSE_LEFT_REVERSE_SERVO;
                     makeTransition = TRUE;
                     ThisEvent.EventType = ES_NO_EVENT;
                 }
@@ -493,7 +605,7 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
             case FR_BUMPER_PRESSED:
                 printf("bias right, bumper right hit. \r\n");
                 if ((Robot_GetBumperFLO() == BUMPER_RELEASED) && (Robot_GetBumperFRO() == BUMPER_RELEASED)) {
-                    nextState = BOT_ALIGNED;
+                    nextState = TRAVERSE_LEFT_REVERSE_SERVO;
                     makeTransition = TRUE;
                     ThisEvent.EventType = ES_NO_EVENT;
                 }
@@ -551,7 +663,7 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
             case FL_BUMPER_PRESSED: // BUMPER_RELEASED
                 printf("FL bumper pressed. \r\n");
                 if ((Robot_GetBumperFLO() == BUMPER_RELEASED) && (Robot_GetBumperFRO() == BUMPER_RELEASED)) {
-                    nextState = BOT_ALIGNED;
+                    nextState = TRAVERSE_LEFT_REVERSE_SERVO;
                     makeTransition = TRUE;
                     ThisEvent.EventType = ES_NO_EVENT;
                 }
@@ -560,7 +672,7 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
             case FR_BUMPER_PRESSED:
                 printf("FR bumper pressed. \r\n");
                 if ((Robot_GetBumperFLO() == BUMPER_RELEASED) && (Robot_GetBumperFRO() == BUMPER_RELEASED)) {
-                    nextState = BOT_ALIGNED;
+                    nextState = TRAVERSE_LEFT_REVERSE_SERVO;
                     makeTransition = TRUE;
                     ThisEvent.EventType = ES_NO_EVENT;
                 }
@@ -626,6 +738,91 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
             }
         break;
         
+    case TRAVERSE_LEFT_REVERSE_SERVO:
+        switch (ThisEvent.EventType) {
+            case ES_ENTRY:
+                // Reverse the bot for a designated time
+                Robot_SetLeftMotor(-MOTOR_MAX);
+                Robot_SetRightMotor(-MOTOR_MAX);
+                
+                // Enable the servo
+                Robot_SetServoEnabled(D_SERVO_INACTIVE);
+                
+                // Enable timer
+                ES_Timer_InitTimer(SUB_ALIGN_TURN_TIMER, LEFT_SERVO_REVERSE_TICK);
+                
+                break;
+
+            case ES_EXIT:
+                break;
+
+            case ES_TIMEOUT:
+                if (ThisEvent.EventParam == SUB_ALIGN_TURN_TIMER) {
+                    nextState = TRAVERSE_LEFT_FORWARD_SERVO;
+                    makeTransition = TRUE;
+                    ThisEvent.EventType = ES_NO_EVENT;
+                }
+                break;
+            
+            // Put all detection events over here
+            // If any of the rear left or right bumpers trigger, stop the bot and timer and transition to forward state
+            case RL_TAPE_DETECTED:
+                nextState = TRAVERSE_LEFT_FORWARD_SERVO;
+                makeTransition = TRUE;
+                ThisEvent.EventType = ES_NO_EVENT;
+                
+                // Stop the timer
+                ES_Timer_StopTimer(SUB_ALIGN_TURN_TIMER);
+                break;
+                
+            case RR_TAPE_DETECTED:
+                nextState = TRAVERSE_LEFT_FORWARD_SERVO;
+                makeTransition = TRUE;
+                ThisEvent.EventType = ES_NO_EVENT;
+                
+                // Stop the timer
+                ES_Timer_StopTimer(SUB_ALIGN_TURN_TIMER);
+                break;
+                
+            case ES_NO_EVENT:
+            default:
+                break;
+            }
+        break;
+        
+    case TRAVERSE_LEFT_FORWARD_SERVO:
+        switch (ThisEvent.EventType) {
+            case ES_ENTRY:
+                // Move forward, keep going until the front bumper events are active.
+                Robot_SetLeftMotor(MOTOR_MAX);
+                Robot_SetRightMotor(MOTOR_MAX);
+                
+                break;
+
+            case ES_EXIT:
+                break;
+
+            case ES_TIMEOUT:
+                break;
+            
+            // Put all detection events over here
+            case FL_BUMPER_PRESSED:
+                nextState = BOT_ALIGNED;
+                makeTransition = TRUE;
+                ThisEvent.EventType = ES_NO_EVENT;
+                break;
+                
+            case FR_BUMPER_PRESSED:
+                nextState = BOT_ALIGNED;
+                makeTransition = TRUE;
+                ThisEvent.EventType = ES_NO_EVENT;
+                break;
+
+            case ES_NO_EVENT:
+            default:
+                break;
+            }
+        break;
         
     // ******************** RIGHT TRAVERSAL ******************** //
     case TRAVERSE_RIGHT_TANK_LEFT_180_OVER:
@@ -949,6 +1146,9 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
                 // Pivot outward
                 Robot_SetLeftMotor(PIVOT_RIGHT_OUTWARD_ML);
                 Robot_SetRightMotor(PIVOT_RIGHT_OUTWARD_MR);
+                
+                // Enable the servo
+                Robot_SetServoEnabled(D_SERVO_INACTIVE);
                 break;
 
             case ES_EXIT:
@@ -1060,6 +1260,9 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
                 // Stop the robot
                 Robot_SetLeftMotor(0);
                 Robot_SetRightMotor(0);
+                
+                // Enable propeller release
+                Robot_SetPropllerMode(PROPELLER_RELEASE, 500);
                 
                 // Initialize a timer to brake the robot for a bit
                 ES_Timer_InitTimer(GENERIC_BRAKE_TIMER, BOT_BRAKE_TICKS);
