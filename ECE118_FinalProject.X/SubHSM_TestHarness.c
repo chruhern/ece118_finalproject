@@ -141,7 +141,7 @@ ES_Event RunHarnessSubHSM(ES_Event ThisEvent)
             // initial state
 
             // now put the machine into the actual initial state
-            nextState = ForwardBumper; // Set this to the state you want to test out
+            nextState = ForwardLeftBias; // Set this to the state you want to test out
             makeTransition = TRUE;
             ThisEvent.EventType = ES_NO_EVENT;
         }
@@ -162,18 +162,18 @@ ES_Event RunHarnessSubHSM(ES_Event ThisEvent)
                 break;
             
             // Put all detection events over here
-            case FR_TAPE_NOT_DETECTED:
-                nextState = ForwardRightBias;
-                makeTransition = TRUE;
-                ThisEvent.EventType = ES_NO_EVENT;
-                break;
-                
-            case FL_TAPE_DETECTED:
-                // Stop the robot
-                nextState = BrakeRobot;
-                makeTransition = TRUE;
-                ThisEvent.EventType = ES_NO_EVENT;
-                break;
+//            case FR_TAPE_NOT_DETECTED:
+//                nextState = ForwardRightBias;
+//                makeTransition = TRUE;
+//                ThisEvent.EventType = ES_NO_EVENT;
+//                break;
+//                
+//            case FL_TAPE_DETECTED:
+//                // Stop the robot
+//                nextState = BrakeRobot;
+//                makeTransition = TRUE;
+//                ThisEvent.EventType = ES_NO_EVENT;
+//                break;
                     
 
             case ES_NO_EVENT:

@@ -33,6 +33,7 @@
 #include "MainHSM.h"
 #include "SubHSM_TraverseBasic.h"
 
+#include <stdio.h>
 #include "Robot.h"
 #include "ES_Timers.h"
 
@@ -45,8 +46,8 @@ typedef enum {
     BASIC_TRAVERSE_FORWARD,
     BASIC_TRAVERSE_LEFT_REVERSE,
     BASIC_TRAVERSE_RIGHT_REVERSE,
-    BASIC_TRAVERSE_TURN_90_RIGHT,
-    BASIC_TRAVERSE_TURN_90_LEFT,
+    BASIC_TRAVERSE_GRADUAL_RIGHT,
+    BASIC_TRAVERSE_GRADUAL_LEFT,
 
 } TemplateSubHSMState_t;
 
@@ -55,8 +56,8 @@ static const char *StateNames[] = {
 	"BASIC_TRAVERSE_FORWARD",
 	"BASIC_TRAVERSE_LEFT_REVERSE",
 	"BASIC_TRAVERSE_RIGHT_REVERSE",
-	"BASIC_TRAVERSE_TURN_90_RIGHT",
-	"BASIC_TRAVERSE_TURN_90_LEFT",
+	"BASIC_TRAVERSE_GRADUAL_RIGHT",
+	"BASIC_TRAVERSE_GRADUAL_LEFT",
 };
 
 
@@ -66,6 +67,7 @@ static const char *StateNames[] = {
  ******************************************************************************/
 /* Prototypes for private functions for this machine. They should be functions
    relevant to the behavior of this state machine */
+void CalcTurnAngle(int time_elasped);
 
 /*******************************************************************************
  * PRIVATE MODULE VARIABLES                                                            *
@@ -79,6 +81,20 @@ static uint8_t MyPriority;
 #define TB_TANK_LEFT_TICKS 800
 #define TB_TANK_RIGHT_TICKS 800
 
+#define PIVOT_90_LEFT_TICKS 500
+#define PIVOT_90_RIGHT_TICKS 500
+
+#define MAX_TURN_DEG 180
+#define MIN_TURN_DEG 10
+#define MAX_TIME_SEC 10 // Max time to be considered in seconds
+
+#define TRAV_MIN(x, y) (((x) < (y)) ? (x) : (y))
+#define TRAV_MAX(x, y) (((x) > (y)) ? (x) : (y))
+
+// Track time
+uint32_t prev_event_time;
+uint32_t delta_time;
+uint32_t turn_ticks = 1000; // How how much to turn in ticks
 /*******************************************************************************
  * PUBLIC FUNCTIONS                                                            *
  ******************************************************************************/
@@ -148,9 +164,17 @@ ES_Event RunTraverseBasicSubHSM(ES_Event ThisEvent)
                 // Move the robot forward (whether if it is straight or not doesn't matter)
                 Robot_SetLeftMotor(MOTOR_MAX);
                 Robot_SetRightMotor(MOTOR_MAX);
+                
+                // Track the time
+                prev_event_time = ES_Timer_GetTime();
                 break;
 
             case ES_EXIT:
+                // When event exits, compute the delta time
+                delta_time = ES_Timer_GetTime() - prev_event_time;
+                
+                // Calculate the turn tick given delta time
+                CalcTurnAngle(delta_time);
                 break;
 
             case ES_TIMEOUT:
@@ -207,13 +231,13 @@ ES_Event RunTraverseBasicSubHSM(ES_Event ThisEvent)
             // Put all detection events over here
             // Reverse until the front left bumpers or tape is no longer detected
             case FL_TAPE_NOT_DETECTED:
-                nextState = BASIC_TRAVERSE_TURN_90_RIGHT;
+                nextState = BASIC_TRAVERSE_GRADUAL_RIGHT;
                 makeTransition = TRUE;
                 ThisEvent.EventType = ES_NO_EVENT;
                 break;
                 
             case FL_BUMPER_RELEASED:
-                nextState = BASIC_TRAVERSE_TURN_90_RIGHT;
+                nextState = BASIC_TRAVERSE_GRADUAL_RIGHT;
                 makeTransition = TRUE;
                 ThisEvent.EventType = ES_NO_EVENT;
                 break;
@@ -241,13 +265,13 @@ ES_Event RunTraverseBasicSubHSM(ES_Event ThisEvent)
             // Put all detection events over here
             // Same as left reverse, except tape detection is for right tape undetection
             case FR_TAPE_NOT_DETECTED:
-                nextState = BASIC_TRAVERSE_TURN_90_LEFT;
+                nextState = BASIC_TRAVERSE_GRADUAL_LEFT;
                 makeTransition = TRUE;
                 ThisEvent.EventType = ES_NO_EVENT;
                 break;
                 
             case FR_BUMPER_RELEASED:
-                nextState = BASIC_TRAVERSE_TURN_90_LEFT;
+                nextState = BASIC_TRAVERSE_GRADUAL_LEFT;
                 makeTransition = TRUE;
                 ThisEvent.EventType = ES_NO_EVENT;
                 break;
@@ -258,7 +282,7 @@ ES_Event RunTraverseBasicSubHSM(ES_Event ThisEvent)
             }
         break;
         
-    case BASIC_TRAVERSE_TURN_90_RIGHT:
+    case BASIC_TRAVERSE_GRADUAL_RIGHT:
         switch (ThisEvent.EventType) {
             case ES_ENTRY:
                 // Perform a right tank turn
@@ -266,7 +290,7 @@ ES_Event RunTraverseBasicSubHSM(ES_Event ThisEvent)
                 Robot_SetRightMotor(-MOTOR_MAX);
                 
                 // Initialize timer
-                ES_Timer_InitTimer(SUB_BASIC_TRAVERSE_TURN_TIMER, TB_TANK_RIGHT_TICKS);
+                ES_Timer_InitTimer(SUB_BASIC_TRAVERSE_TURN_TIMER, turn_ticks);
                 break;
 
             case ES_EXIT:
@@ -289,14 +313,14 @@ ES_Event RunTraverseBasicSubHSM(ES_Event ThisEvent)
             }
         break;
         
-    case BASIC_TRAVERSE_TURN_90_LEFT:
+    case BASIC_TRAVERSE_GRADUAL_LEFT:
         switch (ThisEvent.EventType) {
             case ES_ENTRY:
                 // Perform a left tank turn
                 Robot_SetLeftMotor(-MOTOR_MAX);
                 Robot_SetRightMotor(MOTOR_MAX);
                 
-                ES_Timer_InitTimer(SUB_BASIC_TRAVERSE_TURN_TIMER, TB_TANK_LEFT_TICKS);
+                ES_Timer_InitTimer(SUB_BASIC_TRAVERSE_TURN_TIMER, turn_ticks);
                 break;
 
             case ES_EXIT:
@@ -338,4 +362,17 @@ ES_Event RunTraverseBasicSubHSM(ES_Event ThisEvent)
 /*******************************************************************************
  * PRIVATE FUNCTIONS                                                           *
  ******************************************************************************/
-
+void CalcTurnAngle(int time_elasped) {
+    // Calculate angle based on elasped time
+    int raw_angle =  (MAX_TURN_DEG / MAX_TIME_SEC) * TRAV_MIN(MAX_TIME_SEC, time_elasped);
+    int true_angle = TRAV_MAX(MIN_TURN_DEG, raw_angle);
+    
+    // Convert angle to time
+    float turn_time = ((float)true_angle / 90.0) * (float)PIVOT_90_LEFT_TICKS; // ticks, how long it takes to turn 90 degrees
+    
+    // Convert ticks back to an integer value and set it
+    turn_ticks = (int)turn_time;
+    
+    //printf("The turn ticks is %d. \r\n", turn_ticks);
+    //printf("The time elasped is : %d. \r\n", time_elasped);
+}

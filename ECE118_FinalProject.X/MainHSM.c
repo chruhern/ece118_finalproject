@@ -162,9 +162,12 @@ ES_Event RunTemplateHSM(ES_Event ThisEvent)
             InitTraverseBasicSubHSM();
             
             // now put the machine into the actual initial state
-            nextState = SubAlign;
+            nextState = SubTraverseBasic;
             makeTransition = TRUE;
             ThisEvent.EventType = ES_NO_EVENT;
+            
+            // Deactivate the servo
+            Robot_SetServoEnabled(D_SERVO_ACTIVE);
             ;
         }
         break;
@@ -207,10 +210,10 @@ ES_Event RunTemplateHSM(ES_Event ThisEvent)
         switch (ThisEvent.EventType) {
             case ES_ENTRY:
                 // Start a timer SUB_HARNESS_TEST_TIMER
-                ES_Timer_InitTimer(SUB_HARNESS_TEST_TIMER, 120000);
+                ES_Timer_InitTimer(SUB_HARNESS_TEST_TIMER, 100000);
                 
                 // Start Propeller
-                //Robot_SetPropllerMode(PROPELLER_COLLECT);
+                Robot_SetPropllerMode(PROPELLER_COLLECT, 400);
                 break;
 
             case ES_EXIT:
@@ -219,9 +222,13 @@ ES_Event RunTemplateHSM(ES_Event ThisEvent)
             case ES_TIMEOUT:
                 if (ThisEvent.EventParam == SUB_HARNESS_TEST_TIMER) {
                     // Stop the robot and propeller
-                    Robot_SetLeftMotor(0);
-                    Robot_SetRightMotor(0);
-                    //Robot_SetPropllerMode(PROPELLER_RELEASE);
+//                    Robot_SetLeftMotor(0);
+//                    Robot_SetRightMotor(0);
+                    //
+                    Robot_SetPropllerMode(PROPELLER_COLLECT, 400);
+                    nextState = SubAlign;
+                    makeTransition = TRUE;
+                    ThisEvent.EventType = ES_NO_EVENT;
                 }
                 break;
             
