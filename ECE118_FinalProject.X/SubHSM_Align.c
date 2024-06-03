@@ -217,7 +217,7 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
             // initial state
 
             // now put the machine into the actual initial state
-            nextState = TRAVERSE_RIGHT_FWDL_BIAS; //AVOID_FORWARD;
+            nextState = AVOID_FORWARD; //AVOID_FORWARD;
             makeTransition = TRUE;
             ThisEvent.EventType = ES_NO_EVENT;
         }
@@ -852,9 +852,9 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
     case TRAVERSE_RIGHT_FORWARD_WALL:
         switch (ThisEvent.EventType) {
             case ES_ENTRY:
-                // Move forward as straight as possible
-                Robot_SetLeftMotor(MOTOR_MAX);
-                Robot_SetRightMotor(MOTOR_MAX);
+                // Move forward as straight as possible. It seems left biased, so lower right pwm
+                Robot_SetLeftMotor(LEFT_FORWARD_MAX);
+                Robot_SetRightMotor(RIGHT_FORWARD_MAX);
                 
                 break;
 
@@ -960,8 +960,9 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
             // Put all detection events over here
             // Keep pivoting until rear right sensor triggers
             case RR_TAPE_DETECTED:
-                // After facing the door, move forward
-                nextState = BOT_ALIGNED;
+                // When this occurs, the robot seems to be skewed to the left, so perform a right bias.
+                // Also enable the servo at this state
+                nextState = TRAVERSE_RIGHT_WALL_FWDR_BIAS;
                 makeTransition = TRUE;
                 ThisEvent.EventType = ES_NO_EVENT;
                 break;
@@ -992,7 +993,20 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
                 makeTransition = TRUE;
                 ThisEvent.EventType = ES_NO_EVENT;
                 break;
-
+                
+            // When either bumpers are triggered, assume alignment 
+            case FL_BUMPER_PRESSED:
+                nextState = BOT_ALIGNED;
+                makeTransition = TRUE;
+                ThisEvent.EventType = ES_NO_EVENT;
+                break;
+                
+            case FR_BUMPER_PRESSED:
+                nextState = BOT_ALIGNED;
+                makeTransition = TRUE;
+                ThisEvent.EventType = ES_NO_EVENT;
+                break;
+                
             case ES_NO_EVENT:
             default:
                 break;
@@ -1016,6 +1030,19 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
             // Put all detection events over here      
             case FR_TAPE_DETECTED:
                 nextState = TRAVERSE_RIGHT_WALL_FWDR_BIAS;
+                makeTransition = TRUE;
+                ThisEvent.EventType = ES_NO_EVENT;
+                break;
+            
+            // When either bumpers are triggered, assume alignment 
+            case FL_BUMPER_PRESSED:
+                nextState = BOT_ALIGNED;
+                makeTransition = TRUE;
+                ThisEvent.EventType = ES_NO_EVENT;
+                break;
+                
+            case FR_BUMPER_PRESSED:
+                nextState = BOT_ALIGNED;
                 makeTransition = TRUE;
                 ThisEvent.EventType = ES_NO_EVENT;
                 break;
