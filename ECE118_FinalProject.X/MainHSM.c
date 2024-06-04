@@ -162,7 +162,7 @@ ES_Event RunTemplateHSM(ES_Event ThisEvent)
             InitTraverseBasicSubHSM();
             
             // now put the machine into the actual initial state
-            nextState = SubAlign;
+            nextState = SubTraverseBasic;
             makeTransition = TRUE;
             ThisEvent.EventType = ES_NO_EVENT;
             
@@ -213,7 +213,7 @@ ES_Event RunTemplateHSM(ES_Event ThisEvent)
                 ES_Timer_InitTimer(SUB_HARNESS_TEST_TIMER, 100000);
                 
                 // Start Propeller
-                Robot_SetPropllerMode(PROPELLER_COLLECT, 400);
+                //Robot_SetPropllerMode(PROPELLER_COLLECT, 400);
                 break;
 
             case ES_EXIT:

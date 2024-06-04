@@ -7,8 +7,8 @@ build/default/production/SubHSM_TraverseBasic.o: SubHSM_TraverseBasic.c \
  ../ECE118/include/ES_PriorTables.h ../ECE118/include/ES_Queue.h \
  ../ECE118/include/ES_ServiceHeaders.h ES_Configure.h MainHSM.h \
  ES_Configure.h TemplateService.h ../ECE118/include/ES_TattleTale.h \
- ../ECE118/include/BOARD.h MainHSM.h SubHSM_TraverseBasic.h Robot.h \
- ../ECE118/include/ES_Timers.h
+ ../ECE118/include/BOARD.h MainHSM.h SubHSM_TraverseBasic.h \
+ SubHSM_Align.h Robot.h ../ECE118/include/ES_Timers.h
 
 ES_Configure.h:
 
@@ -51,6 +51,8 @@ TemplateService.h:
 MainHSM.h:
 
 SubHSM_TraverseBasic.h:
+
+SubHSM_Align.h:
 
 Robot.h:
 
