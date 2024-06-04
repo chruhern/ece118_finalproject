@@ -162,7 +162,7 @@ ES_Event RunTemplateHSM(ES_Event ThisEvent)
             InitTraverseBasicSubHSM();
             
             // now put the machine into the actual initial state
-            nextState = SubTraverseBasic;
+            nextState = SubAlign;
             makeTransition = TRUE;
             ThisEvent.EventType = ES_NO_EVENT;
             
@@ -181,7 +181,7 @@ ES_Event RunTemplateHSM(ES_Event ThisEvent)
         
         case ES_ENTRY:
             // Deactivate the servo, enable propeller mode (as a test)
-            Robot_SetPropllerMode(PROPELLER_COLLECT, 400);
+            //Robot_SetPropllerMode(PROPELLER_COLLECT, 400);
             Robot_SetServoEnabled(D_SERVO_ACTIVE);
             break;
             

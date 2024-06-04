@@ -151,7 +151,7 @@ ES_Event RunHarnessSubHSM(ES_Event ThisEvent)
         switch (ThisEvent.EventType) {
             case ES_ENTRY:
                 // Move robot, but bias to the left
-                Robot_SetLeftMotor(980);
+                Robot_SetLeftMotor(1000);
                 Robot_SetRightMotor(1000);
                 break;
 

@@ -60,6 +60,7 @@ typedef enum {
     TRAVERSE_LEFT_REVERSE_SERVO,
     TRAVERSE_LEFT_FORWARD_SERVO,
 
+    TRAVERSE_RIGHT_REVERSE,
     TRAVERSE_RIGHT_TANK_LEFT_180_OVER,
     TRAVERSE_RIGHT_TANK_RIGHT_90_OVER,
     TRAVERSE_RIGHT_FWDR_BIAS,
@@ -95,6 +96,7 @@ static const char *StateNames[] = {
 	"TRAVERSE_LEFT_FWDL_BIAS",
 	"TRAVERSE_LEFT_REVERSE_SERVO",
 	"TRAVERSE_LEFT_FORWARD_SERVO",
+	"TRAVERSE_RIGHT_REVERSE",
 	"TRAVERSE_RIGHT_TANK_LEFT_180_OVER",
 	"TRAVERSE_RIGHT_TANK_RIGHT_90_OVER",
 	"TRAVERSE_RIGHT_FWDR_BIAS",
@@ -118,6 +120,9 @@ static const char *StateNames[] = {
  ******************************************************************************/
 /* Prototypes for private functions for this machine. They should be functions
    relevant to the behavior of this state machine */
+// Fucking horrible practice, but if it works it works...
+int isDetectedTapeFL(void);
+int isDetectedTapeFR(void);
 /*******************************************************************************
  * PRIVATE MODULE VARIABLES                                                            *
  ******************************************************************************/
@@ -175,6 +180,8 @@ int source_state = InitPSubState; // This could cause problems. But this is mean
 #define GRADUAL_FORWARD_TICKS 2000
 #define GRADUAL_TURN_FACTOR_L 600
 #define GRADUAL_TURN_FACTOR_R 600
+
+#define TRAVERSE_RIGHT_180_REVERSE_TICK 250
 /*******************************************************************************
  * PUBLIC FUNCTIONS                                                            *
  ******************************************************************************/
@@ -532,7 +539,12 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
             // Put all detection events over here
             // Pivot until the rear right tape hits, at this point, start moving but with a left drift.
             case RR_TAPE_DETECTED:
-                nextState = TRAVERSE_LEFT_FWDR_BIAS;
+                // Check which direction to bias based on if the front right is detected or not
+                if (isDetectedTapeFR()) {
+                    nextState = TRAVERSE_LEFT_FWDL_BIAS;
+                } else {
+                    nextState = TRAVERSE_LEFT_FWDR_BIAS;
+                }
                 makeTransition = TRUE;
                 ThisEvent.EventType = ES_NO_EVENT;
                 break;
@@ -613,13 +625,13 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
                 
             // If the obstacle bumpers are detected, this indicate traversal on left is not possible, do a 180 and turn right.
             case FLO_BUMPER_PRESSED:
-                nextState = TRAVERSE_RIGHT_TANK_LEFT_180_OVER;
+                nextState = TRAVERSE_RIGHT_REVERSE;
                 makeTransition = TRUE;
                 ThisEvent.EventType = ES_NO_EVENT;
                 break;
                 
             case FRO_BUMPER_PRESSED:
-                nextState = TRAVERSE_RIGHT_TANK_LEFT_180_OVER;
+                nextState = TRAVERSE_RIGHT_REVERSE;
                 makeTransition = TRUE;
                 ThisEvent.EventType = ES_NO_EVENT;
                 break;
@@ -680,13 +692,13 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
             
             // If the obstacle bumpers are detected, this indicate traversal on left is not possible, do a 180 and turn right.
             case FLO_BUMPER_PRESSED:
-                nextState = TRAVERSE_RIGHT_TANK_LEFT_180_OVER;
+                nextState = TRAVERSE_RIGHT_REVERSE;
                 makeTransition = TRUE;
                 ThisEvent.EventType = ES_NO_EVENT;
                 break;
                 
             case FRO_BUMPER_PRESSED:
-                nextState = TRAVERSE_RIGHT_TANK_LEFT_180_OVER;
+                nextState = TRAVERSE_RIGHT_REVERSE;
                 makeTransition = TRUE;
                 ThisEvent.EventType = ES_NO_EVENT;
                 break;
@@ -825,6 +837,44 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
         break;
         
     // ******************** RIGHT TRAVERSAL ******************** //
+    case TRAVERSE_RIGHT_REVERSE:
+        switch (ThisEvent.EventType) {
+            case ES_ENTRY:
+                // Reverse the robot
+                Robot_SetLeftMotor(-MOTOR_MAX);
+                Robot_SetRightMotor(-MOTOR_MAX);
+                break;
+
+            case ES_EXIT:
+                break;
+
+            case ES_TIMEOUT:
+                // When time out, transition to the tank turn
+                if (ThisEvent.EventParam == SUB_ALIGN_TURN_TIMER) {
+                    nextState = TRAVERSE_RIGHT_TANK_LEFT_180_OVER;
+                    makeTransition = TRUE;
+                    ThisEvent.EventType = ES_NO_EVENT;
+                }
+                break;
+            
+            // Put all detection events over here
+            // Reverse until either obstacle bumpers are no longer detected, then perform the tank 180
+            case FLO_BUMPER_RELEASED:
+                // Initialize timer to reverse a bit
+                ES_Timer_InitTimer(SUB_ALIGN_TURN_TIMER, TRAVERSE_RIGHT_180_REVERSE_TICK);
+                break;
+                
+            case FRO_BUMPER_RELEASED:
+                ES_Timer_InitTimer(SUB_ALIGN_TURN_TIMER, TRAVERSE_RIGHT_180_REVERSE_TICK);
+                break;
+                
+
+            case ES_NO_EVENT:
+            default:
+                break;
+            }
+        break;
+            
     case TRAVERSE_RIGHT_TANK_LEFT_180_OVER:
         switch (ThisEvent.EventType) {
             case ES_ENTRY:
@@ -870,7 +920,7 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
             // Put all detection events over here
             // Pivot until the rear right tape detector senses.
             case RR_TAPE_DETECTED:
-                nextState = TRAVERSE_RIGHT_FWDR_BIAS; // change to left if it doesn't work
+                nextState = TRAVERSE_RIGHT_FWDR_BIAS;
                 makeTransition = TRUE;
                 ThisEvent.EventType = ES_NO_EVENT;
                 break;
@@ -1023,7 +1073,7 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
                 Robot_SetRightMotor(-MOTOR_MAX);
                 
                 // Use a timer to determine the turn time. Because there is a chance rear left bumper cannot detect side bumps.
-                ES_Timer_InitTimer(SUB_ALIGN_TURN_TIMER, TANK_90_RIGHT_OVERSHOOT_TICK);
+                //ES_Timer_InitTimer(SUB_ALIGN_TURN_TIMER, TANK_90_RIGHT_OVERSHOOT_TICK);
                 break;
 
             case ES_EXIT:
@@ -1031,15 +1081,22 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
 
             case ES_TIMEOUT:
                 // After time out, assume tilt to right, bias left to follow the wall until front left bumper touches.
-                if (ThisEvent.EventParam == SUB_ALIGN_TURN_TIMER) {
-                    nextState = TRAVERSE_RIGHT_FORWARD_WALL;
-                    makeTransition = TRUE;
-                    ThisEvent.EventType = ES_NO_EVENT;
-                }
+//                if (ThisEvent.EventParam == SUB_ALIGN_TURN_TIMER) {
+//                    nextState = TRAVERSE_RIGHT_FORWARD_WALL;
+//                    makeTransition = TRUE;
+//                    ThisEvent.EventType = ES_NO_EVENT;
+//                }
                 break;
             
             // Put all detection events over here
-
+            // Rotate until rear right sensor hits
+                // TRAVERSE_RIGHT_FORWARD_WALL
+            case RR_TAPE_DETECTED:
+                nextState = TRAVERSE_RIGHT_FORWARD_WALL;
+                makeTransition = TRUE;
+                ThisEvent.EventType = ES_NO_EVENT;
+                break;
+                
             case ES_NO_EVENT:
             default:
                 break;
@@ -1325,3 +1382,17 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
     return ThisEvent;
 }
 
+/*******************************************************************************
+ * PRIVATE FUNCTIONS                                                           *
+ ******************************************************************************/
+/**
+ * Function: isTapeFL(void)
+ * @param None
+ * @return Whether if the front left tape is detected*/
+int isDetectedTapeFL(void) {
+    return (Robot_GetTapeFL() > 500);
+}
+
+int isDetectedTapeFR(void) {
+    return (Robot_GetTapeFR() > 500);
+}

@@ -48,6 +48,11 @@ typedef enum {
     BASIC_TRAVERSE_RIGHT_REVERSE,
     BASIC_TRAVERSE_GRADUAL_RIGHT,
     BASIC_TRAVERSE_GRADUAL_LEFT,
+            
+    BASIC_TRAVERSE_PIVOT_WALL_LEFT,
+    BASIC_TRAVERSE_PIVOT_WALL_RIGHT,
+    BASIC_TRAVERSE_FOLLOW_WALL_LEFT,
+    BASIC_TRAVERSE_FOLLOW_WALL_RIGHT,
 
 } TemplateSubHSMState_t;
 
@@ -58,6 +63,10 @@ static const char *StateNames[] = {
 	"BASIC_TRAVERSE_RIGHT_REVERSE",
 	"BASIC_TRAVERSE_GRADUAL_RIGHT",
 	"BASIC_TRAVERSE_GRADUAL_LEFT",
+	"BASIC_TRAVERSE_PIVOT_WALL_LEFT",
+	"BASIC_TRAVERSE_PIVOT_WALL_RIGHT",
+	"BASIC_TRAVERSE_FOLLOW_WALL_LEFT",
+	"BASIC_TRAVERSE_FOLLOW_WALL_RIGHT",
 };
 
 
@@ -190,6 +199,7 @@ ES_Event RunTraverseBasicSubHSM(ES_Event ThisEvent)
                 break;
                 
             case FL_BUMPER_PRESSED:
+                // If the bumper has been pressed, then pivot to follow the wall
                 nextState = BASIC_TRAVERSE_LEFT_REVERSE;
                 makeTransition = TRUE;
                 ThisEvent.EventType = ES_NO_EVENT;
@@ -342,7 +352,8 @@ ES_Event RunTraverseBasicSubHSM(ES_Event ThisEvent)
                 break;
             }
         break;
-           
+    
+    // ********** WALL ALIGN FOLLOW ********** //
     default: // all unhandled states fall into here
         break;
     } // end switch on Current State
