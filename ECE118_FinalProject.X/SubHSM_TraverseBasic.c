@@ -58,8 +58,11 @@ typedef enum {
     BASIC_TRAVERSE_FOLLOW_WALL_LEFT,
     BASIC_TRAVERSE_FOLLOW_WALL_RIGHT,  
             
-    BASIC_TRAVERSE_REAR_PIVOT_LEFT_OUT,
-    BASIC_TRAVERSE_REAR_PIVOT_RIGHT_OUT,
+    BASIC_TRAVERSE_REVERSE_OUT_RIGHT,
+    BASIC_TRAVERSE_REVERSE_OUT_LEFT,
+            
+    BASIC_TRAVERSE_PIV_ESCAPE_RIGHT,
+    BASIC_TRAVERSE_PIV_ESCAPE_LEFT,
             
     BASIC_TRAVERSE_TANK_EXIT,
             
@@ -81,8 +84,10 @@ static const char *StateNames[] = {
 	"BASIC_TRAVERSE_TANK_RIGHT_WALL",
 	"BASIC_TRAVERSE_FOLLOW_WALL_LEFT",
 	"BASIC_TRAVERSE_FOLLOW_WALL_RIGHT",
-	"BASIC_TRAVERSE_REAR_PIVOT_LEFT_OUT",
-	"BASIC_TRAVERSE_REAR_PIVOT_RIGHT_OUT",
+	"BASIC_TRAVERSE_REVERSE_OUT_RIGHT",
+	"BASIC_TRAVERSE_REVERSE_OUT_LEFT",
+	"BASIC_TRAVERSE_PIV_ESCAPE_RIGHT",
+	"BASIC_TRAVERSE_PIV_ESCAPE_LEFT",
 	"BASIC_TRAVERSE_TANK_EXIT",
 	"BUFFER_STATE",
 };
@@ -130,6 +135,12 @@ static uint8_t MyPriority;
 #define PIVOT_RIGHT_OUTWARD_ML -MOTOR_MAX
 #define PIVOT_RIGHT_OUTWARD_MR 0
 
+#define REVERSE_RIGHT_OUTWARD_ML -1000
+#define REVERSE_RIGHT_OUTWARD_MR -800
+
+#define REVERSE_LEFT_OUTWARD_ML -800
+#define REVERSE_LEFT_OUTWARD_MR -1000
+
 #define WALL_PIVOT_TICK 2000
 
 #define WALL_BIAS_LEFT_ML 950 // Change to 900 if something bad happens
@@ -140,6 +151,16 @@ static uint8_t MyPriority;
 
 #define WALL_REVERSE_TICK 250
 #define WALL_FORWARD_TICK 250
+
+// ********** ESCAPE ********** // 
+#define WALL_PIVOT_WATCHDOG_TMR_TICK 5000 // How long until we change direction to escape the pivot
+#define ESC_LEFT_ML 700
+#define ESC_LEFT_MR 1000
+
+#define ESC_RIGHT_ML 1000
+#define ESC_RIGHT_MR 700
+
+#define WALL_ESC_TICK 1000
 
 // Track time
 uint32_t prev_event_time;
@@ -657,19 +678,19 @@ ES_Event RunTraverseBasicSubHSM(ES_Event ThisEvent)
             // Keep moving left until the front left tape detects(farthest when moving left)
             // When this occurs, attempt to pivot right outwards until rear bumpers are hit
             case FL_TAPE_DETECTED:
-                nextState = BASIC_TRAVERSE_REAR_PIVOT_RIGHT_OUT;
+                nextState = BASIC_TRAVERSE_REVERSE_OUT_LEFT ;
                 makeTransition = TRUE;
                 ThisEvent.EventType = ES_NO_EVENT;
                 break;
                 
             case FLO_BUMPER_PRESSED:
-                nextState = BASIC_TRAVERSE_REAR_PIVOT_RIGHT_OUT;
+                nextState = BASIC_TRAVERSE_REVERSE_OUT_LEFT ;
                 makeTransition = TRUE;
                 ThisEvent.EventType = ES_NO_EVENT;
                 break;
                 
             case FRO_BUMPER_PRESSED:
-                nextState = BASIC_TRAVERSE_REAR_PIVOT_RIGHT_OUT;
+                nextState = BASIC_TRAVERSE_REVERSE_OUT_LEFT ;
                 makeTransition = TRUE;
                 ThisEvent.EventType = ES_NO_EVENT;
                 break;
@@ -713,19 +734,19 @@ ES_Event RunTraverseBasicSubHSM(ES_Event ThisEvent)
             // Keep moving when the front left tape is detected, or any of the obstacle bumpers
             // If no reversal has been made, then perform a reverse, otherwise, continue normal alignment.
             case FR_TAPE_DETECTED:
-                nextState = BASIC_TRAVERSE_REAR_PIVOT_LEFT_OUT;
+                nextState = BASIC_TRAVERSE_REVERSE_OUT_RIGHT ;
                 makeTransition = TRUE;
                 ThisEvent.EventType = ES_NO_EVENT;
                 break;
                 
             case FLO_BUMPER_PRESSED:
-                nextState = BASIC_TRAVERSE_REAR_PIVOT_LEFT_OUT;
+                nextState = BASIC_TRAVERSE_REVERSE_OUT_RIGHT ;
                 makeTransition = TRUE;
                 ThisEvent.EventType = ES_NO_EVENT;
                 break;
                 
             case FRO_BUMPER_PRESSED:
-                nextState = BASIC_TRAVERSE_REAR_PIVOT_LEFT_OUT;
+                nextState = BASIC_TRAVERSE_REVERSE_OUT_RIGHT ;
                 makeTransition = TRUE;
                 ThisEvent.EventType = ES_NO_EVENT;
                 break;
@@ -749,12 +770,17 @@ ES_Event RunTraverseBasicSubHSM(ES_Event ThisEvent)
             }
         break;
         
-    case BASIC_TRAVERSE_REAR_PIVOT_LEFT_OUT:
+    case BASIC_TRAVERSE_REVERSE_OUT_RIGHT:
         switch (ThisEvent.EventType) {
             case ES_ENTRY:
-                // Perform an outward left pivot
+                // Pivot left out occurs when your are travelling right
+                // Reverse gradual turn reverse left. Reverse, but make the left slower.
+                // Perform an outward right pivot
                 Robot_SetLeftMotor(PIVOT_LEFT_OUTWARD_ML);
                 Robot_SetRightMotor(PIVOT_LEFT_OUTWARD_MR);
+                
+                // Initialize a watch dog timer in case pivot fails
+                ES_Timer_InitTimer(SUB_BASIC_TRAVERSE_WATCHDOG_TIMER, WALL_PIVOT_WATCHDOG_TMR_TICK);
                 break;
 
             case ES_EXIT:
@@ -768,6 +794,10 @@ ES_Event RunTraverseBasicSubHSM(ES_Event ThisEvent)
                     nextState = BASIC_TRAVERSE_FORWARD;
                     makeTransition = TRUE;
                     ThisEvent.EventType = ES_NO_EVENT;
+                } else if (ThisEvent.EventParam == SUB_BASIC_TRAVERSE_WATCHDOG_TIMER) {
+                    nextState = BASIC_TRAVERSE_PIV_ESCAPE_RIGHT;
+                    makeTransition = TRUE;
+                    ThisEvent.EventType = ES_NO_EVENT;
                 }
                 break;
             
@@ -778,6 +808,9 @@ ES_Event RunTraverseBasicSubHSM(ES_Event ThisEvent)
                 Robot_SetRightMotor(WALL_BIAS_RIGHT_MR);
                 
                 ES_Timer_InitTimer(SUB_BASIC_TRAVERSE_TURN_TIMER, WALL_FORWARD_TICK);
+                
+                // Stop the watchdog, as pivot has already been performed
+                ES_Timer_StopTimer(SUB_BASIC_TRAVERSE_WATCHDOG_TIMER);
                 break;
 
             case ES_NO_EVENT:
@@ -786,12 +819,15 @@ ES_Event RunTraverseBasicSubHSM(ES_Event ThisEvent)
             }
         break;
         
-    case BASIC_TRAVERSE_REAR_PIVOT_RIGHT_OUT:
+    case BASIC_TRAVERSE_REVERSE_OUT_LEFT:
         switch (ThisEvent.EventType) {
             case ES_ENTRY:
-                // Perform an outward right pivot
+                // Perform an outward right pivot when traversing in the left direction.
                 Robot_SetLeftMotor(PIVOT_RIGHT_OUTWARD_ML);
                 Robot_SetRightMotor(PIVOT_RIGHT_OUTWARD_MR);
+                
+                // Initialize a watch dog timer in case pivot fails
+                ES_Timer_InitTimer(SUB_BASIC_TRAVERSE_WATCHDOG_TIMER, WALL_PIVOT_WATCHDOG_TMR_TICK);
                 break;
 
             case ES_EXIT:
@@ -800,6 +836,10 @@ ES_Event RunTraverseBasicSubHSM(ES_Event ThisEvent)
             case ES_TIMEOUT:
                 if (ThisEvent.EventParam == SUB_BASIC_TRAVERSE_TURN_TIMER) {
                     nextState = BASIC_TRAVERSE_TANK_LEFT_WALL;
+                    makeTransition = TRUE;
+                    ThisEvent.EventType = ES_NO_EVENT;
+                } else if (ThisEvent.EventParam == SUB_BASIC_TRAVERSE_WATCHDOG_TIMER) {
+                    nextState = BASIC_TRAVERSE_PIV_ESCAPE_LEFT;
                     makeTransition = TRUE;
                     ThisEvent.EventType = ES_NO_EVENT;
                 }
@@ -814,6 +854,71 @@ ES_Event RunTraverseBasicSubHSM(ES_Event ThisEvent)
                 ES_Timer_InitTimer(SUB_BASIC_TRAVERSE_TURN_TIMER, WALL_FORWARD_TICK);
                 break;
                 
+            case ES_NO_EVENT:
+            default:
+                break;
+            }
+        break;
+    
+    case BASIC_TRAVERSE_PIV_ESCAPE_RIGHT:
+        switch (ThisEvent.EventType) {
+            case ES_ENTRY:
+                printf("You were traversing right and pivotting right, you got stuck. escape. \r\n");
+                // You are traversing right, so you attempted to pivot left outwards. You have failed do so.
+                // Attempt to move forward and turn right to escape, move in a gradual hard right
+                Robot_SetLeftMotor(ESC_RIGHT_ML);
+                Robot_SetRightMotor(ESC_RIGHT_MR);
+                
+                // Initialize a timer to stop moving after sometime. When moving right, after escape, go back to normal traversal.
+                ES_Timer_InitTimer(SUB_BASIC_TRAVERSE_TURN_TIMER, WALL_ESC_TICK);
+                break;
+
+            case ES_EXIT:
+                break;
+
+            case ES_TIMEOUT:
+                // After timeout, go back to normal traversal
+                if (ThisEvent.EventParam == SUB_BASIC_TRAVERSE_TURN_TIMER) {
+                    nextState = BASIC_TRAVERSE_FORWARD;
+                    makeTransition = TRUE;
+                    ThisEvent.EventType = ES_NO_EVENT;
+                }
+                break;
+            
+            // Put all detection events over here
+
+            case ES_NO_EVENT:
+            default:
+                break;
+            }
+        break;
+        
+    case BASIC_TRAVERSE_PIV_ESCAPE_LEFT:
+        switch (ThisEvent.EventType) {
+            case ES_ENTRY:
+                printf("You were traversing left and pivotting left, you got stuck. escape. \r\n");
+                // Attempt to perform a hard left to escape
+                Robot_SetLeftMotor(ESC_LEFT_ML);
+                Robot_SetRightMotor(ESC_LEFT_MR);
+                
+                // Attempt escape for a certain time, then assume normality
+                ES_Timer_InitTimer(SUB_BASIC_TRAVERSE_TURN_TIMER, WALL_ESC_TICK);
+                break;
+
+            case ES_EXIT:
+                break;
+
+            case ES_TIMEOUT:
+                // After timeout, assume escape and attempt to follow the wall right
+                if (ThisEvent.EventParam == SUB_BASIC_TRAVERSE_TURN_TIMER) {
+                    nextState = BASIC_TRAVERSE_FOLLOW_WALL_RIGHT;
+                    makeTransition = TRUE;
+                    ThisEvent.EventType = ES_NO_EVENT;
+                }
+                break;
+            
+            // Put all detection events over here
+
             case ES_NO_EVENT:
             default:
                 break;
@@ -906,7 +1011,7 @@ ES_Event RunTraverseBasicSubHSM(ES_Event ThisEvent)
  ******************************************************************************/
 void CalcTurnAngle(int time_elasped) {
     // Calculate angle based on elasped time
-    int raw_angle =  (MAX_TURN_DEG / MAX_TIME_SEC) * TRAV_MIN(MAX_TIME_SEC, time_elasped/500); // Remove if worse performance
+    int raw_angle =  (MAX_TURN_DEG / MAX_TIME_SEC) * TRAV_MIN(MAX_TIME_SEC, time_elasped); // Remove if worse performance
     int true_angle = TRAV_MAX(MIN_TURN_DEG, raw_angle);
     
     // Convert angle to time

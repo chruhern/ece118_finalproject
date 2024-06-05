@@ -40,6 +40,7 @@
 
 #include "SubHSM_TestHarness.h"
 
+#include <stdio.h>
 #include "Robot.h"
 /*******************************************************************************
  * PRIVATE #DEFINES                                                            *
@@ -178,22 +179,33 @@ ES_Event RunTemplateHSM(ES_Event ThisEvent)
         //state machine does
         ThisEvent = RunAlignSubHSM(ThisEvent);
         switch (ThisEvent.EventType) {
-        
-        case ES_ENTRY:
-            // Deactivate the servo, enable propeller mode (as a test)
-            //Robot_SetPropllerMode(PROPELLER_COLLECT, 400);
-            Robot_SetServoEnabled(D_SERVO_ACTIVE);
-            break;
+            case ES_ENTRY:
+                printf("In the sub align state now... \r\n");
+                Robot_SetServoEnabled(D_SERVO_ACTIVE);
+
+                // Start Propeller
+                Robot_SetPropllerMode(PROPELLER_COLLECT, 500);
+                break;
+
+            case ES_EXIT:
+                break;
+
+            case ES_TIMEOUT:
+                if (ThisEvent.EventParam == GLOBAL_TIMER) {
+                    // Transition to the traversal
+                    ES_Timer_StopTimer(GLOBAL_TIMER);
+                    nextState = SubTraverseBasic;
+                    makeTransition = TRUE;
+                    ThisEvent.EventType = ES_NO_EVENT;
+                }
+                break;
             
-        // Events here
-        // When the trap door has been located, transition to the search state
-        case TRAP_DOOR_LOCATED:
-            break;
-            
-        case ES_NO_EVENT:
-        default:
-            break;
-        }
+            // Put all detection events over here
+
+            case ES_NO_EVENT:
+            default:
+                break;
+            }
         break;
         
     case SubSearch:
@@ -209,11 +221,12 @@ ES_Event RunTemplateHSM(ES_Event ThisEvent)
         ThisEvent = RunTraverseBasicSubHSM(ThisEvent);
         switch (ThisEvent.EventType) {
             case ES_ENTRY:
+                printf("In the traversal basic. \r\n");
                 // Start a timer SUB_HARNESS_TEST_TIMER
-                ES_Timer_InitTimer(SUB_HARNESS_TEST_TIMER, 100000);
+                ES_Timer_InitTimer(SUB_HARNESS_TEST_TIMER, 10000); // 100000
                 
                 // Start Propeller
-                //Robot_SetPropllerMode(PROPELLER_COLLECT, 400);
+                Robot_SetPropllerMode(PROPELLER_COLLECT, 0);
                 break;
 
             case ES_EXIT:
@@ -225,7 +238,7 @@ ES_Event RunTemplateHSM(ES_Event ThisEvent)
 //                    Robot_SetLeftMotor(0);
 //                    Robot_SetRightMotor(0);
                     //
-                    Robot_SetPropllerMode(PROPELLER_COLLECT, 400);
+                    //Robot_SetPropllerMode(PROPELLER_COLLECT, 500);
                     nextState = SubAlign;
                     makeTransition = TRUE;
                     ThisEvent.EventType = ES_NO_EVENT;

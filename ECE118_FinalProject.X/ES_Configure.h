@@ -164,9 +164,9 @@ static const char *EventNames[] = {
 #define TIMER4_RESP_FUNC PostTemplateHSM
 #define TIMER5_RESP_FUNC PostTemplateHSM
 #define TIMER6_RESP_FUNC PostTemplateHSM
-#define TIMER7_RESP_FUNC TIMER_UNUSED
-#define TIMER8_RESP_FUNC TIMER_UNUSED
-#define TIMER9_RESP_FUNC TIMER_UNUSED
+#define TIMER7_RESP_FUNC PostTemplateHSM
+#define TIMER8_RESP_FUNC PostTemplateHSM
+#define TIMER9_RESP_FUNC PostTemplateHSM
 #define TIMER10_RESP_FUNC TIMER_UNUSED
 #define TIMER11_RESP_FUNC TIMER_UNUSED
 #define TIMER12_RESP_FUNC TIMER_UNUSED
@@ -191,6 +191,11 @@ static const char *EventNames[] = {
 #define SUB_SEARCH_FORWARD_INC_TIMER 5
 
 #define SUB_BASIC_TRAVERSE_TURN_TIMER 6
+#define SUB_BASIC_TRAVERSE_WATCHDOG_TIMER 7
+
+#define BUFFER_TIMER 8 
+
+#define GLOBAL_TIMER 9
 //#define GENERIC_NAMED_TIMER 0 /*make sure this is enabled above and posting to the correct state machine*/
 
 

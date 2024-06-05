@@ -256,17 +256,17 @@ char Robot_SetPropllerMode(int propellerMode, int pwm) {
     if (propellerMode == PROPELLER_RELEASE) {
         PROPELLER_MOTOR_INA = 1;
         PROPELLER_MOTOR_INB = 0;
-        printf("Setting to collection mode. \r\n");
+        //printf("Setting to collection mode. \r\n");
     } else {
         PROPELLER_MOTOR_INA = 0;
         PROPELLER_MOTOR_INB = 1;
-        printf("Setting to release mode. \r\n");
+        //printf("Setting to release mode. \r\n");
     }
     
     // Set the pwm
     char motor_status = PWM_SetDutyCycle(PROPELLER_MOTOR_EN, pwm);
     if (motor_status == SUCCESS) {
-        printf("Setting the propeller... \r\n");
+        //printf("Setting the propeller... \r\n");
         return SUCCESS;
     } else {
         printf("Failed to set propeller... \r\n");

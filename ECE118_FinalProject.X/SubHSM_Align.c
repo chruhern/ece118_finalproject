@@ -184,6 +184,8 @@ int source_state = InitPSubState; // This could cause problems. But this is mean
 #define GRADUAL_TURN_FACTOR_R 600
 
 #define TRAVERSE_RIGHT_180_REVERSE_TICK 250
+
+#define ALIGN_BUFFER_TICKS 1000
 /*******************************************************************************
  * PUBLIC FUNCTIONS                                                            *
  ******************************************************************************/
@@ -264,6 +266,13 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
             case ES_TIMEOUT:
                 // After timeout, resume to the avoid forward state
                 if (ThisEvent.EventParam == SUB_ALIGN_TURN_TIMER) {
+                    // Stop the robot
+                    Robot_SetLeftMotor(0);
+                    Robot_SetRightMotor(0);
+                    
+                    // Initialize another timer to buffer for a few seconds
+                    ES_Timer_InitTimer(BUFFER_TIMER, ALIGN_BUFFER_TICKS);
+                } else if (ThisEvent.EventParam == BUFFER_TIMER) {
                     nextState = AVOID_FORWARD;
                     makeTransition = TRUE;
                     ThisEvent.EventType = ES_NO_EVENT; 
@@ -1347,6 +1356,7 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
     case BOT_ALIGNED:
         switch (ThisEvent.EventType) {
             case ES_ENTRY:
+                printf("Aligned? \r\n");
                 // Stop the robot
                 Robot_SetLeftMotor(0);
                 Robot_SetRightMotor(0);
@@ -1355,7 +1365,7 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
                 Robot_SetPropllerMode(PROPELLER_RELEASE, 500);
                 
                 // Initialize a timer to brake the robot for a bit
-                ES_Timer_InitTimer(GENERIC_BRAKE_TIMER, BOT_BRAKE_TICKS);
+                ES_Timer_InitTimer(GENERIC_BRAKE_TIMER, 5000);
                 break;
 
             case ES_EXIT:
@@ -1365,7 +1375,17 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
                 // When timed out, make no state transitions, but post an event to move to the next state.
                 // This will not work, it seems like you need a top level event.
                 if (ThisEvent.EventParam == GENERIC_BRAKE_TIMER) {
-                    ThisEvent.EventType = TRAP_DOOR_LOCATED;
+                    printf("Begin retract servo. \r\n");
+                    // Retract the servo
+                    Robot_SetServoEnabled(D_SERVO_ACTIVE);
+                    ES_Timer_StopTimer(GENERIC_BRAKE_TIMER);
+                    
+                    // Begin another timer
+                    ES_Timer_InitTimer(GLOBAL_TIMER, WALL_REVERSE_TICK);
+                    
+                    // Begin reversing the bot
+                    Robot_SetLeftMotor(-MOTOR_MAX);
+                    Robot_SetRightMotor(-MOTOR_MAX);
                 }
                 break;
             
