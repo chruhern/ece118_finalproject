@@ -43,6 +43,7 @@
 typedef enum {
     InitPSubState,
        
+    INIT_REVERSE,
     AVOID_FORWARD,
     AVOID_REVERSE,
     AVOID_TURN_90_LEFT,
@@ -83,6 +84,7 @@ typedef enum {
 
 static const char *StateNames[] = {
 	"InitPSubState",
+	"INIT_REVERSE",
 	"AVOID_FORWARD",
 	"AVOID_REVERSE",
 	"AVOID_TURN_90_LEFT",
@@ -239,12 +241,43 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
             // initial state
 
             // now put the machine into the actual initial state
-            nextState = AVOID_FORWARD; //AVOID_FORWARD;
+            nextState = INIT_REVERSE; //AVOID_FORWARD;
             makeTransition = TRUE;
             ThisEvent.EventType = ES_NO_EVENT;
         }
         break;
     // ******************** AVOIDANCE ******************** //
+    case INIT_REVERSE:
+        switch (ThisEvent.EventType) {
+            case ES_ENTRY:
+                // Reverse the bot
+                Robot_SetLeftMotor(-MOTOR_MAX);
+                Robot_SetRightMotor(-MOTOR_MAX);
+                
+                // Initialize timer to reverse
+                ES_Timer_InitTimer(SUB_ALIGN_TURN_TIMER, TRAVERSE_RIGHT_180_REVERSE_TICK);
+                break;
+
+            case ES_EXIT:
+                break;
+
+            case ES_TIMEOUT:
+                // After timeout, resume to the avoid forward state
+                if (ThisEvent.EventParam == SUB_ALIGN_TURN_TIMER) {
+                    nextState = AVOID_FORWARD;
+                    makeTransition = TRUE;
+                    ThisEvent.EventType = ES_NO_EVENT; 
+                }
+                break;
+            
+            // Put all detection events over here
+
+            case ES_NO_EVENT:
+            default:
+                break;
+            }
+        break;
+        
     case AVOID_FORWARD:
         switch (ThisEvent.EventType) {
             case ES_ENTRY:

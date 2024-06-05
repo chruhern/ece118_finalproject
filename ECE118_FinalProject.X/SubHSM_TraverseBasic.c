@@ -132,7 +132,7 @@ static uint8_t MyPriority;
 
 #define WALL_PIVOT_TICK 2000
 
-#define WALL_BIAS_LEFT_ML 900
+#define WALL_BIAS_LEFT_ML 950 // Change to 900 if something bad happens
 #define WALL_BIAS_LEFT_MR 1000
 
 #define WALL_BIAS_RIGHT_ML 1000
@@ -152,6 +152,13 @@ int alreadyReversed = 0;
 int prevDirection;
 
 int visited_left = 0; // Whether if it has visited the left.
+
+// ***** Wall Tracking ***** //
+#define MIN_HIT_TICKS 2000 // Requirement of time after most recent collision to allow for another wall follow.
+#define HITS_REQ 2 // Hits required to perform a wall follow.
+int total_hits = HITS_REQ;
+int hit_prev = 0; // Time of last hit
+int hit_delta = 0; // Difference between last time hit and current time
 /*******************************************************************************
  * PUBLIC FUNCTIONS                                                            *
  ******************************************************************************/
@@ -230,7 +237,7 @@ ES_Event RunTraverseBasicSubHSM(ES_Event ThisEvent)
                 // When event exits, compute the delta time
                 delta_time = ES_Timer_GetTime() - prev_event_time;
                 
-                // Calculate the turn tick given delta time
+                // Calculate the turn tick given delta time                                      
                 CalcTurnAngle(delta_time);
                 break;
 
@@ -247,8 +254,26 @@ ES_Event RunTraverseBasicSubHSM(ES_Event ThisEvent)
                 break;
                 
             case FL_BUMPER_PRESSED:
-                // If the bumper has been pressed, then pivot to follow the wall
-                nextState = BASIC_TRAVERSE_PIVOT_WALL_LEFT;
+                // If it is the obstacle, perform a right reverse
+                if ((Robot_GetBumperFRO() == BUMPER_RELEASED) && (total_hits >= HITS_REQ)) {
+                    // Compute time difference, if the time is above the tick, then perform pivot, otherwise reverse.
+                    hit_delta = ES_Timer_GetTime() - hit_prev;
+                    if (hit_delta >=  MIN_HIT_TICKS) {
+                        total_hits = 0; // Reset hits
+                        printf("front left wall time. \r\n");
+                        nextState = BASIC_TRAVERSE_PIVOT_WALL_LEFT;
+                    } else {
+                        printf("Left bumper event detected, reversing, not time for wall. \r\n");
+                        nextState = BASIC_TRAVERSE_LEFT_REVERSE;
+                    }
+                    // Reset time:
+                    hit_prev = hit_delta;
+                } else {
+                    // Increment total hits and traverse to reversal state
+                    printf("front left Didn't hit enough for wall. \r\n");
+                    total_hits++;
+                    nextState = BASIC_TRAVERSE_LEFT_REVERSE;
+                }
                 makeTransition = TRUE;
                 ThisEvent.EventType = ES_NO_EVENT;
                 break;
@@ -261,7 +286,26 @@ ES_Event RunTraverseBasicSubHSM(ES_Event ThisEvent)
                 break;
                 
             case FR_BUMPER_PRESSED:
-                nextState = BASIC_TRAVERSE_PIVOT_WALL_RIGHT;
+                // If it is the obstacle, perform a right reverse
+                if ((Robot_GetBumperFRO() == BUMPER_RELEASED) && (total_hits >= HITS_REQ)) {
+                    // Compute time difference, if the time is above the tick, then perform pivot, otherwise reverse.
+                    hit_delta = ES_Timer_GetTime() - hit_prev;
+                    if (hit_delta >=  MIN_HIT_TICKS) {
+                        printf("front right time for wall. \r\n");
+                        total_hits = 0; // Reset hits
+                        nextState = BASIC_TRAVERSE_PIVOT_WALL_RIGHT;
+                    } else {
+                        printf("right bumper event detected, reversing, not time for wall. \r\n");
+                        nextState = BASIC_TRAVERSE_RIGHT_REVERSE;
+                    }
+                    // Reset time:
+                    hit_prev = hit_delta;
+                } else {
+                    // Increment total hits and traverse to reversal state
+                    total_hits++;
+                    printf("front right Didn't hit enough for wall. \r\n");
+                    nextState = BASIC_TRAVERSE_RIGHT_REVERSE;
+                }
                 makeTransition = TRUE;
                 ThisEvent.EventType = ES_NO_EVENT;
                 break;
@@ -284,20 +328,24 @@ ES_Event RunTraverseBasicSubHSM(ES_Event ThisEvent)
                 break;
 
             case ES_TIMEOUT:
+                // After timeout move to the gradual right state
+                if (ThisEvent.EventParam == SUB_BASIC_TRAVERSE_TURN_TIMER) {
+                    nextState = BASIC_TRAVERSE_GRADUAL_RIGHT;
+                    makeTransition = TRUE;
+                    ThisEvent.EventType = ES_NO_EVENT;
+                }
                 break;
             
             // Put all detection events over here
-            // Reverse until the front left bumpers or tape is no longer detected
+            // Reverse until the front left bumpers or tape is no longer detected, then reverse for some time.
+            
             case FL_TAPE_NOT_DETECTED:
-                nextState = BASIC_TRAVERSE_GRADUAL_RIGHT;
-                makeTransition = TRUE;
-                ThisEvent.EventType = ES_NO_EVENT;
+                // Continue reversing
+                ES_Timer_InitTimer(SUB_BASIC_TRAVERSE_TURN_TIMER, WALL_REVERSE_TICK);
                 break;
                 
             case FL_BUMPER_RELEASED:
-                nextState = BASIC_TRAVERSE_GRADUAL_RIGHT;
-                makeTransition = TRUE;
-                ThisEvent.EventType = ES_NO_EVENT;
+                ES_Timer_InitTimer(SUB_BASIC_TRAVERSE_TURN_TIMER, WALL_REVERSE_TICK);
                 break;
 
             case ES_NO_EVENT:
@@ -318,20 +366,22 @@ ES_Event RunTraverseBasicSubHSM(ES_Event ThisEvent)
                 break;
 
             case ES_TIMEOUT:
+                // After timeout move to the gradual right state
+                if (ThisEvent.EventParam == SUB_BASIC_TRAVERSE_TURN_TIMER) {
+                    nextState = BASIC_TRAVERSE_GRADUAL_LEFT;
+                    makeTransition = TRUE;
+                    ThisEvent.EventType = ES_NO_EVENT;
+                }
                 break;
             
             // Put all detection events over here
             // Same as left reverse, except tape detection is for right tape undetection
             case FR_TAPE_NOT_DETECTED:
-                nextState = BASIC_TRAVERSE_GRADUAL_LEFT;
-                makeTransition = TRUE;
-                ThisEvent.EventType = ES_NO_EVENT;
+                ES_Timer_InitTimer(SUB_BASIC_TRAVERSE_TURN_TIMER, WALL_REVERSE_TICK);
                 break;
                 
             case FR_BUMPER_RELEASED:
-                nextState = BASIC_TRAVERSE_GRADUAL_LEFT;
-                makeTransition = TRUE;
-                ThisEvent.EventType = ES_NO_EVENT;
+                ES_Timer_InitTimer(SUB_BASIC_TRAVERSE_TURN_TIMER, WALL_REVERSE_TICK);
                 break;
 
             case ES_NO_EVENT:
@@ -856,7 +906,7 @@ ES_Event RunTraverseBasicSubHSM(ES_Event ThisEvent)
  ******************************************************************************/
 void CalcTurnAngle(int time_elasped) {
     // Calculate angle based on elasped time
-    int raw_angle =  (MAX_TURN_DEG / MAX_TIME_SEC) * TRAV_MIN(MAX_TIME_SEC, time_elasped);
+    int raw_angle =  (MAX_TURN_DEG / MAX_TIME_SEC) * TRAV_MIN(MAX_TIME_SEC, time_elasped/500); // Remove if worse performance
     int true_angle = TRAV_MAX(MIN_TURN_DEG, raw_angle);
     
     // Convert angle to time
