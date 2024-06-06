@@ -223,7 +223,7 @@ ES_Event RunTemplateHSM(ES_Event ThisEvent)
             case ES_ENTRY:
                 printf("In the traversal basic. \r\n");
                 // Start a timer SUB_HARNESS_TEST_TIMER
-                ES_Timer_InitTimer(SUB_HARNESS_TEST_TIMER, 10000); // 100000
+                //ES_Timer_InitTimer(SUB_HARNESS_TEST_TIMER, 10000); // 100000
                 
                 // Start Propeller
                 Robot_SetPropllerMode(PROPELLER_COLLECT, 0);

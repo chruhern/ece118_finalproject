@@ -44,27 +44,29 @@
 typedef enum {
     InitPSubState,
             
-    BASIC_TRAVERSE_FORWARD,
-    BASIC_TRAVERSE_LEFT_REVERSE,
-    BASIC_TRAVERSE_RIGHT_REVERSE,
-    BASIC_TRAVERSE_GRADUAL_RIGHT,
-    BASIC_TRAVERSE_GRADUAL_LEFT,
+    // ***** Wall Alignment ***** //
+    INIT_TRAVERSE_FORWARD,
+    INIT_PIVOT_WALL_LEFT,
+    INIT_PIVOT_WALL_RIGHT,
+    INIT_TRAVERSE_WALL_REVERSE,
+    INIT_TANK_LEFT,
             
-    BASIC_TRAVERSE_PIVOT_WALL_LEFT,
-    BASIC_TRAVERSE_PIVOT_WALL_RIGHT,
-    BASIC_TRAVERSE_WALL_REVERSE,
-    BASIC_TRAVERSE_TANK_LEFT_WALL,
-    BASIC_TRAVERSE_TANK_RIGHT_WALL,
-    BASIC_TRAVERSE_FOLLOW_WALL_LEFT,
-    BASIC_TRAVERSE_FOLLOW_WALL_RIGHT,  
+    // ***** Left Wall Follow ***** //
+    LEFT_FOLLOW_WALL,
+    LEFT_FOLLOW_REVERSE,
+    LEFT_FOLLOW_TURN_TO_TAPE,
+    LEFT_FOLLOW_RIGHT_TANK,
             
-    BASIC_TRAVERSE_REVERSE_OUT_RIGHT,
-    BASIC_TRAVERSE_REVERSE_OUT_LEFT,
-            
-    BASIC_TRAVERSE_PIV_ESCAPE_RIGHT,
-    BASIC_TRAVERSE_PIV_ESCAPE_LEFT,
-            
-    BASIC_TRAVERSE_TANK_EXIT,
+    // ***** Right Wall Follow ***** //
+    RIGHT_FOLLOW_WALL,
+    RIGHT_FOLLOW_REVERSE,
+    RIGHT_FOLLOW_TURN_TO_TAPE,
+    RIGHT_FOLLOW_TANK_LEFT,
+    
+    // ***** Alignment ***** //
+    ALIGN_REVERSE,
+    ALIGN_PIVOT_LEFT_INWARD,
+    ALIGN_DISPENSE,
             
     BUFFER_STATE,
 
@@ -72,23 +74,22 @@ typedef enum {
 
 static const char *StateNames[] = {
 	"InitPSubState",
-	"BASIC_TRAVERSE_FORWARD",
-	"BASIC_TRAVERSE_LEFT_REVERSE",
-	"BASIC_TRAVERSE_RIGHT_REVERSE",
-	"BASIC_TRAVERSE_GRADUAL_RIGHT",
-	"BASIC_TRAVERSE_GRADUAL_LEFT",
-	"BASIC_TRAVERSE_PIVOT_WALL_LEFT",
-	"BASIC_TRAVERSE_PIVOT_WALL_RIGHT",
-	"BASIC_TRAVERSE_WALL_REVERSE",
-	"BASIC_TRAVERSE_TANK_LEFT_WALL",
-	"BASIC_TRAVERSE_TANK_RIGHT_WALL",
-	"BASIC_TRAVERSE_FOLLOW_WALL_LEFT",
-	"BASIC_TRAVERSE_FOLLOW_WALL_RIGHT",
-	"BASIC_TRAVERSE_REVERSE_OUT_RIGHT",
-	"BASIC_TRAVERSE_REVERSE_OUT_LEFT",
-	"BASIC_TRAVERSE_PIV_ESCAPE_RIGHT",
-	"BASIC_TRAVERSE_PIV_ESCAPE_LEFT",
-	"BASIC_TRAVERSE_TANK_EXIT",
+	"INIT_TRAVERSE_FORWARD",
+	"INIT_PIVOT_WALL_LEFT",
+	"INIT_PIVOT_WALL_RIGHT",
+	"INIT_TRAVERSE_WALL_REVERSE",
+	"INIT_TANK_LEFT",
+	"LEFT_FOLLOW_WALL",
+	"LEFT_FOLLOW_REVERSE",
+	"LEFT_FOLLOW_TURN_TO_TAPE",
+	"LEFT_FOLLOW_RIGHT_TANK",
+	"RIGHT_FOLLOW_WALL",
+	"RIGHT_FOLLOW_REVERSE",
+	"RIGHT_FOLLOW_TURN_TO_TAPE",
+	"RIGHT_FOLLOW_TANK_LEFT",
+	"ALIGN_REVERSE",
+	"ALIGN_PIVOT_LEFT_INWARD",
+	"ALIGN_DISPENSE",
 	"BUFFER_STATE",
 };
 
@@ -99,7 +100,6 @@ static const char *StateNames[] = {
  ******************************************************************************/
 /* Prototypes for private functions for this machine. They should be functions
    relevant to the behavior of this state machine */
-void CalcTurnAngle(int time_elasped);
 
 /*******************************************************************************
  * PRIVATE MODULE VARIABLES                                                            *
@@ -110,19 +110,7 @@ void CalcTurnAngle(int time_elasped);
 static TemplateSubHSMState_t CurrentState = InitPSubState; // <- change name to match ENUM
 static uint8_t MyPriority;
 
-#define TB_TANK_LEFT_TICKS 800
-#define TB_TANK_RIGHT_TICKS 800
-
-#define PIVOT_90_LEFT_TICKS 500
-#define PIVOT_90_RIGHT_TICKS 500
-
-#define MAX_TURN_DEG 180
-#define MIN_TURN_DEG 10
-#define MAX_TIME_SEC 10 // Max time to be considered in seconds
-
-#define TRAV_MIN(x, y) (((x) < (y)) ? (x) : (y))
-#define TRAV_MAX(x, y) (((x) > (y)) ? (x) : (y))
-
+// ***** PIVOTING ***** //
 #define PIVOT_LEFT_INWARD_ML 0
 #define PIVOT_LEFT_INWARD_MR MOTOR_MAX
 
@@ -135,51 +123,43 @@ static uint8_t MyPriority;
 #define PIVOT_RIGHT_OUTWARD_ML -MOTOR_MAX
 #define PIVOT_RIGHT_OUTWARD_MR 0
 
-#define REVERSE_RIGHT_OUTWARD_ML -1000
-#define REVERSE_RIGHT_OUTWARD_MR -800
+// ***** INITIAL ALIGN ***** //
+#define INIT_WALL_REVERSE_TICK 200
+#define INIT_TANK_LEFT_TICK 600
 
-#define REVERSE_LEFT_OUTWARD_ML -800
-#define REVERSE_LEFT_OUTWARD_MR -1000
+// ***** LEFT FOLLOW ***** //
+#define LF_BIAS_LEFT_ML 500
+#define LF_BIAS_LEFT_MR 1000
 
-#define WALL_PIVOT_TICK 2000
+#define LF_BIAS_RIGHT_ML 1000
+#define LF_BIAS_RIGHT_MR 700
 
-#define WALL_BIAS_LEFT_ML 950 // Change to 900 if something bad happens
-#define WALL_BIAS_LEFT_MR 1000
+#define LF_REVERSE_TICK 2000
+#define LF_TANK_RIGHT_TICK 1550
 
-#define WALL_BIAS_RIGHT_ML 1000
-#define WALL_BIAS_RIGHT_MR 800
+#define LF_HARD_LEFT_ML 500
+#define LF_HARD_LEFT_MR 1000
 
-#define WALL_REVERSE_TICK 250
-#define WALL_FORWARD_TICK 250
+// ***** RIGHT FOLLOW ***** //
+#define RF_BIAS_LEFT_ML 850
+#define RF_BIAS_LEFT_MR 1000
 
-// ********** ESCAPE ********** // 
-#define WALL_PIVOT_WATCHDOG_TMR_TICK 5000 // How long until we change direction to escape the pivot
-#define ESC_LEFT_ML 700
-#define ESC_LEFT_MR 1000
+#define RF_BIAS_RIGHT_ML 1000
+#define RF_BIAS_RIGHT_MR 500
 
-#define ESC_RIGHT_ML 1000
-#define ESC_RIGHT_MR 700
+#define RF_REVERSE_TICK 2000
+#define RF_TANK_LEFT_TICK 1550
 
-#define WALL_ESC_TICK 1000
+#define RF_HARD_RIGHT_ML 1000
+#define RF_HARD_RIGHT_MR 500
 
-// Track time
-uint32_t prev_event_time;
-uint32_t delta_time;
-uint32_t turn_ticks = 1000; // How how much to turn in ticks
+// ******** DISPENSAL ********** //
+#define DISPENSE_REVERSE_TICK 500
+#define DISPENSAL_TICK 5000
+#define PASS_TO_DISPENSE 3
+int total_passes = 0;
 
-#define PREV_LEFT 0
-#define PREV_RIGHT 1
-int alreadyReversed = 0;
-int prevDirection;
-
-int visited_left = 0; // Whether if it has visited the left.
-
-// ***** Wall Tracking ***** //
-#define MIN_HIT_TICKS 2000 // Requirement of time after most recent collision to allow for another wall follow.
-#define HITS_REQ 2 // Hits required to perform a wall follow.
-int total_hits = HITS_REQ;
-int hit_prev = 0; // Time of last hit
-int hit_delta = 0; // Difference between last time hit and current time
+int angle_tick_drift = 0;
 /*******************************************************************************
  * PUBLIC FUNCTIONS                                                            *
  ******************************************************************************/
@@ -237,137 +217,42 @@ ES_Event RunTraverseBasicSubHSM(ES_Event ThisEvent)
             // initial state
 
             // now put the machine into the actual initial state
-            nextState = BASIC_TRAVERSE_FORWARD;
+            nextState = INIT_TRAVERSE_FORWARD;
             makeTransition = TRUE;
             ThisEvent.EventType = ES_NO_EVENT;
         }
         break;
-        
-    case BASIC_TRAVERSE_FORWARD:
+    
+    // ********** INITIAL ALIGNMENT WITH WALL ********** //
+    case INIT_TRAVERSE_FORWARD:
         switch (ThisEvent.EventType) {
             case ES_ENTRY:
-                // Move the robot forward (whether if it is straight or not doesn't matter)
+                printf("INIT_FORWARD \r\n");
+                
+                // Move forward until either front left or bumper bumpers have been touched. Assume it is facing wall at start.
                 Robot_SetLeftMotor(MOTOR_MAX);
                 Robot_SetRightMotor(MOTOR_MAX);
-                
-                // Track the time
-                prev_event_time = ES_Timer_GetTime();
                 break;
 
             case ES_EXIT:
-                // When event exits, compute the delta time
-                delta_time = ES_Timer_GetTime() - prev_event_time;
-                
-                // Calculate the turn tick given delta time                                      
-                CalcTurnAngle(delta_time);
                 break;
 
             case ES_TIMEOUT:
                 break;
             
             // Put all detection events over here
-            // Add detection events for front left tape and bumpers, and front right tape and bumpers.
-            // ********** Left Traversals ********** //
-            case FL_TAPE_DETECTED:
-                nextState = BASIC_TRAVERSE_LEFT_REVERSE;
-                makeTransition = TRUE;
-                ThisEvent.EventType = ES_NO_EVENT;
-                break;
-                
+            // When front left or right bumper has been triggered, align based on direction.
             case FL_BUMPER_PRESSED:
-                // If it is the obstacle, perform a right reverse
-                if ((Robot_GetBumperFRO() == BUMPER_RELEASED) && (total_hits >= HITS_REQ)) {
-                    // Compute time difference, if the time is above the tick, then perform pivot, otherwise reverse.
-                    hit_delta = ES_Timer_GetTime() - hit_prev;
-                    if (hit_delta >=  MIN_HIT_TICKS) {
-                        total_hits = 0; // Reset hits
-                        printf("front left wall time. \r\n");
-                        nextState = BASIC_TRAVERSE_PIVOT_WALL_LEFT;
-                    } else {
-                        printf("Left bumper event detected, reversing, not time for wall. \r\n");
-                        nextState = BASIC_TRAVERSE_LEFT_REVERSE;
-                    }
-                    // Reset time:
-                    hit_prev = hit_delta;
-                } else {
-                    // Increment total hits and traverse to reversal state
-                    printf("front left Didn't hit enough for wall. \r\n");
-                    total_hits++;
-                    nextState = BASIC_TRAVERSE_LEFT_REVERSE;
-                }
-                makeTransition = TRUE;
-                ThisEvent.EventType = ES_NO_EVENT;
-                break;
-                
-            // ********** Right Traversals ********** //
-            case FR_TAPE_DETECTED:
-                nextState = BASIC_TRAVERSE_RIGHT_REVERSE;
+                nextState = INIT_PIVOT_WALL_LEFT;
                 makeTransition = TRUE;
                 ThisEvent.EventType = ES_NO_EVENT;
                 break;
                 
             case FR_BUMPER_PRESSED:
-                // If it is the obstacle, perform a right reverse
-                if ((Robot_GetBumperFRO() == BUMPER_RELEASED) && (total_hits >= HITS_REQ)) {
-                    // Compute time difference, if the time is above the tick, then perform pivot, otherwise reverse.
-                    hit_delta = ES_Timer_GetTime() - hit_prev;
-                    if (hit_delta >=  MIN_HIT_TICKS) {
-                        printf("front right time for wall. \r\n");
-                        total_hits = 0; // Reset hits
-                        nextState = BASIC_TRAVERSE_PIVOT_WALL_RIGHT;
-                    } else {
-                        printf("right bumper event detected, reversing, not time for wall. \r\n");
-                        nextState = BASIC_TRAVERSE_RIGHT_REVERSE;
-                    }
-                    // Reset time:
-                    hit_prev = hit_delta;
-                } else {
-                    // Increment total hits and traverse to reversal state
-                    total_hits++;
-                    printf("front right Didn't hit enough for wall. \r\n");
-                    nextState = BASIC_TRAVERSE_RIGHT_REVERSE;
-                }
+                nextState = INIT_PIVOT_WALL_RIGHT;
                 makeTransition = TRUE;
                 ThisEvent.EventType = ES_NO_EVENT;
                 break;
-                
-            case ES_NO_EVENT:
-            default:
-                break;
-            }
-        break;
-        
-    case BASIC_TRAVERSE_LEFT_REVERSE:
-        switch (ThisEvent.EventType) {
-            case ES_ENTRY:
-                // Reverse the robot
-                Robot_SetLeftMotor(-MOTOR_MAX);
-                Robot_SetRightMotor(-MOTOR_MAX);
-                break;
-
-            case ES_EXIT:
-                break;
-
-            case ES_TIMEOUT:
-                // After timeout move to the gradual right state
-                if (ThisEvent.EventParam == SUB_BASIC_TRAVERSE_TURN_TIMER) {
-                    nextState = BASIC_TRAVERSE_GRADUAL_RIGHT;
-                    makeTransition = TRUE;
-                    ThisEvent.EventType = ES_NO_EVENT;
-                }
-                break;
-            
-            // Put all detection events over here
-            // Reverse until the front left bumpers or tape is no longer detected, then reverse for some time.
-            
-            case FL_TAPE_NOT_DETECTED:
-                // Continue reversing
-                ES_Timer_InitTimer(SUB_BASIC_TRAVERSE_TURN_TIMER, WALL_REVERSE_TICK);
-                break;
-                
-            case FL_BUMPER_RELEASED:
-                ES_Timer_InitTimer(SUB_BASIC_TRAVERSE_TURN_TIMER, WALL_REVERSE_TICK);
-                break;
 
             case ES_NO_EVENT:
             default:
@@ -375,134 +260,25 @@ ES_Event RunTraverseBasicSubHSM(ES_Event ThisEvent)
             }
         break;
         
-    case BASIC_TRAVERSE_RIGHT_REVERSE:
+    case INIT_PIVOT_WALL_LEFT:
         switch (ThisEvent.EventType) {
             case ES_ENTRY:
-                // Reverse the robot
-                Robot_SetLeftMotor(-MOTOR_MAX);
-                Robot_SetRightMotor(-MOTOR_MAX);
-                break;
-
-            case ES_EXIT:
-                break;
-
-            case ES_TIMEOUT:
-                // After timeout move to the gradual right state
-                if (ThisEvent.EventParam == SUB_BASIC_TRAVERSE_TURN_TIMER) {
-                    nextState = BASIC_TRAVERSE_GRADUAL_LEFT;
-                    makeTransition = TRUE;
-                    ThisEvent.EventType = ES_NO_EVENT;
-                }
-                break;
-            
-            // Put all detection events over here
-            // Same as left reverse, except tape detection is for right tape undetection
-            case FR_TAPE_NOT_DETECTED:
-                ES_Timer_InitTimer(SUB_BASIC_TRAVERSE_TURN_TIMER, WALL_REVERSE_TICK);
-                break;
-                
-            case FR_BUMPER_RELEASED:
-                ES_Timer_InitTimer(SUB_BASIC_TRAVERSE_TURN_TIMER, WALL_REVERSE_TICK);
-                break;
-
-            case ES_NO_EVENT:
-            default:
-                break;
-            }
-        break;
-        
-    case BASIC_TRAVERSE_GRADUAL_RIGHT:
-        switch (ThisEvent.EventType) {
-            case ES_ENTRY:
-                // Perform a right tank turn
-                Robot_SetLeftMotor(MOTOR_MAX);
-                Robot_SetRightMotor(-MOTOR_MAX);
-                
-                // Initialize timer
-                ES_Timer_InitTimer(SUB_BASIC_TRAVERSE_TURN_TIMER, turn_ticks);
-                break;
-
-            case ES_EXIT:
-                break;
-
-            case ES_TIMEOUT:
-                // When timer has timed out, transition back to the forward state
-                if (ThisEvent.EventParam == SUB_BASIC_TRAVERSE_TURN_TIMER) {
-                    nextState = BASIC_TRAVERSE_FORWARD;
-                    makeTransition = TRUE;
-                    ThisEvent.EventType = ES_NO_EVENT;
-                };
-                break;
-            
-            // Put all detection events over here
-
-            case ES_NO_EVENT:
-            default:
-                break;
-            }
-        break;
-        
-    case BASIC_TRAVERSE_GRADUAL_LEFT:
-        switch (ThisEvent.EventType) {
-            case ES_ENTRY:
-                // Perform a left tank turn
-                Robot_SetLeftMotor(-MOTOR_MAX);
-                Robot_SetRightMotor(MOTOR_MAX);
-                
-                ES_Timer_InitTimer(SUB_BASIC_TRAVERSE_TURN_TIMER, turn_ticks);
-                break;
-
-            case ES_EXIT:
-                break;
-
-            case ES_TIMEOUT:
-                // When timer has timed out, transition back to the forward state
-                if (ThisEvent.EventParam == SUB_BASIC_TRAVERSE_TURN_TIMER) {
-                    nextState = BASIC_TRAVERSE_FORWARD;
-                    makeTransition = TRUE;
-                    ThisEvent.EventType = ES_NO_EVENT;
-                };
-                break;
-            
-            // Put all detection events over here
-
-            case ES_NO_EVENT:
-            default:
-                break;
-            }
-        break;
-    
-    // ********** WALL ALIGN FOLLOW ********** //
-    case BASIC_TRAVERSE_PIVOT_WALL_LEFT:
-        switch (ThisEvent.EventType) {
-            case ES_ENTRY:
+                printf("INIT_PIVOT_WALL_LEFT \r\n");
                 // If the left bumper hits the wall, then pivot left inward.
                 Robot_SetLeftMotor(PIVOT_LEFT_INWARD_ML);
                 Robot_SetRightMotor(PIVOT_LEFT_INWARD_MR);
-                
-                printf("pivoting left inward. \r\n");
-                
-                // Initialize a timer to turn, because of the lack of rear side bumpers, assume it takes time to align.
-                //ES_Timer_InitTimer(SUB_BASIC_TRAVERSE_TURN_TIMER, WALL_PIVOT_TICK);
                 break;
 
             case ES_EXIT:
                 break;
 
             case ES_TIMEOUT:
-                // After timeout, move right.
-//                if (ThisEvent.EventParam == SUB_BASIC_TRAVERSE_TURN_TIMER) {
-//                    nextState = BASIC_TRAVERSE_FOLLOW_WALL_RIGHT;
-//                    makeTransition = TRUE;
-//                    ThisEvent.EventType = ES_NO_EVENT;
-//                }
                 break;
-            
+
             // Put all detection events over here
             // Pivot until rear left bumper is hit
             case FR_BUMPER_PRESSED:
-                printf("front right bumper pressed. \r\n");
-                nextState = BASIC_TRAVERSE_TANK_LEFT_WALL;//BASIC_TRAVERSE_FOLLOW_WALL_RIGHT;
+                nextState = INIT_TRAVERSE_WALL_REVERSE;
                 makeTransition = TRUE;
                 ThisEvent.EventType = ES_NO_EVENT;
                 break;
@@ -513,36 +289,25 @@ ES_Event RunTraverseBasicSubHSM(ES_Event ThisEvent)
             }
         break;
         
-    case BASIC_TRAVERSE_PIVOT_WALL_RIGHT:
+    case INIT_PIVOT_WALL_RIGHT:
         switch (ThisEvent.EventType) {
             case ES_ENTRY:
+                printf("INIT_PIVOT_WALL_RIGHT \r\n");
                 // If the right bumper hits, pivot right outwards
                 Robot_SetLeftMotor(PIVOT_RIGHT_INWARD_ML);
                 Robot_SetRightMotor(PIVOT_RIGHT_INWARD_MR);
-                
-                printf("pivoting right inward. \r\n");
-                
-                // Initialize a timer to turn, because of the lack of rear side bumpers, assume it takes time to align.
-                //ES_Timer_InitTimer(SUB_BASIC_TRAVERSE_TURN_TIMER, WALL_PIVOT_TICK);
                 break;
 
             case ES_EXIT:
                 break;
 
             case ES_TIMEOUT:
-                // After timeout, move with a left bias to follow the wall.
-//                if (ThisEvent.EventParam == SUB_BASIC_TRAVERSE_TURN_TIMER) {
-//                    nextState = BASIC_TRAVERSE_FOLLOW_WALL_LEFT;
-//                    makeTransition = TRUE;
-//                    ThisEvent.EventType = ES_NO_EVENT;
-//                }
                 break;
             
             // Put all detection events over here
             // When rear right bumper hits, 
             case FL_BUMPER_PRESSED:
-                printf("front left bumper pressed. \r\n");
-                nextState = BASIC_TRAVERSE_TANK_LEFT_WALL;//BASIC_TRAVERSE_FOLLOW_WALL_LEFT;
+                nextState = INIT_TRAVERSE_WALL_REVERSE;
                 makeTransition = TRUE;
                 ThisEvent.EventType = ES_NO_EVENT;
                 break;
@@ -553,65 +318,62 @@ ES_Event RunTraverseBasicSubHSM(ES_Event ThisEvent)
             }
         break;
     
-    case BASIC_TRAVERSE_WALL_REVERSE:
+    case INIT_TRAVERSE_WALL_REVERSE:
         switch (ThisEvent.EventType) {
             case ES_ENTRY:
-                printf("wall reversing. \r\n");
+                printf("INIT_WALL_REVERSE \r\n");
                 // Reverse until bumpers are no longer touched, then initialize a timer to move backwards for some time
                 Robot_SetLeftMotor(-MOTOR_MAX);
                 Robot_SetRightMotor(-MOTOR_MAX);
+                
                 break;
 
             case ES_EXIT:
                 break;
 
             case ES_TIMEOUT:
-                // When timeout, perform a left tank turn to be parallel to the wall.
                 if (ThisEvent.EventParam == SUB_BASIC_TRAVERSE_TURN_TIMER) {
-                    nextState = BASIC_TRAVERSE_TANK_RIGHT_WALL;//BASIC_TRAVERSE_FOLLOW_WALL_LEFT;
+                    nextState = INIT_TANK_LEFT;
                     makeTransition = TRUE;
                     ThisEvent.EventType = ES_NO_EVENT;
                 }
                 break;
             
-            // Put all detection events over here
-            // When either front bumpers are released, initialize a timer to continue backing out
+            // Reverse until either bumpers are released, then initialize a timer to continue reversal
             case FL_BUMPER_RELEASED:
-                ES_Timer_InitTimer(SUB_BASIC_TRAVERSE_TURN_TIMER, WALL_REVERSE_TICK);
+                ES_Timer_InitTimer(SUB_BASIC_TRAVERSE_TURN_TIMER, INIT_WALL_REVERSE_TICK);
                 break;
                 
             case FR_BUMPER_RELEASED:
-                ES_Timer_InitTimer(SUB_BASIC_TRAVERSE_TURN_TIMER, WALL_REVERSE_TICK);
+                ES_Timer_InitTimer(SUB_BASIC_TRAVERSE_TURN_TIMER, INIT_WALL_REVERSE_TICK);
                 break;
-
             case ES_NO_EVENT:
             default:
                 break;
             }
         break;
-     
-    case BASIC_TRAVERSE_TANK_LEFT_WALL:
+        
+    case INIT_TANK_LEFT:
         switch (ThisEvent.EventType) {
             case ES_ENTRY:
-                printf("tanking left. \r\n");
-                // Perform a tank turn left to be as parallel to the wall as possible
+                printf("INIT_TANK_LEFT \r\n");
+                
+                // Perform a left tank turn (undershoot if possible)
                 Robot_SetLeftMotor(-MOTOR_MAX);
                 Robot_SetRightMotor(MOTOR_MAX);
                 
-                ES_Timer_InitTimer(SUB_BASIC_TRAVERSE_TURN_TIMER, TB_TANK_LEFT_TICKS);
+                // Initialize tank based on a timer
+                ES_Timer_InitTimer(SUB_BASIC_TRAVERSE_TURN_TIMER, INIT_TANK_LEFT_TICK);
+                
                 break;
 
             case ES_EXIT:
                 break;
 
             case ES_TIMEOUT:
-                // After timeout, follow the wall to the left.
                 if (ThisEvent.EventParam == SUB_BASIC_TRAVERSE_TURN_TIMER) {
-                    if (visited_left == 1) {
-                        nextState = BASIC_TRAVERSE_FOLLOW_WALL_RIGHT;
-                    } else {
-                        nextState = BASIC_TRAVERSE_FOLLOW_WALL_LEFT;
-                    }
+                    // Continue to left wall follow
+                    nextState = LEFT_FOLLOW_WALL;
                     makeTransition = TRUE;
                     ThisEvent.EventType = ES_NO_EVENT;
                 }
@@ -624,104 +386,97 @@ ES_Event RunTraverseBasicSubHSM(ES_Event ThisEvent)
                 break;
             }
         break;
-
-    case BASIC_TRAVERSE_TANK_RIGHT_WALL:
+    // ********** LEFT WALL FOLLOWING ********** //  
+    case LEFT_FOLLOW_WALL:
         switch (ThisEvent.EventType) {
             case ES_ENTRY:
-                // Tank turn to the right.
-                printf("tanking right. \r\n");
-                Robot_SetLeftMotor(MOTOR_MAX);
-                Robot_SetRightMotor(-MOTOR_MAX);
+                printf("LEFT_FOLLOW_WALL \r\n");
                 
-                ES_Timer_InitTimer(SUB_BASIC_TRAVERSE_TURN_TIMER, TB_TANK_RIGHT_TICKS);
+                // Start with a right bias
+                Robot_SetLeftMotor(LF_BIAS_RIGHT_ML);
+                Robot_SetRightMotor(LF_BIAS_RIGHT_MR);
                 break;
 
             case ES_EXIT:
                 break;
 
             case ES_TIMEOUT:
-                // After timeout, follow the wall to the right.
-                if (ThisEvent.EventParam == SUB_BASIC_TRAVERSE_TURN_TIMER) {
-                    nextState = BASIC_TRAVERSE_FOLLOW_WALL_RIGHT;
-                    makeTransition = TRUE;
-                    ThisEvent.EventType = ES_NO_EVENT;
-                }
                 break;
             
             // Put all detection events over here
-
-            case ES_NO_EVENT:
-            default:
-                break;
-            }
-        break;
-            
-    case BASIC_TRAVERSE_FOLLOW_WALL_LEFT:
-        switch (ThisEvent.EventType) {
-            case ES_ENTRY:
-                // Move forward with a right bias
-                Robot_SetLeftMotor(WALL_BIAS_RIGHT_ML);
-                Robot_SetRightMotor(WALL_BIAS_RIGHT_MR);
-                
-                printf("Attempting left wall follow. \r\n");
-                break;
-
-            case ES_EXIT:
-                // Set left visited to true, as left traversal is finished
-                visited_left = 1;
-                break;
-
-            case ES_TIMEOUT:
-                break;
-            
-            // Put all detection events over here
-            // Keep moving left until the front left tape detects(farthest when moving left)
-            // When this occurs, attempt to pivot right outwards until rear bumpers are hit
-            case FL_TAPE_DETECTED:
-                nextState = BASIC_TRAVERSE_REVERSE_OUT_LEFT ;
-                makeTransition = TRUE;
-                ThisEvent.EventType = ES_NO_EVENT;
-                break;
-                
-            case FLO_BUMPER_PRESSED:
-                nextState = BASIC_TRAVERSE_REVERSE_OUT_LEFT ;
-                makeTransition = TRUE;
-                ThisEvent.EventType = ES_NO_EVENT;
-                break;
-                
-            case FRO_BUMPER_PRESSED:
-                nextState = BASIC_TRAVERSE_REVERSE_OUT_LEFT ;
-                makeTransition = TRUE;
-                ThisEvent.EventType = ES_NO_EVENT;
-                break;
-                
-            // ***** Alignment **** //
+            // When traversing left, depending on if the front right bumper is hit or released, adjust the bias.
             case FR_BUMPER_PRESSED:
-                // Bias to the left
-                Robot_SetLeftMotor(WALL_BIAS_LEFT_ML);
-                Robot_SetRightMotor(WALL_BIAS_LEFT_MR);
+                // Pressed, so bias left
+                Robot_SetLeftMotor(LF_BIAS_LEFT_ML);
+                Robot_SetRightMotor(LF_BIAS_LEFT_MR);
                 break;
                 
             case FR_BUMPER_RELEASED:
-                // Bias to the right
-                Robot_SetLeftMotor(WALL_BIAS_RIGHT_ML);
-                Robot_SetRightMotor(WALL_BIAS_RIGHT_MR);
+                // Released, so bias right
+                Robot_SetLeftMotor(LF_BIAS_RIGHT_ML);
+                Robot_SetRightMotor(LF_BIAS_RIGHT_MR);
                 break;
                 
+            // When the front left tape hits, this indicates it has reached the tape.
+            case FR_TAPE_DETECTED:
+                // Transition out to other state
+                nextState = LEFT_FOLLOW_REVERSE;
+                makeTransition = TRUE;
+                ThisEvent.EventType = ES_NO_EVENT;
+                break;
+                
+            case FL_TAPE_DETECTED:
+               // Stop the motor
+               nextState = LEFT_FOLLOW_REVERSE;
+               makeTransition = TRUE;
+               ThisEvent.EventType = ES_NO_EVENT;
+               break;
+
             case ES_NO_EVENT:
             default:
                 break;
             }
         break;
         
-    case BASIC_TRAVERSE_FOLLOW_WALL_RIGHT:
+    case LEFT_FOLLOW_REVERSE:
         switch (ThisEvent.EventType) {
             case ES_ENTRY:
-                // Move forward, but with a right bias. This is essentially following the wall to the
-                Robot_SetLeftMotor(WALL_BIAS_LEFT_ML);
-                Robot_SetRightMotor(WALL_BIAS_LEFT_MR);
+                printf("LEFT_FOLLOW_REVERSE \r\n");
+                // Reverse with a left bias (since it is against the wall)
+                Robot_SetLeftMotor(-MOTOR_MAX);
+                Robot_SetRightMotor(-MOTOR_MAX/2);
                 
-                printf("Attempting right wall follow. \r\n");
+                // Initialize a timer to reverse
+                ES_Timer_InitTimer(SUB_BASIC_TRAVERSE_TURN_TIMER, LF_REVERSE_TICK);
+                break;
+
+            case ES_EXIT:
+                break;
+
+            case ES_TIMEOUT:
+                if (ThisEvent.EventParam == SUB_BASIC_TRAVERSE_TURN_TIMER) {
+                    // After reversal, perform a hard left.
+                    nextState = LEFT_FOLLOW_TURN_TO_TAPE;
+                    makeTransition = TRUE;
+                    ThisEvent.EventType = ES_NO_EVENT;
+                }
+                break;
+            
+            // Put all detection events over here
+
+            case ES_NO_EVENT:
+            default:
+                break;
+            }
+        break;
+        
+    case LEFT_FOLLOW_TURN_TO_TAPE:
+        switch (ThisEvent.EventType) {
+            case ES_ENTRY:
+                printf("LEFT_FOLLOW_TURN_TO_TAPE \r\n");
+                // Perform a hard left (but not a pivot) until the front left is detected
+                Robot_SetLeftMotor(LF_HARD_LEFT_ML);
+                Robot_SetRightMotor(LF_HARD_LEFT_MR);
                 break;
 
             case ES_EXIT:
@@ -731,37 +486,90 @@ ES_Event RunTraverseBasicSubHSM(ES_Event ThisEvent)
                 break;
             
             // Put all detection events over here
-            // Keep moving when the front left tape is detected, or any of the obstacle bumpers
-            // If no reversal has been made, then perform a reverse, otherwise, continue normal alignment.
+            // When front right tape is detected, perform a tank turn right to reverse directions
             case FR_TAPE_DETECTED:
-                nextState = BASIC_TRAVERSE_REVERSE_OUT_RIGHT ;
+                nextState = LEFT_FOLLOW_RIGHT_TANK;
                 makeTransition = TRUE;
                 ThisEvent.EventType = ES_NO_EVENT;
                 break;
-                
-            case FLO_BUMPER_PRESSED:
-                nextState = BASIC_TRAVERSE_REVERSE_OUT_RIGHT ;
-                makeTransition = TRUE;
-                ThisEvent.EventType = ES_NO_EVENT;
+
+            case ES_NO_EVENT:
+            default:
                 break;
+            }
+        break;
+        
+    case LEFT_FOLLOW_RIGHT_TANK:
+        switch (ThisEvent.EventType) {
+            case ES_ENTRY:
+                printf("LEFT_FOLLOW_RIGHT_TANK \r\n");
+                // Perform a tank right turn based on a timer
+                Robot_SetLeftMotor(MOTOR_MAX);
+                Robot_SetRightMotor(-MOTOR_MAX);
                 
-            case FRO_BUMPER_PRESSED:
-                nextState = BASIC_TRAVERSE_REVERSE_OUT_RIGHT ;
-                makeTransition = TRUE;
-                ThisEvent.EventType = ES_NO_EVENT;
+                // Initialize a timer to tank turn right
+                ES_Timer_InitTimer(SUB_BASIC_TRAVERSE_TURN_TIMER, LF_TANK_RIGHT_TICK + angle_tick_drift);
                 break;
-                
-             // ***** Alignment **** //
+
+            case ES_EXIT:
+                break;
+
+            case ES_TIMEOUT:
+                if (ThisEvent.EventParam == SUB_BASIC_TRAVERSE_TURN_TIMER) {
+                    nextState = RIGHT_FOLLOW_WALL;
+                    makeTransition = TRUE;
+                    ThisEvent.EventType = ES_NO_EVENT;
+                }
+                break;
+            
+            // Put all detection events over here
+
+            case ES_NO_EVENT:
+            default:
+                break;
+            }
+        break;
+        
+    // ********** RIGHT WALL FOLLOWING ********** //  
+    case RIGHT_FOLLOW_WALL:
+        switch (ThisEvent.EventType) {
+            case ES_ENTRY:
+                printf("RIGHT_FOLLOW_WALL \r\n");
+                // Initially bias to the left and use bumper events to determine bias.
+                Robot_SetLeftMotor(RF_BIAS_LEFT_ML);
+                Robot_SetRightMotor(RF_BIAS_LEFT_MR);
+                break;
+
+            case ES_EXIT:
+                break;
+
+            case ES_TIMEOUT:
+                break;
+            
+            // Put all detection events over here
             case FL_BUMPER_PRESSED:
-                // Bias to the left
-                Robot_SetLeftMotor(WALL_BIAS_RIGHT_ML);
-                Robot_SetRightMotor(WALL_BIAS_RIGHT_MR);
+                // Front left pressed, bias right
+                Robot_SetLeftMotor(RF_BIAS_RIGHT_ML);
+                Robot_SetRightMotor(RF_BIAS_RIGHT_MR);
                 break;
                 
             case FL_BUMPER_RELEASED:
-                // Bias to the right
-                Robot_SetLeftMotor(WALL_BIAS_LEFT_ML);
-                Robot_SetRightMotor(WALL_BIAS_LEFT_MR);
+                // Front left released, bias left
+                Robot_SetLeftMotor(RF_BIAS_LEFT_ML);
+                Robot_SetRightMotor(RF_BIAS_LEFT_MR);
+                break;
+                
+            // When either tape events trigger, perform the reversal
+            case FL_TAPE_DETECTED:
+                nextState = RIGHT_FOLLOW_REVERSE;
+                makeTransition = TRUE;
+                ThisEvent.EventType = ES_NO_EVENT;
+                break;
+                
+            case FR_TAPE_DETECTED:
+                nextState = RIGHT_FOLLOW_REVERSE;
+                makeTransition = TRUE;
+                ThisEvent.EventType = ES_NO_EVENT;
                 break;
 
             case ES_NO_EVENT:
@@ -770,47 +578,59 @@ ES_Event RunTraverseBasicSubHSM(ES_Event ThisEvent)
             }
         break;
         
-    case BASIC_TRAVERSE_REVERSE_OUT_RIGHT:
+    case RIGHT_FOLLOW_REVERSE:
         switch (ThisEvent.EventType) {
             case ES_ENTRY:
-                // Pivot left out occurs when your are travelling right
-                // Reverse gradual turn reverse left. Reverse, but make the left slower.
-                // Perform an outward right pivot
-                Robot_SetLeftMotor(PIVOT_LEFT_OUTWARD_ML);
-                Robot_SetRightMotor(PIVOT_LEFT_OUTWARD_MR);
+                printf("RIGHT_FOLLOW_REVERSE \r\n");
+                // Reverse with a right bias (since it is against the wall while in the right traversal)
+                Robot_SetLeftMotor(-MOTOR_MAX/2);
+                Robot_SetRightMotor(-MOTOR_MAX);
                 
-                // Initialize a watch dog timer in case pivot fails
-                ES_Timer_InitTimer(SUB_BASIC_TRAVERSE_WATCHDOG_TIMER, WALL_PIVOT_WATCHDOG_TMR_TICK);
+                // Initialize a timer to reverse
+                ES_Timer_InitTimer(SUB_BASIC_TRAVERSE_TURN_TIMER, RF_REVERSE_TICK);
                 break;
 
             case ES_EXIT:
-                // Set visit left state back to false, as the process has been finished
-                visited_left = 0;
                 break;
 
             case ES_TIMEOUT:
-                // After timeout, begin exit state, go back to the forward state
                 if (ThisEvent.EventParam == SUB_BASIC_TRAVERSE_TURN_TIMER) {
-                    nextState = BASIC_TRAVERSE_FORWARD;
-                    makeTransition = TRUE;
-                    ThisEvent.EventType = ES_NO_EVENT;
-                } else if (ThisEvent.EventParam == SUB_BASIC_TRAVERSE_WATCHDOG_TIMER) {
-                    nextState = BASIC_TRAVERSE_PIV_ESCAPE_RIGHT;
+                    // After reversal, perform a hard left.
+                    nextState = RIGHT_FOLLOW_TURN_TO_TAPE;
                     makeTransition = TRUE;
                     ThisEvent.EventType = ES_NO_EVENT;
                 }
                 break;
             
             // Put all detection events over here
-            case RR_BUMPER_PRESSED:
-                // Initialize a timer to move to the right gradually
-                Robot_SetLeftMotor(WALL_BIAS_RIGHT_ML);
-                Robot_SetRightMotor(WALL_BIAS_RIGHT_MR);
-                
-                ES_Timer_InitTimer(SUB_BASIC_TRAVERSE_TURN_TIMER, WALL_FORWARD_TICK);
-                
-                // Stop the watchdog, as pivot has already been performed
-                ES_Timer_StopTimer(SUB_BASIC_TRAVERSE_WATCHDOG_TIMER);
+
+            case ES_NO_EVENT:
+            default:
+                break;
+            }
+        break;
+        
+    case RIGHT_FOLLOW_TURN_TO_TAPE:
+        switch (ThisEvent.EventType) {
+            case ES_ENTRY:
+                printf("RIGHT_FOLLOW_TURN_TO_TAPE \r\n");
+                // Perform a hard right (since you are traversing in the right direction)
+                Robot_SetLeftMotor(RF_HARD_RIGHT_ML);
+                Robot_SetRightMotor(RF_HARD_RIGHT_MR);
+                break;
+
+            case ES_EXIT:
+                break;
+
+            case ES_TIMEOUT:
+                break;
+            
+            // Put all detection events over here
+            // When front left tape is detected, perform a tank turn left to reverse directions
+            case FL_TAPE_DETECTED:
+                nextState = RIGHT_FOLLOW_TANK_LEFT;
+                makeTransition = TRUE;
+                ThisEvent.EventType = ES_NO_EVENT;
                 break;
 
             case ES_NO_EVENT:
@@ -819,148 +639,33 @@ ES_Event RunTraverseBasicSubHSM(ES_Event ThisEvent)
             }
         break;
         
-    case BASIC_TRAVERSE_REVERSE_OUT_LEFT:
+    case RIGHT_FOLLOW_TANK_LEFT:
         switch (ThisEvent.EventType) {
             case ES_ENTRY:
-                // Perform an outward right pivot when traversing in the left direction.
-                Robot_SetLeftMotor(PIVOT_RIGHT_OUTWARD_ML);
-                Robot_SetRightMotor(PIVOT_RIGHT_OUTWARD_MR);
-                
-                // Initialize a watch dog timer in case pivot fails
-                ES_Timer_InitTimer(SUB_BASIC_TRAVERSE_WATCHDOG_TIMER, WALL_PIVOT_WATCHDOG_TMR_TICK);
-                break;
-
-            case ES_EXIT:
-                break;
-
-            case ES_TIMEOUT:
-                if (ThisEvent.EventParam == SUB_BASIC_TRAVERSE_TURN_TIMER) {
-                    nextState = BASIC_TRAVERSE_TANK_LEFT_WALL;
-                    makeTransition = TRUE;
-                    ThisEvent.EventType = ES_NO_EVENT;
-                } else if (ThisEvent.EventParam == SUB_BASIC_TRAVERSE_WATCHDOG_TIMER) {
-                    nextState = BASIC_TRAVERSE_PIV_ESCAPE_LEFT;
-                    makeTransition = TRUE;
-                    ThisEvent.EventType = ES_NO_EVENT;
-                }
-                break;
-            
-            // Put all detection events over here
-            case RL_BUMPER_PRESSED:
-                // Initialize a timer to move forward for a short time
-                Robot_SetLeftMotor(MOTOR_MAX);
+                printf("RIGHT_FOLLOW_TANK_LEFT \r\n");
+                // Perform a tank left turn based on a timer
+                Robot_SetLeftMotor(-MOTOR_MAX);
                 Robot_SetRightMotor(MOTOR_MAX);
                 
-                ES_Timer_InitTimer(SUB_BASIC_TRAVERSE_TURN_TIMER, WALL_FORWARD_TICK);
-                break;
-                
-            case ES_NO_EVENT:
-            default:
-                break;
-            }
-        break;
-    
-    case BASIC_TRAVERSE_PIV_ESCAPE_RIGHT:
-        switch (ThisEvent.EventType) {
-            case ES_ENTRY:
-                printf("You were traversing right and pivotting right, you got stuck. escape. \r\n");
-                // You are traversing right, so you attempted to pivot left outwards. You have failed do so.
-                // Attempt to move forward and turn right to escape, move in a gradual hard right
-                Robot_SetLeftMotor(ESC_RIGHT_ML);
-                Robot_SetRightMotor(ESC_RIGHT_MR);
-                
-                // Initialize a timer to stop moving after sometime. When moving right, after escape, go back to normal traversal.
-                ES_Timer_InitTimer(SUB_BASIC_TRAVERSE_TURN_TIMER, WALL_ESC_TICK);
+                // Initialize a timer to tank turn right
+                ES_Timer_InitTimer(SUB_BASIC_TRAVERSE_TURN_TIMER, RF_TANK_LEFT_TICK + angle_tick_drift);
                 break;
 
             case ES_EXIT:
                 break;
 
             case ES_TIMEOUT:
-                // After timeout, go back to normal traversal
+                // After timeout, go back to left traversal
                 if (ThisEvent.EventParam == SUB_BASIC_TRAVERSE_TURN_TIMER) {
-                    nextState = BASIC_TRAVERSE_FORWARD;
+                    // Increment the drift value by a small amount? 50
+                    //angle_tick_drift += 75;
+                    nextState = LEFT_FOLLOW_WALL;
                     makeTransition = TRUE;
                     ThisEvent.EventType = ES_NO_EVENT;
                 }
                 break;
             
             // Put all detection events over here
-
-            case ES_NO_EVENT:
-            default:
-                break;
-            }
-        break;
-        
-    case BASIC_TRAVERSE_PIV_ESCAPE_LEFT:
-        switch (ThisEvent.EventType) {
-            case ES_ENTRY:
-                printf("You were traversing left and pivotting left, you got stuck. escape. \r\n");
-                // Attempt to perform a hard left to escape
-                Robot_SetLeftMotor(ESC_LEFT_ML);
-                Robot_SetRightMotor(ESC_LEFT_MR);
-                
-                // Attempt escape for a certain time, then assume normality
-                ES_Timer_InitTimer(SUB_BASIC_TRAVERSE_TURN_TIMER, WALL_ESC_TICK);
-                break;
-
-            case ES_EXIT:
-                break;
-
-            case ES_TIMEOUT:
-                // After timeout, assume escape and attempt to follow the wall right
-                if (ThisEvent.EventParam == SUB_BASIC_TRAVERSE_TURN_TIMER) {
-                    nextState = BASIC_TRAVERSE_FOLLOW_WALL_RIGHT;
-                    makeTransition = TRUE;
-                    ThisEvent.EventType = ES_NO_EVENT;
-                }
-                break;
-            
-            // Put all detection events over here
-
-            case ES_NO_EVENT:
-            default:
-                break;
-            }
-        break;
-        
-    case BASIC_TRAVERSE_TANK_EXIT:
-        switch (ThisEvent.EventType) {
-            case ES_ENTRY:
-                
-                // Depending on what the previous direction of movement was, perform a tank turn of either left or right
-                if (prevDirection == PREV_LEFT) {
-                    // If moving in the left direction, then turn left to exit.
-                    Robot_SetLeftMotor(-MOTOR_MAX);
-                    Robot_SetRightMotor(MOTOR_MAX);
-                } else {
-                    // If moving in the right drection, then tank turn right to exit
-                    Robot_SetLeftMotor(MOTOR_MAX);
-                    Robot_SetRightMotor(-MOTOR_MAX);
-                }
-                
-                break;
-
-            case ES_EXIT:
-                break;
-
-            case ES_TIMEOUT:
-                break;
-            
-            // Put all detection events over here
-            // Keep turning until rear left bumper triggers, then go back to forward traversal
-            case RR_BUMPER_PRESSED:
-                nextState = BASIC_TRAVERSE_FORWARD;
-                makeTransition = TRUE;
-                ThisEvent.EventType = ES_NO_EVENT;
-                break;
-                
-            case RL_BUMPER_PRESSED:
-                nextState = BASIC_TRAVERSE_FORWARD;
-                makeTransition = TRUE;
-                ThisEvent.EventType = ES_NO_EVENT;
-                break;
 
             case ES_NO_EVENT:
             default:
@@ -971,7 +676,9 @@ ES_Event RunTraverseBasicSubHSM(ES_Event ThisEvent)
     case BUFFER_STATE:
         switch (ThisEvent.EventType) {
             case ES_ENTRY:
-                // At this state, just stop the robot from moving.
+                printf("BUFFER_STATE \r\n");
+                
+                // Stop the motor
                 Robot_SetLeftMotor(0);
                 Robot_SetRightMotor(0);
                 break;
@@ -1005,21 +712,3 @@ ES_Event RunTraverseBasicSubHSM(ES_Event ThisEvent)
     return ThisEvent;
 }
 
-
-/*******************************************************************************
- * PRIVATE FUNCTIONS                                                           *
- ******************************************************************************/
-void CalcTurnAngle(int time_elasped) {
-    // Calculate angle based on elasped time
-    int raw_angle =  (MAX_TURN_DEG / MAX_TIME_SEC) * TRAV_MIN(MAX_TIME_SEC, time_elasped); // Remove if worse performance
-    int true_angle = TRAV_MAX(MIN_TURN_DEG, raw_angle);
-    
-    // Convert angle to time
-    float turn_time = ((float)true_angle / 90.0) * (float)PIVOT_90_LEFT_TICKS; // ticks, how long it takes to turn 90 degrees
-    
-    // Convert ticks back to an integer value and set it
-    turn_ticks = (int)turn_time;
-    
-    //printf("The turn ticks is %d. \r\n", turn_ticks);
-    //printf("The time elasped is : %d. \r\n", time_elasped);
-}
