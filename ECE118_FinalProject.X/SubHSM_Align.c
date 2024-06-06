@@ -158,6 +158,7 @@ static uint8_t MyPriority;
 #define WALL_REVERSE_TICK 500
 
 #define LEFT_SERVO_REVERSE_TICK 250
+#define AVOID_REVERSE_TICK 250
 
 // If we have met the wall, then we know that the next tape detection is alignment with the track wire
 #define WALL_MET 1
@@ -364,31 +365,30 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
                 break;
 
             case ES_TIMEOUT:
+                // If the timeout is over, traverse to the avoid turn 90 state
+                if (ThisEvent.EventParam == SUB_ALIGN_TURN_TIMER) {
+                    nextState = AVOID_TURN_90_LEFT;
+                    makeTransition = TRUE;
+                    ThisEvent.EventType = ES_NO_EVENT;
+                }
                 break;
 
             // Put all detection events over here
+            // When obstacle has been bumped, reverse until release, then continue to release a bit more
             case FL_BUMPER_RELEASED:
-                nextState = AVOID_TURN_90_LEFT;
-                makeTransition = TRUE;
-                ThisEvent.EventType = ES_NO_EVENT;
+                ES_Timer_InitTimer(SUB_ALIGN_TURN_TIMER, AVOID_REVERSE_TICK);
                 break;
                 
             case FR_BUMPER_RELEASED:
-                nextState = AVOID_TURN_90_LEFT;
-                makeTransition = TRUE;
-                ThisEvent.EventType = ES_NO_EVENT;
+                ES_Timer_InitTimer(SUB_ALIGN_TURN_TIMER, AVOID_REVERSE_TICK);
                 break;
                 
             case FLO_BUMPER_RELEASED:
-                nextState = AVOID_TURN_90_LEFT;
-                makeTransition = TRUE;
-                ThisEvent.EventType = ES_NO_EVENT;
+                ES_Timer_InitTimer(SUB_ALIGN_TURN_TIMER, AVOID_REVERSE_TICK);
                 break;
                 
             case FRO_BUMPER_RELEASED:
-                nextState = AVOID_TURN_90_LEFT;
-                makeTransition = TRUE;
-                ThisEvent.EventType = ES_NO_EVENT;
+                ES_Timer_InitTimer(SUB_ALIGN_TURN_TIMER, AVOID_REVERSE_TICK);
                 break;
 
             case ES_NO_EVENT:
