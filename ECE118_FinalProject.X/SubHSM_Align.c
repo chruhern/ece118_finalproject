@@ -252,6 +252,7 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
     case INIT_REVERSE:
         switch (ThisEvent.EventType) {
             case ES_ENTRY:
+                printf("INIT_REVERSE \r\n");
                 // Reverse the bot
                 Robot_SetLeftMotor(-MOTOR_MAX);
                 Robot_SetRightMotor(-MOTOR_MAX);
@@ -290,6 +291,7 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
     case AVOID_FORWARD:
         switch (ThisEvent.EventType) {
             case ES_ENTRY:
+                printf("AVOID_FORWARD \r\n");
                 // Move the robot forward
                 Robot_SetLeftMotor(LEFT_FORWARD_MAX);
                 Robot_SetRightMotor(RIGHT_FORWARD_MAX);
@@ -352,6 +354,7 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
     case AVOID_REVERSE:
         switch (ThisEvent.EventType) {
             case ES_ENTRY:
+                printf("AVOID_REVERSE \r\n");
                 // Move the robot backwards
                 Robot_SetLeftMotor(-MOTOR_MAX);
                 Robot_SetRightMotor(-MOTOR_MAX);
@@ -397,6 +400,7 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
     case AVOID_TURN_90_LEFT:
         switch (ThisEvent.EventType) {
             case ES_ENTRY:
+                printf("AVOID_TURN_90_LEFT \r\n");
                 // Perform a left turn to the left
                 Robot_SetLeftMotor(MAX_LEFT_TURN_90_LEFT);
                 Robot_SetRightMotor(MAX_LEFT_TURN_90_RIGHT);
@@ -428,6 +432,7 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
     case AVOID_REAR_GRADUAL_LEFT:
         switch (ThisEvent.EventType) {
             case ES_ENTRY:
+                printf("AVOID_REAR_GRADUAL_LEFT \r\n");
                 //printf("Supposedly going gradual left... \r\n");
                 // Move forward with a gradual left turn for a few seconds
                 Robot_SetLeftMotor(MOTOR_MAX - GRADUAL_TURN_FACTOR_L); // MOTOR_MAX - GRADUAL_TURN_FACTOR_L
@@ -469,6 +474,7 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
     case AVOID_REAR_GRADUAL_RIGHT:
         switch (ThisEvent.EventType) {
             case ES_ENTRY:
+                printf("AVOID_REAR_GRADUAL_RIGHT \r\n");
                 // Move forward in a gradual right for a few seconds
                 Robot_SetLeftMotor(MOTOR_MAX);
                 Robot_SetRightMotor(MOTOR_MAX - GRADUAL_TURN_FACTOR_R);
@@ -510,6 +516,7 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
     case ALIGN_PIVOT_LEFT_INWARD:
         switch (ThisEvent.EventType) {
             case ES_ENTRY:
+                printf("ALIGN_PIVOT_LEFT_INWARD \r\n");
                 // Perform an inward pivot where the left wheel is the center of mass
                 Robot_SetLeftMotor(PIVOT_LEFT_INWARD_ML);
                 Robot_SetRightMotor(PIVOT_LEFT_INWARD_MR);
@@ -539,6 +546,7 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
         switch (ThisEvent.EventType) {
             // change this to a tank turn
             case ES_ENTRY:
+                printf("ALIGN_PIVOT_RIGHT_INWARD \r\n");
                 // Perform an inward pivot where the right wheel is the center point.
                 Robot_SetLeftMotor(PIVOT_RIGHT_INWARD_ML);
                 Robot_SetRightMotor(PIVOT_RIGHT_INWARD_MR);
@@ -567,6 +575,7 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
     case ALIGN_PIVOT_RIGHT_OUTWARD:
         switch (ThisEvent.EventType) {
             case ES_ENTRY:
+                printf("ALIGN_PIVOT_RIGHT_OUTWARD \r\n");
                 Robot_SetLeftMotor(PIVOT_RIGHT_OUTWARD_ML); // PIVOT RIGHT OUTWARD
                 Robot_SetRightMotor(PIVOT_RIGHT_OUTWARD_MR);
                 
@@ -582,7 +591,7 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
             // Pivot until the rear right tape hits, at this point, start moving but with a left drift.
             case RR_TAPE_DETECTED:
                 // Check which direction to bias based on if the front right is detected or not
-                if (isDetectedTapeFR()) {
+                if (isDetectedTapeFR() == 1) {
                     nextState = TRAVERSE_LEFT_FWDL_BIAS;
                 } else {
                     nextState = TRAVERSE_LEFT_FWDR_BIAS;
@@ -619,9 +628,12 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
     case TRAVERSE_LEFT_FWDR_BIAS:
         switch (ThisEvent.EventType) {
             case ES_ENTRY:
+                printf("TRAVERSE_LEFT_FWDR_BIAS \r\n");
                 // Move forward drifting a bit to the right
                 Robot_SetLeftMotor(RIGHT_BIAS_ML); // RIGHT_BIAS_ML
                 Robot_SetRightMotor(RIGHT_BIAS_MR); // RIGHT_BIAS_MR
+                
+                // Initialize a watchdog timer to veer back of no
                 break;
 
             case ES_EXIT:
@@ -688,6 +700,7 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
     case TRAVERSE_LEFT_FWDL_BIAS:
         switch (ThisEvent.EventType) {
             case ES_ENTRY:
+                printf("TRAVERSE_LEFT_FWDL_BIAS \r\n");
                 Robot_SetLeftMotor(LEFT_BIAS_ML);
                 Robot_SetRightMotor(LEFT_BIAS_MR);
                 break;
@@ -754,6 +767,7 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
     case TRAVERSE_LEFT_TANK_LEFT_90_OVER:
         switch (ThisEvent.EventType) {
             case ES_ENTRY:
+                printf("TRAVERSE_LEFT_TANK_LEFT_90_OVER \r\n");
                 // Perform a tank turn left
                 Robot_SetLeftMotor(PIVOT_RIGHT_OUTWARD_ML); // Pivot right outward, bias right
                 Robot_SetRightMotor(PIVOT_RIGHT_OUTWARD_MR);
@@ -795,12 +809,13 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
     case TRAVERSE_LEFT_REVERSE_SERVO:
         switch (ThisEvent.EventType) {
             case ES_ENTRY:
+                printf("TRAVERSE_LEFT_REVERSE_SERVO \r\n");
                 // Reverse the bot for a designated time
                 Robot_SetLeftMotor(-MOTOR_MAX);
                 Robot_SetRightMotor(-MOTOR_MAX);
                 
                 // Enable the servo
-                Robot_SetServoEnabled(D_SERVO_INACTIVE);
+                //Robot_SetServoEnabled(D_SERVO_INACTIVE);
                 
                 // Enable timer
                 ES_Timer_InitTimer(SUB_ALIGN_TURN_TIMER, LEFT_SERVO_REVERSE_TICK);
@@ -847,6 +862,7 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
     case TRAVERSE_LEFT_FORWARD_SERVO:
         switch (ThisEvent.EventType) {
             case ES_ENTRY:
+                printf("TRAVERSE_LEFT_FORWARD_SERVO \r\n");
                 // Move forward, keep going until the front bumper events are active.
                 Robot_SetLeftMotor(MOTOR_MAX);
                 Robot_SetRightMotor(MOTOR_MAX);
@@ -882,6 +898,7 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
     case TRAVERSE_RIGHT_REVERSE:
         switch (ThisEvent.EventType) {
             case ES_ENTRY:
+                printf("TRAVERSE_RIGHT_REVERSE \r\n");
                 // Reverse the robot
                 Robot_SetLeftMotor(-MOTOR_MAX);
                 Robot_SetRightMotor(-MOTOR_MAX);
@@ -920,6 +937,7 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
     case TRAVERSE_RIGHT_TANK_LEFT_180_OVER:
         switch (ThisEvent.EventType) {
             case ES_ENTRY:
+                printf("TRAVERSE_RIGHT_TANK_LEFT_180_OVER \r\n");
                 // Perform a left tank turn
                 Robot_SetLeftMotor(-MOTOR_MAX);
                 Robot_SetRightMotor(MOTOR_MAX);
@@ -948,6 +966,7 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
     case TRAVERSE_RIGHT_TANK_RIGHT_90_OVER:
         switch (ThisEvent.EventType) {
             case ES_ENTRY:
+                printf("TRAVERSE_RIGHT_TANK_RIGHT_90_OVER \r\n");
                 // Perform an left outward pivot.
                 Robot_SetLeftMotor(PIVOT_LEFT_OUTWARD_ML);
                 Robot_SetRightMotor(PIVOT_LEFT_OUTWARD_MR);
@@ -976,6 +995,7 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
     case TRAVERSE_RIGHT_FWDR_BIAS:
         switch (ThisEvent.EventType) {
             case ES_ENTRY:
+                printf("TRAVERSE_RIGHT_FWDR_BIAS \r\n");
                 // Move forward drifting a bit to the right
                 Robot_SetLeftMotor(TR_RIGHT_BIAS_ML);
                 Robot_SetRightMotor(TR_RIGHT_BIAS_MR);
@@ -1024,6 +1044,7 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
     case TRAVERSE_RIGHT_FWDL_BIAS:
         switch (ThisEvent.EventType) {
             case ES_ENTRY:
+                printf("TRAVERSE_RIGHT_FWDL_BIAS \r\n");
                 // Move forward drifting a bit to the right
                 Robot_SetLeftMotor(TR_LEFT_BIAS_ML);
                 Robot_SetRightMotor(TR_LEFT_BIAS_MR);
@@ -1072,6 +1093,7 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
     case TRAVERSE_RIGHT_REVERSE_WALL:
         switch (ThisEvent.EventType) {
             case ES_ENTRY:
+                printf("TRAVERSE_RIGHT_REVERSE_WALL \r\n");
                 // Reverse the robot
                 Robot_SetLeftMotor(-MOTOR_MAX);
                 Robot_SetRightMotor(-MOTOR_MAX);
@@ -1110,6 +1132,7 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
     case TRAVERSE_RIGHT_TANK_RIGHT_WALL:
         switch (ThisEvent.EventType) {
             case ES_ENTRY:
+                printf("TRAVERSE_RIGHT_TANK_RIGHT_WALL \r\n");
                 // Perform a right tank turn. Pivot with left center of mass might be better?
                 Robot_SetLeftMotor(MOTOR_MAX);
                 Robot_SetRightMotor(-MOTOR_MAX);
@@ -1148,6 +1171,7 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
     case TRAVERSE_RIGHT_FORWARD_WALL:
         switch (ThisEvent.EventType) {
             case ES_ENTRY:
+                printf("TRAVERSE_RIGHT_FORWARD_WALL \r\n");
                 // Move forward as straight as possible. It seems left biased, so lower right pwm
                 Robot_SetLeftMotor(LEFT_FORWARD_MAX);
                 Robot_SetRightMotor(RIGHT_FORWARD_MAX);
@@ -1185,6 +1209,7 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
     case TRAVERSE_RIGHT_PV_LEFT_IN_ALIGN:
         switch (ThisEvent.EventType) {
             case ES_ENTRY:
+                printf("TRAVERSE_RIGHT_PV_LEFT_IN_ALIGN \r\n");
                 Robot_SetLeftMotor(PIVOT_LEFT_INWARD_ML);
                 Robot_SetRightMotor(PIVOT_LEFT_INWARD_MR);
                 break;
@@ -1214,6 +1239,7 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
     case TRAVERSE_RIGHT_PV_RIGHT_IN_ALIGN:
         switch (ThisEvent.EventType) {
             case ES_ENTRY:
+                printf("TRAVERSE_RIGHT_PV_RIGHT_IN_ALIGN \r\n");
                 Robot_SetLeftMotor(PIVOT_RIGHT_INWARD_ML);
                 Robot_SetRightMotor(PIVOT_RIGHT_INWARD_MR);
                 break;
@@ -1242,12 +1268,13 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
     case TRAVERSE_RIGHT_PV_RIGHT_OUT_ALIGN:
         switch (ThisEvent.EventType) {
             case ES_ENTRY:
+                printf("TRAVERSE_RIGHT_PV_RIGHT_OUT_ALIGN \r\n");
                 // Pivot outward
                 Robot_SetLeftMotor(PIVOT_RIGHT_OUTWARD_ML);
                 Robot_SetRightMotor(PIVOT_RIGHT_OUTWARD_MR);
                 
                 // Enable the servo
-                Robot_SetServoEnabled(D_SERVO_INACTIVE);
+                //Robot_SetServoEnabled(D_SERVO_INACTIVE);
                 break;
 
             case ES_EXIT:
@@ -1275,6 +1302,7 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
     case TRAVERSE_RIGHT_WALL_FWDR_BIAS:
         switch (ThisEvent.EventType) {
             case ES_ENTRY:
+                printf("TRAVERSE_RIGHT_WALL_FWDR_BIAS \r\n");
                 // Bias backward to the right
                 Robot_SetLeftMotor(RIGHT_BIAS_ML);
                 Robot_SetRightMotor(RIGHT_BIAS_MR);
@@ -1315,6 +1343,7 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
     case TRAVERSE_RIGHT_WALL_FWDL_BIAS:
         switch (ThisEvent.EventType) {
             case ES_ENTRY:
+                printf("TRAVERSE_RIGHT_WALL_FWDL_BIAS \r\n");
                 // Bias forward to the left
                 Robot_SetLeftMotor(LEFT_BIAS_ML);
                 Robot_SetRightMotor(LEFT_BIAS_MR);
@@ -1356,16 +1385,16 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
     case BOT_ALIGNED:
         switch (ThisEvent.EventType) {
             case ES_ENTRY:
-                printf("Aligned? \r\n");
+                printf("BOT_ALIGNED \r\n");
                 // Stop the robot
                 Robot_SetLeftMotor(0);
                 Robot_SetRightMotor(0);
                 
                 // Enable propeller release
-                Robot_SetPropllerMode(PROPELLER_RELEASE, 500);
+                //Robot_SetPropllerMode(PROPELLER_RELEASE, 500);
                 
                 // Initialize a timer to brake the robot for a bit
-                ES_Timer_InitTimer(GENERIC_BRAKE_TIMER, 5000);
+                ES_Timer_InitTimer(GENERIC_BRAKE_TIMER, 2000);
                 break;
 
             case ES_EXIT:
@@ -1377,7 +1406,7 @@ ES_Event RunAlignSubHSM(ES_Event ThisEvent)
                 if (ThisEvent.EventParam == GENERIC_BRAKE_TIMER) {
                     printf("Begin retract servo. \r\n");
                     // Retract the servo
-                    Robot_SetServoEnabled(D_SERVO_ACTIVE);
+                    //Robot_SetServoEnabled(D_SERVO_ACTIVE);
                     ES_Timer_StopTimer(GENERIC_BRAKE_TIMER);
                     
                     // Begin another timer

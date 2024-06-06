@@ -65,7 +65,9 @@ typedef enum {
     
     // ***** Alignment ***** //
     ALIGN_REVERSE,
-    ALIGN_PIVOT_LEFT_INWARD,
+    ALIGN_TURN_TO_TAPE,
+    ALIGN_REAR_RIGHT_TO_TAPE,
+    ALIGN_FOLLOW_TAPE,
     ALIGN_DISPENSE,
             
     BUFFER_STATE,
@@ -88,7 +90,9 @@ static const char *StateNames[] = {
 	"RIGHT_FOLLOW_TURN_TO_TAPE",
 	"RIGHT_FOLLOW_TANK_LEFT",
 	"ALIGN_REVERSE",
-	"ALIGN_PIVOT_LEFT_INWARD",
+	"ALIGN_TURN_TO_TAPE",
+	"ALIGN_REAR_RIGHT_TO_TAPE",
+	"ALIGN_FOLLOW_TAPE",
 	"ALIGN_DISPENSE",
 	"BUFFER_STATE",
 };
@@ -154,9 +158,12 @@ static uint8_t MyPriority;
 #define RF_HARD_RIGHT_MR 500
 
 // ******** DISPENSAL ********** //
-#define DISPENSE_REVERSE_TICK 500
+#define DISP_VEER_LEFT_ML 900
+#define DISP_VEER_LEFT_MR 1000
+
+#define DISPENSE_REVERSE_TICK 1000
 #define DISPENSAL_TICK 5000
-#define PASS_TO_DISPENSE 3
+#define PASS_TO_DISPENSE 1
 int total_passes = 0;
 
 int angle_tick_drift = 0;
@@ -561,13 +568,27 @@ ES_Event RunTraverseBasicSubHSM(ES_Event ThisEvent)
                 
             // When either tape events trigger, perform the reversal
             case FL_TAPE_DETECTED:
-                nextState = RIGHT_FOLLOW_REVERSE;
+                if (total_passes >= PASS_TO_DISPENSE) {
+                    // Reset total passes
+                    total_passes = 0;
+                    nextState = ALIGN_REVERSE;
+                } else {
+                    total_passes++;
+                    nextState = RIGHT_FOLLOW_REVERSE;
+                }
                 makeTransition = TRUE;
                 ThisEvent.EventType = ES_NO_EVENT;
                 break;
                 
             case FR_TAPE_DETECTED:
-                nextState = RIGHT_FOLLOW_REVERSE;
+                if (total_passes >= PASS_TO_DISPENSE) {
+                     // Reset total passes
+                    total_passes = 0;
+                    nextState = ALIGN_REVERSE;
+                } else {
+                    total_passes++;
+                    nextState = RIGHT_FOLLOW_REVERSE;
+                }
                 makeTransition = TRUE;
                 ThisEvent.EventType = ES_NO_EVENT;
                 break;
@@ -672,7 +693,170 @@ ES_Event RunTraverseBasicSubHSM(ES_Event ThisEvent)
                 break;
             }
         break;
-    
+        
+    // ********** TRACK ALIGNMENT ********** //  
+    case ALIGN_REVERSE:
+        switch (ThisEvent.EventType) {
+            case ES_ENTRY:
+                printf("ALIGN_REVERSE \r\n");
+                // Reverse with a right bias (since it is against the wall while in the right traversal)
+                Robot_SetLeftMotor(-MOTOR_MAX/2);
+                Robot_SetRightMotor(-MOTOR_MAX);
+                
+                // Initialize a timer to reverse
+                ES_Timer_InitTimer(SUB_BASIC_TRAVERSE_TURN_TIMER, DISPENSE_REVERSE_TICK);
+                break;
+
+            case ES_EXIT:
+                break;
+
+            case ES_TIMEOUT:
+                if (ThisEvent.EventParam == SUB_BASIC_TRAVERSE_TURN_TIMER) {
+                    // After reversal, perform a hard left.
+                    nextState = ALIGN_TURN_TO_TAPE;
+                    makeTransition = TRUE;
+                    ThisEvent.EventType = ES_NO_EVENT;
+                }
+                break;
+            
+            // Put all detection events over here
+
+            case ES_NO_EVENT:
+            default:
+                break;
+            }
+        break;
+        
+    case ALIGN_TURN_TO_TAPE:
+        switch (ThisEvent.EventType) {
+            case ES_ENTRY:
+                printf("ALIGN_TURN_TO_TAPE \r\n");
+                // Perform a hard right (since you are traversing in the right direction)
+                Robot_SetLeftMotor(RF_HARD_RIGHT_ML);
+                Robot_SetRightMotor(RF_HARD_RIGHT_MR);
+                break;
+
+            case ES_EXIT:
+                break;
+
+            case ES_TIMEOUT:
+                break;
+            
+            // Put all detection events over here
+            // When front left tape is detected, perform a tank turn left to reverse directions
+            case FL_TAPE_DETECTED:
+                nextState = ALIGN_REAR_RIGHT_TO_TAPE;
+                makeTransition = TRUE;
+                ThisEvent.EventType = ES_NO_EVENT;
+                break;
+
+            case ES_NO_EVENT:
+            default:
+                break;
+            }
+        break;
+        
+    case ALIGN_REAR_RIGHT_TO_TAPE:
+        switch (ThisEvent.EventType) {
+            case ES_ENTRY:
+                printf("ALIGN_REAR_RIGHT_TO_TAPE \r\n");
+                // Perform a tank turn left until rear right tape detector detects
+                Robot_SetLeftMotor(-MOTOR_MAX);
+                Robot_SetRightMotor(MOTOR_MAX);
+                break;
+
+            case ES_EXIT:
+                break;
+
+            case ES_TIMEOUT:
+                break;
+            
+            // Put all detection events over here
+            // When the rear right tape hits, continue forward to the door
+            case RR_TAPE_DETECTED:
+                nextState = ALIGN_FOLLOW_TAPE;
+                makeTransition = TRUE;
+                ThisEvent.EventType = ES_NO_EVENT;
+                break;
+
+            case ES_NO_EVENT:
+            default:
+                break;
+            }
+        break;
+        
+    case ALIGN_FOLLOW_TAPE:
+        switch (ThisEvent.EventType) {
+            case ES_ENTRY:
+                // Stick out the servo and move forward to the tape. Keep moving until bumpers have been triggered.
+                // Veer to the left
+                Robot_SetServoEnabled(D_SERVO_INACTIVE);
+                Robot_SetLeftMotor(DISP_VEER_LEFT_ML);
+                Robot_SetRightMotor(DISP_VEER_LEFT_MR);
+                break;
+
+            case ES_EXIT:
+                break;
+
+            case ES_TIMEOUT:
+                break;
+            
+            // Put all detection events over here
+            // Move until bumpers have been triggered
+            case FL_BUMPER_PRESSED:
+                nextState = ALIGN_DISPENSE;
+                makeTransition = TRUE;
+                ThisEvent.EventType = ES_NO_EVENT;
+                break;
+                
+            case FR_BUMPER_PRESSED:
+                nextState = ALIGN_DISPENSE;
+                makeTransition = TRUE;
+                ThisEvent.EventType = ES_NO_EVENT;
+                break;
+
+            case ES_NO_EVENT:
+            default:
+                break;
+            }
+        break;
+        
+    case ALIGN_DISPENSE:
+        switch (ThisEvent.EventType) {
+            case ES_ENTRY:
+                // Enable the collector
+                Robot_SetPropllerMode(PROPELLER_RELEASE, 500);
+                
+                // Start a countdown timer
+                ES_Timer_InitTimer(SUB_BASIC_TRAVERSE_TURN_TIMER, DISPENSAL_TICK);
+                break;
+
+            case ES_EXIT:
+                break;
+
+            case ES_TIMEOUT:
+                // After timeout, go back to the reverse traverse state (INIT_TRAVERSE_WALL_REVERSE)
+                if (ThisEvent.EventParam == SUB_BASIC_TRAVERSE_TURN_TIMER) {
+                    nextState = INIT_TRAVERSE_WALL_REVERSE;
+                    makeTransition = TRUE;
+                    ThisEvent.EventType = ES_NO_EVENT;
+                    
+                    // Re-enable propeller to be back to collect mode
+                    Robot_SetPropllerMode(PROPELLER_COLLECT, 400);
+                    
+                    // Disable Servo
+                    Robot_SetServoEnabled(D_SERVO_ACTIVE);
+                }
+                break;
+            
+            // Put all detection events over here
+
+            case ES_NO_EVENT:
+            default:
+                break;
+            }
+        break;
+        
     case BUFFER_STATE:
         switch (ThisEvent.EventType) {
             case ES_ENTRY:
