@@ -157,13 +157,13 @@ ES_Event RunTemplateHSM(ES_Event ThisEvent)
             // transition from the initial pseudo-state into the actual
             // initial state
             // Initialize all sub-state machines
-            InitAlignSubHSM();
+            //InitAlignSubHSM();
             //InitSearchSubHSM();
             //InitHarnessSubHSM();
             InitTraverseBasicSubHSM();
             
             // now put the machine into the actual initial state
-            nextState = SubAlign;
+            nextState = SubTraverseBasic;
             makeTransition = TRUE;
             ThisEvent.EventType = ES_NO_EVENT;
             
@@ -173,40 +173,40 @@ ES_Event RunTemplateHSM(ES_Event ThisEvent)
         }
         break;
 
-    case SubAlign: // in the first state, replace this with correct names
-        // run sub-state machine for this state
-        //NOTE: the SubState Machine runs and responds to events before anything in the this
-        //state machine does
-        ThisEvent = RunAlignSubHSM(ThisEvent);
-        switch (ThisEvent.EventType) {
-            case ES_ENTRY:
-                printf("In the sub align state now... \r\n");
-                Robot_SetServoEnabled(D_SERVO_ACTIVE);
-
-                // Start Propeller
-                Robot_SetPropllerMode(PROPELLER_COLLECT, 500);
-                break;
-
-            case ES_EXIT:
-                break;
-
-            case ES_TIMEOUT:
-                if (ThisEvent.EventParam == GLOBAL_TIMER) {
-                    // Transition to the traversal
-                    ES_Timer_StopTimer(GLOBAL_TIMER);
-                    nextState = SubTraverseBasic;
-                    makeTransition = TRUE;
-                    ThisEvent.EventType = ES_NO_EVENT;
-                }
-                break;
-            
-            // Put all detection events over here
-
-            case ES_NO_EVENT:
-            default:
-                break;
-            }
-        break;
+//    case SubAlign: // in the first state, replace this with correct names
+//        // run sub-state machine for this state
+//        //NOTE: the SubState Machine runs and responds to events before anything in the this
+//        //state machine does
+//        ThisEvent = RunAlignSubHSM(ThisEvent);
+//        switch (ThisEvent.EventType) {
+//            case ES_ENTRY:
+//                printf("In the sub align state now... \r\n");
+//                Robot_SetServoEnabled(D_SERVO_ACTIVE);
+//
+//                // Start Propeller
+//                Robot_SetPropllerMode(PROPELLER_COLLECT, 300);
+//                break;
+//
+//            case ES_EXIT:
+//                break;
+//
+//            case ES_TIMEOUT:
+//                if (ThisEvent.EventParam == GLOBAL_TIMER) {
+//                    // Transition to the traversal
+//                    ES_Timer_StopTimer(GLOBAL_TIMER);
+//                    nextState = SubTraverseBasic;
+//                    makeTransition = TRUE;
+//                    ThisEvent.EventType = ES_NO_EVENT;
+//                }
+//                break;
+//            
+//            // Put all detection events over here
+//
+//            case ES_NO_EVENT:
+//            default:
+//                break;
+//            }
+//        break;
         
     case SubSearch:
         ThisEvent = RunSearchSubHSM(ThisEvent);
@@ -226,7 +226,7 @@ ES_Event RunTemplateHSM(ES_Event ThisEvent)
                 //ES_Timer_InitTimer(SUB_HARNESS_TEST_TIMER, 10000); // 100000
                 
                 // Start Propeller
-                Robot_SetPropllerMode(PROPELLER_COLLECT, 500);
+                Robot_SetPropllerMode(PROPELLER_COLLECT, 400);
                 break;
 
             case ES_EXIT:

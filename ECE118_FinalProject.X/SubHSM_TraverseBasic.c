@@ -43,6 +43,12 @@
  ******************************************************************************/
 typedef enum {
     InitPSubState,
+     
+    // ***** Initial Avoidance ***** //
+    AVOID_INIT_REVERSE,
+    AVOID_FORWARD,
+    AVOID_REVERSE,
+    AVOID_TURN_90_LEFT,
             
     // ***** Wall Alignment ***** //
     INIT_TRAVERSE_FORWARD,
@@ -76,6 +82,10 @@ typedef enum {
 
 static const char *StateNames[] = {
 	"InitPSubState",
+	"AVOID_INIT_REVERSE",
+	"AVOID_FORWARD",
+	"AVOID_REVERSE",
+	"AVOID_TURN_90_LEFT",
 	"INIT_TRAVERSE_FORWARD",
 	"INIT_PIVOT_WALL_LEFT",
 	"INIT_PIVOT_WALL_RIGHT",
@@ -127,6 +137,12 @@ static uint8_t MyPriority;
 #define PIVOT_RIGHT_OUTWARD_ML -MOTOR_MAX
 #define PIVOT_RIGHT_OUTWARD_MR 0
 
+// ***** AVOIDANCE ***** //
+#define INIT_REVERSE_TICKS 250
+#define INIT_BUFFER 250
+#define INIT_BACK_OUT_REVERSE_TICK 250
+#define INIT_TURN_90_TICKS 1000
+
 // ***** INITIAL ALIGN ***** //
 #define INIT_WALL_REVERSE_TICK 200
 #define INIT_TANK_LEFT_TICK 600
@@ -158,12 +174,12 @@ static uint8_t MyPriority;
 #define RF_HARD_RIGHT_MR 500
 
 // ******** DISPENSAL ********** //
-#define DISP_VEER_LEFT_ML 900
+#define DISP_VEER_LEFT_ML 750
 #define DISP_VEER_LEFT_MR 1000
 
 #define DISPENSE_REVERSE_TICK 1000
-#define DISPENSAL_TICK 5000
-#define PASS_TO_DISPENSE 1
+#define DISPENSAL_TICK 2000
+#define PASS_TO_DISPENSE 0
 int total_passes = 0;
 
 int angle_tick_drift = 0;
@@ -224,12 +240,211 @@ ES_Event RunTraverseBasicSubHSM(ES_Event ThisEvent)
             // initial state
 
             // now put the machine into the actual initial state
-            nextState = INIT_TRAVERSE_FORWARD;
+            nextState = AVOID_FORWARD;
             makeTransition = TRUE;
             ThisEvent.EventType = ES_NO_EVENT;
         }
         break;
     
+    // ********** AVOIDANCE AND FIND WALL ********** //
+    case AVOID_INIT_REVERSE:
+        switch (ThisEvent.EventType) {
+            case ES_ENTRY:
+                printf("AVOID_INIT_REVERSE \r\n");
+                // Reverse the bot
+                Robot_SetLeftMotor(-MOTOR_MAX);
+                Robot_SetRightMotor(-MOTOR_MAX);
+                
+                // Initialize timer to reverse
+                ES_Timer_InitTimer(SUB_ALIGN_TURN_TIMER, INIT_REVERSE_TICKS);
+                break;
+
+            case ES_EXIT:
+                break;
+
+            case ES_TIMEOUT:
+                // After timeout, resume to the avoid forward state
+                if (ThisEvent.EventParam == SUB_ALIGN_TURN_TIMER) {
+                    // Stop the robot
+                    Robot_SetLeftMotor(0);
+                    Robot_SetRightMotor(0);
+                    
+                    // Initialize another timer to buffer for a few seconds
+                    ES_Timer_InitTimer(BUFFER_TIMER, INIT_BUFFER);
+                } else if (ThisEvent.EventParam == BUFFER_TIMER) {
+                    nextState = AVOID_FORWARD;
+                    makeTransition = TRUE;
+                    ThisEvent.EventType = ES_NO_EVENT; 
+                }
+                break;
+            
+            // Put all detection events over here
+
+            case ES_NO_EVENT:
+            default:
+                break;
+            }
+        break;
+        
+    case AVOID_FORWARD:
+        switch (ThisEvent.EventType) {
+            case ES_ENTRY:
+                printf("AVOID_FORWARD \r\n");
+                // Move the robot forward
+                Robot_SetLeftMotor(MOTOR_MAX);
+                Robot_SetRightMotor(MOTOR_MAX);
+                
+                break;
+
+            case ES_EXIT:
+                break;
+
+            case ES_TIMEOUT:
+                break;
+
+            // Put all detection events over here
+            // If bumped front bumper, and obstacle is hit, ignore, but if it is, do the pivot
+            case FL_BUMPER_PRESSED:
+                printf("Front left bumper touched. \r\n");
+                if (Robot_GetBumperFLO() == BUMPER_RELEASED) {
+                    nextState = INIT_PIVOT_WALL_LEFT;
+                    makeTransition = TRUE;
+                    ThisEvent.EventType = ES_NO_EVENT;
+                }
+                break;
+                
+            case FR_BUMPER_PRESSED:
+                printf("Front right bumepr touched. \r\n");
+                if (Robot_GetBumperFRO() == BUMPER_RELEASED) {
+                    nextState = INIT_PIVOT_WALL_RIGHT;
+                    makeTransition = TRUE;
+                    ThisEvent.EventType = ES_NO_EVENT;
+                }
+                break;
+                
+            // If obstacle, go to avoid state
+            case FLO_BUMPER_PRESSED:
+                nextState = AVOID_REVERSE;
+                makeTransition = TRUE;
+                ThisEvent.EventType = ES_NO_EVENT;
+                break;
+                
+            case FRO_BUMPER_PRESSED:
+                nextState = AVOID_REVERSE;
+                makeTransition = TRUE;
+                ThisEvent.EventType = ES_NO_EVENT;
+                break;
+                
+            // If front tape is detected, then alignment is possible
+            // When tape is hit, perform a 90 degree left.
+            case FL_TAPE_DETECTED:
+                nextState = AVOID_REVERSE;
+                makeTransition = TRUE;
+                ThisEvent.EventType = ES_NO_EVENT;
+                break;
+                
+            case FR_TAPE_DETECTED:
+                nextState = AVOID_REVERSE;
+                makeTransition = TRUE;
+                ThisEvent.EventType = ES_NO_EVENT;
+                break;
+
+            case ES_NO_EVENT:
+            default:
+                break;
+            }
+            break;
+        
+    case AVOID_REVERSE:
+        switch (ThisEvent.EventType) {
+            case ES_ENTRY:
+                printf("AVOID_REVERSE \r\n");
+                // Move the robot backwards
+                Robot_SetLeftMotor(-MOTOR_MAX);
+                Robot_SetRightMotor(-MOTOR_MAX);
+                break;
+
+            case ES_EXIT:
+                break;
+
+            case ES_TIMEOUT:
+                // If the timeout is over, traverse to the avoid turn 90 state
+                if (ThisEvent.EventParam == SUB_ALIGN_TURN_TIMER) {
+                    nextState = AVOID_TURN_90_LEFT;
+                    makeTransition = TRUE;
+                    ThisEvent.EventType = ES_NO_EVENT;
+                }
+                break;
+
+            // Put all detection events over here
+            // When obstacle has been bumped, reverse until release, then continue to release a bit more
+            case FL_BUMPER_RELEASED:
+                ES_Timer_InitTimer(SUB_ALIGN_TURN_TIMER, INIT_BACK_OUT_REVERSE_TICK);
+                break;
+                
+            case FR_BUMPER_RELEASED:
+                ES_Timer_InitTimer(SUB_ALIGN_TURN_TIMER, INIT_BACK_OUT_REVERSE_TICK);
+                break;
+                
+            case FLO_BUMPER_RELEASED:
+                ES_Timer_InitTimer(SUB_ALIGN_TURN_TIMER, INIT_BACK_OUT_REVERSE_TICK);
+                break;
+                
+            case FRO_BUMPER_RELEASED:
+                ES_Timer_InitTimer(SUB_ALIGN_TURN_TIMER, INIT_BACK_OUT_REVERSE_TICK);
+                break;
+                
+            // If tape is no longer detected, perform 90 degree turn
+            case FL_TAPE_NOT_DETECTED:
+                nextState = AVOID_TURN_90_LEFT;
+                makeTransition = TRUE;
+                ThisEvent.EventType = ES_NO_EVENT;
+                break;
+                
+            case FR_TAPE_NOT_DETECTED:
+                nextState = AVOID_TURN_90_LEFT;
+                makeTransition = TRUE;
+                ThisEvent.EventType = ES_NO_EVENT;
+                break;
+
+            case ES_NO_EVENT:
+            default:
+                break;
+            }
+        break;
+        
+    case AVOID_TURN_90_LEFT:
+        switch (ThisEvent.EventType) {
+            case ES_ENTRY:
+                printf("AVOID_TURN_90_LEFT \r\n");
+                // Perform a left turn to the left
+                Robot_SetLeftMotor(MAX_LEFT_TURN_90_LEFT);
+                Robot_SetRightMotor(MAX_LEFT_TURN_90_RIGHT);
+
+                // Initialize a timer to track the turn time
+                ES_Timer_InitTimer(SUB_ALIGN_TURN_TIMER, INIT_TURN_90_TICKS);
+                break;
+
+            case ES_EXIT:
+                break;
+
+            case ES_TIMEOUT:
+                // After finished turning, transition back to the forward state.
+                if (ThisEvent.EventParam == SUB_ALIGN_TURN_TIMER) {
+                    nextState = AVOID_FORWARD;
+                    makeTransition = TRUE;
+                    ThisEvent.EventType = ES_NO_EVENT;
+                }
+                break;
+
+            // Put all detection events over here
+
+            case ES_NO_EVENT:
+            default:
+                break;
+            }
+        break;
+        
     // ********** INITIAL ALIGNMENT WITH WALL ********** //
     case INIT_TRAVERSE_FORWARD:
         switch (ThisEvent.EventType) {
@@ -763,6 +978,9 @@ ES_Event RunTraverseBasicSubHSM(ES_Event ThisEvent)
                 // Perform a tank turn left until rear right tape detector detects
                 Robot_SetLeftMotor(-MOTOR_MAX);
                 Robot_SetRightMotor(MOTOR_MAX);
+                
+                // Enable servo
+                Robot_SetServoEnabled(D_SERVO_INACTIVE);
                 break;
 
             case ES_EXIT:
@@ -790,7 +1008,6 @@ ES_Event RunTraverseBasicSubHSM(ES_Event ThisEvent)
             case ES_ENTRY:
                 // Stick out the servo and move forward to the tape. Keep moving until bumpers have been triggered.
                 // Veer to the left
-                Robot_SetServoEnabled(D_SERVO_INACTIVE);
                 Robot_SetLeftMotor(DISP_VEER_LEFT_ML);
                 Robot_SetRightMotor(DISP_VEER_LEFT_MR);
                 break;
